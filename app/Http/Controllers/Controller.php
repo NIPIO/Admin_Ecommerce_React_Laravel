@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Clientes;
 use App\Models\Compras;
+use App\Models\CtaCte;
 use App\Models\Marcas;
 use App\Models\Productos;
 use App\Models\Proveedores;
@@ -45,6 +46,9 @@ class Controller extends BaseController
                     break;
                 case 'Venta':
                     $tabla = Ventas::whereId($req['id']);
+                    break;
+                case 'Cuenta':
+                    $tabla = CtaCte::whereId($req['id']);
                     break;
                 default:
                     break;

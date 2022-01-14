@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Compras;
+use App\Models\ComprasDetalle;
 use App\Models\Productos;
 use App\Models\Proveedores;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,37 +18,61 @@ class ComprasController extends Controller
     }
 
     public function index() {
-        $compras = Compras::orderBy('id', 'DESC')->with(['proveedor', 'producto'])->get();
+        $proveedor = request()->get('proveedor');
+        $producto = request()->get('producto');
 
-        return response()->json(['error' => false, 'data' => $compras]);
+        $compras = Compras::orderBy('id', 'DESC')->with(['proveedor', 'producto']);
+
+        if ($proveedor) {
+            $compras->where('proveedor_id', (int) $proveedor);
+        }
+        if ($producto) {
+            $compras->where('producto_id', (int) $producto);
+        }
+        
+        return response()->json(['error' => false, 'allCompras' => Compras::all(), 'comprasFiltro' => $compras->get()]);
     }
 
     
     public function nuevaCompra(Request $request) {
         $req = $request->all();
-        $proveedor = Proveedores::where('nombre', $req['proveedor'])->first();
-
         DB::beginTransaction();
         try {
-            foreach ($req['rowsProductos'] as $productoCompra) {
-                $venta = Compras::create([
-                'proveedor_id' => $proveedor['id'],
-                'producto_id' => $productoCompra['producto'] + 1,
-                'cantidad' => $productoCompra['cantidad'],
-                'precio_unidad' => $productoCompra['precioUnitario'],
-                'precio_total' => $productoCompra['precioUnitario'] * $productoCompra['cantidad'],
+
+            $compra = Compras::create([
+                'proveedor_id' => $req['proveedor'],
+                'cantidad' => array_sum(array_column($req['productos'], 'cantidad')),
+                'precio_total' => 0,
+                'fecha_compra' => Carbon::now()->format('Y-m-d'),
+            ]);
+            
+            DB::commit();
+            $totalPrecioCompra = 0;
+            foreach ($req['productos'] as $compraDetalleRow) {
+
+                ComprasDetalle::create([
+                    'compra_id' => $compra->id,
+                    'producto_id' => $compraDetalleRow['producto'],
+                    'cantidad' => $compraDetalleRow['cantidad'],
+                    'precio' => $compraDetalleRow['precioUnitario']
                 ]);
+
+                //el total es para sumar cantidad producto por precio prodcuto. Al final cuando grabo en compra sumo todo de todods. Despues elimino este campo no lo preciso
+                $totalPrecioCompra += $compraDetalleRow['cantidad'] * $compraDetalleRow['precioUnitario'];
+
+                //pongo en stock en transito las nuevas compras
+                $productoAEditar = Productos::whereId($compraDetalleRow['producto'])->first()->toArray();
+
+                $productoAEditar = Productos::whereId($compraDetalleRow['producto'])->update([
+                        "en_transito" => $productoAEditar['en_transito'] + $compraDetalleRow['cantidad']
+                ]);;
                 
-                $venta->save();
-
-                $producto = Productos::find($productoCompra['producto'] + 1);
-                $producto->update(['stock_reservado' => $producto->stock_reservado + $productoCompra['cantidad']]);
-
-                $producto->save();
                 DB::commit();
-
             }
 
+            Compras::whereId($compra->id)->update([
+                "precio_total" => $totalPrecioCompra,
+            ]);
 
         } catch (\Throwable $e) {
             Log::error($e->getMessage() . $e->getTraceAsString());
@@ -55,5 +81,10 @@ class ComprasController extends Controller
         }
 
         return response()->json(['status' => 200]);
+    }
+
+
+    public function getCompra (int $id) {
+        return response()->json(['error' => false, 'compra' => Compras::whereId($id)->with(['detalleCompra'])->get()->toArray()]);
     }
 }

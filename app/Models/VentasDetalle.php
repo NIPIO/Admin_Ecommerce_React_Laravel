@@ -25,10 +25,11 @@ class VentasDetalle extends Model
     /**
      * @var array
      */
-    protected $fillable = ['venta_id', 'producto_id', 'precio', 'cantidad'];
+    protected $fillable = ['venta_id', 'producto_id', 'precio', 'cantidad', 'created_at', 'updated_at'];
 
     protected $casts = [
-        'fecha_venta'  => 'datetime:d-m-Y',
+        'created_at'  => 'datetime:d-m-Y',
+        'updated_at'  => 'datetime:d-m-Y',
     ];
 
     /**
@@ -37,6 +38,9 @@ class VentasDetalle extends Model
      * @var bool
      */
     public $timestamps = true;
+
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
 
     public function venta()
     {

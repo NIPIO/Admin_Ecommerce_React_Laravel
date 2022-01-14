@@ -25,10 +25,12 @@ class Ventas extends Model
     /**
      * @var array
      */
-    protected $fillable = ['cliente_id', 'precio_total', 'vendedor_id', 'vendedor_comision', 'fecha_venta', 'cantidad', 'created_at', 'updated_at', 'activo'];
+    protected $fillable = ['proveedor_id', 'cantidad', 'precio_total', 'fecha_compra','created_at', 'updated_at', 'activo'];
 
     protected $casts = [
-        'fecha_venta'  => 'datetime:d-m-Y',
+        'created_at'  => 'datetime:d-m-Y',
+        'updated_at'  => 'datetime:d-m-Y',
+        'fecha_compra'  => 'datetime:d-m-Y',
     ];
 
     /**
@@ -41,14 +43,9 @@ class Ventas extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
-    public function cliente()
+    public function proveedor()
     {
-        return $this->belongsTo(Clientes::class, 'cliente_id', 'id');
-    }
-
-    public function vendedor()
-    {
-        return $this->belongsTo(Vendedores::class, 'vendedor_id', 'id');
+        return $this->belongsTo(Proveedores::class, 'proveedor_id', 'id');
     }
 
 }

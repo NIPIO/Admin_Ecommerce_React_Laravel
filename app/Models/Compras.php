@@ -25,7 +25,7 @@ class Compras extends Model
     /**
      * @var array
      */
-    protected $fillable = ['proveedor_id', 'producto_id', 'cantidad', 'precio_unidad', 'precio_total', 'created_at', 'updated_at', 'activo'];
+    protected $fillable = ['proveedor_id', 'cantidad', 'precio_total', 'fecha_compra', 'created_at', 'updated_at', 'activo'];
 
     protected $casts = [
         'created_at'  => 'datetime:d-m-Y',
@@ -50,6 +50,11 @@ class Compras extends Model
     public function producto()
     {
         return $this->belongsTo(Productos::class, 'producto_id', 'id');
+    }
+
+    public function detalleCompra()
+    {
+        return $this->hasMany(ComprasDetalle::class, 'compra_id', 'id');
     }
 }
 

@@ -12,9 +12,16 @@ class ProveedoresController extends Controller
     }
 
     public function index() {
+        $proveedor = request()->get('proveedor');
         $proveedores = Proveedores::orderBy('id', 'DESC');
-        return response()->json(['error' => false, 'allProveedores' => $proveedores->get()]);
+
+        if ($proveedor) {
+            $proveedores->whereId((int) $proveedor);
+        }
+        
+        return response()->json(['error' => false, 'allProveedores' => Proveedores::all(), 'proveedoresFiltro' => $proveedores->get()]);
     }
+
 
     public function nuevoProveedor(Request $request) {
         $req = $request->all();
