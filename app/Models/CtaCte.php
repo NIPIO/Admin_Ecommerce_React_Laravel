@@ -25,7 +25,7 @@ class CtaCte extends Model
     /**
      * @var array
      */
-    protected $fillable = ['proveedor_id', 'saldo', 'created_at', 'updated_at', 'activo'];
+    protected $fillable = ['cliente_proveedor_id', 'saldo', 'created_at', 'updated_at', 'activo', 'tipo_cuenta'];
 
     
     protected $casts = [
@@ -47,5 +47,8 @@ class CtaCte extends Model
         return $this->belongsTo(Proveedores::class, 'proveedor_id', 'id');
     }
 
-
+    public function cliente()
+    {
+        return $this->belongsTo(Clientes::class, 'cliente_id', 'id');
+    }
 }

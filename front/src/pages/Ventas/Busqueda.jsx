@@ -6,7 +6,8 @@ import locale from "antd/es/date-picker/locale/es_ES";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-function Busqueda({ setBusqueda, clientes, vendedores }) {
+function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
+  const [producto, setProducto] = useState(null);
   const [cliente, setCliente] = useState(null);
   const [vendedor, setVendedor] = useState(null);
   const [fechas, setFechas] = useState(null);
@@ -15,6 +16,7 @@ function Busqueda({ setBusqueda, clientes, vendedores }) {
     setCliente(null);
     setFechas(null);
     setVendedor(null);
+    setProducto(null);
     setBusqueda({});
   };
   return (
@@ -28,68 +30,104 @@ function Busqueda({ setBusqueda, clientes, vendedores }) {
           </Space>
         }
       >
-        <Row gutter={24}>
-          <Col>
-            <Select
-              showSearch
-              allowClear
-              style={{ width: 200 }}
-              placeholder="Buscá por vendedor"
-              optionFilterProp="children"
-              onChange={val => setVendedor(val)}
-              filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-              filterSort={(optionA, optionB) =>
-                optionA.children
-                  .toLowerCase()
-                  .localeCompare(optionB.children.toLowerCase())
-              }
-            >
-              {vendedores.map(vendedor => (
-                <Option key={vendedor.id} value={vendedor.id}>
-                  {vendedor.nombre}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col>
-            <Select
-              showSearch
-              allowClear
-              style={{ width: 200 }}
-              placeholder="Buscá por cliente"
-              optionFilterProp="children"
-              onChange={val => setCliente(val)}
-              filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-              filterSort={(optionA, optionB) =>
-                optionA.children
-                  .toLowerCase()
-                  .localeCompare(optionB.children.toLowerCase())
-              }
-            >
-              {clientes.map(cliente => (
-                <Option key={cliente.id} value={cliente.id}>
-                  {cliente.nombre}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-
-          <Col>
-            <Space direction="vertical" size={12}>
+        <Space
+          direction="vertical"
+          size={30}
+          style={{ width: "100%", paddingBottom: "3em" }}
+        >
+          <Row gutter={24}>
+            <Col md={6}>
+              <Select
+                showSearch
+                allowClear
+                style={{ width: "100%" }}
+                placeholder="Buscá por vendedor"
+                optionFilterProp="children"
+                onChange={val => setVendedor(val)}
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
+                  0
+                }
+                filterSort={(optionA, optionB) =>
+                  optionA.children
+                    .toLowerCase()
+                    .localeCompare(optionB.children.toLowerCase())
+                }
+              >
+                {vendedores.map(vendedor => (
+                  <Option key={vendedor.id} value={vendedor.id}>
+                    {vendedor.nombre}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col md={6}>
+              <Select
+                showSearch
+                allowClear
+                style={{ width: "100%" }}
+                placeholder="Buscá por cliente"
+                optionFilterProp="children"
+                onChange={val => setCliente(val)}
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
+                  0
+                }
+                filterSort={(optionA, optionB) =>
+                  optionA.children
+                    .toLowerCase()
+                    .localeCompare(optionB.children.toLowerCase())
+                }
+              >
+                {clientes.map(cliente => (
+                  <Option key={cliente.id} value={cliente.id}>
+                    {cliente.nombre}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col md={6}>
+              <Select
+                showSearch
+                allowClear
+                style={{ width: "100%" }}
+                placeholder="Buscá por producto"
+                optionFilterProp="children"
+                onChange={val => setProducto(val)}
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
+                  0
+                }
+                filterSort={(optionA, optionB) =>
+                  optionA.children
+                    .toLowerCase()
+                    .localeCompare(optionB.children.toLowerCase())
+                }
+              >
+                {productos.map(producto => (
+                  <Option key={producto.id} value={producto.id}>
+                    {producto.nombre}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col md={6}>
               <RangePicker
+                style={{ width: "100%" }}
                 locale={locale}
                 allowClear
                 onChange={val => setFechas(val)}
               />
-            </Space>
-            ,
-          </Col>
-          <Col>
-            <Space>
+            </Col>
+          </Row>
+        </Space>
+        <Space
+          direction="vertical"
+          size={30}
+          style={{ width: "100%", paddingBottom: "3em" }}
+        >
+          <Row>
+            <Col md={8}>
               <Button
                 type="primary"
                 icon={<SearchOutlined />}
@@ -97,6 +135,7 @@ function Busqueda({ setBusqueda, clientes, vendedores }) {
                   setBusqueda({
                     cliente,
                     vendedor,
+                    producto,
                     fechas
                   });
                 }}
@@ -104,9 +143,9 @@ function Busqueda({ setBusqueda, clientes, vendedores }) {
                 Buscar
               </Button>
               <Button onClick={() => limpiar()}>Limpiar</Button>
-            </Space>
-          </Col>
-        </Row>
+            </Col>
+          </Row>
+        </Space>
       </Collapse.Panel>
     </Collapse>
   );

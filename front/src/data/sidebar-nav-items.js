@@ -1,6 +1,22 @@
 export default function() {
   return [
     {
+      title: "Ventas",
+      htmlBefore: '<i class="material-icons">attach_money</i>',
+      to: "/ventas"
+    },
+    {
+      title: "Clientes",
+      htmlBefore: '<i class="material-icons">person</i>',
+      to: "/clientes"
+    },
+
+    {
+      title: "Vendedores",
+      htmlBefore: '<i class="material-icons">person_outline</i>',
+      to: "/vendedores"
+    },
+    {
       title: "Productos",
       htmlBefore: '<i class="material-icons">phone_iphone</i>',
       to: "/productos"
@@ -12,30 +28,14 @@ export default function() {
     },
 
     {
-      title: "Clientes",
-      htmlBefore: '<i class="material-icons">person</i>',
-      to: "/clientes"
+      title: "Compras",
+      htmlBefore: '<i class="material-icons">shopping_cart</i>',
+      to: "/compras"
     },
-    {
-      title: "Ventas",
-      htmlBefore: '<i class="material-icons">attach_money</i>',
-      to: "/ventas"
-    },
-    {
-      title: "Vendedores",
-      htmlBefore: '<i class="material-icons">person_outline</i>',
-      to: "/vendedores"
-    },
-
     {
       title: "Proveedores",
       htmlBefore: '<i class="material-icons">person_pin</i>',
       to: "/proveedores"
-    },
-    {
-      title: "Compras",
-      htmlBefore: '<i class="material-icons">shopping_cart</i>',
-      to: "/compras"
     },
     {
       title: "Cuentas",

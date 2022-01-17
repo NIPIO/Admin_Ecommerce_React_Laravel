@@ -16,16 +16,16 @@ import { useQuery } from "react-query";
 
 const { Title } = Typography;
 
-const ModalConfirmarCompra = ({ modal, setModal, id }) => {
+const ModalNuevaVenta = ({ modal, setModal, id }) => {
   const [modalAlerta, setModalAlerta] = useState(false);
   const [form] = Form.useForm();
 
-  const confirmarCompra = () => {
+  const confirmarVenta = () => {
     form.validateFields().then(res => {
-      if (res.precioFinal !== detallesCompra.data.compra[0].precio_total) {
+      if (res.precioFinal !== detallesVenta.data.venta[0].precio_total) {
         setModalAlerta({
           pago: res.precioFinal,
-          deberiaPagar: detallesCompra.data.compra[0].precio_total
+          deberiaPagar: detallesVenta.data.venta[0].precio_total
         });
       } else {
         confirmaAlerta(res.precioFinal, 0);
@@ -35,12 +35,12 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
 
   const confirmaAlerta = (pago, diferencia) => {
     api
-      .confirmarCompra(pago, id, diferencia)
+      .confirmarVenta(pago, id, diferencia)
       .then(res => {
         if (res.error) {
           openNotificationWithIcon("error", "Ocurrio un error", res.data);
         } else {
-          openNotificationWithIcon("success", "Compra confirmada!", "");
+          openNotificationWithIcon("success", "Venta confirmada!", "");
           setModal(false);
           setModalAlerta(false);
         }
@@ -54,8 +54,8 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
       );
   };
 
-  const detallesCompra = useQuery(["compraId", id], () => {
-    if (id !== null) return api.getCompra(id);
+  const detallesVenta = useQuery(["ventaId", id], () => {
+    if (id !== null) return api.getVenta(id);
   });
 
   const openNotificationWithIcon = (type, message, description) => {
@@ -67,16 +67,16 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
   };
 
   useEffect(() => {
-    if (detallesCompra.data !== undefined) {
+    if (detallesVenta.data !== undefined) {
       form.setFieldsValue({
-        precioFinal: detallesCompra.data.compra[0].precio_total
+        precioFinal: detallesVenta.data.venta[0].precio_total
       });
     }
-  }, [id, detallesCompra.data]);
+  }, [id, detallesVenta.data]);
 
-  if (detallesCompra.isLoading || detallesCompra.data === undefined) {
+  if (detallesVenta.isLoading || detallesVenta.data === undefined) {
     return (
-      <Spin tip="Cargando" style={{ width: "100%", margin: "10% auto" }}></Spin>
+      <Spin tip="Cargando" style={{ width: "100%", display: "none" }}></Spin>
     );
   }
 
@@ -86,19 +86,16 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
         <Modal
           width={800}
           visible={modal}
-          title={"Confirmar compra"}
+          title={"Confirmar venta"}
           okText={"Confirmar"}
           cancelText="Cancelar"
           onCancel={() => setModal(false)}
-          onOk={() => confirmarCompra()}
+          onOk={() => confirmarVenta()}
         >
           <Row>
-            Según la compra cargada, estos son los productos que deberían haber
-            llegado. Si acepta, está confirmando que llegaron todos, sino edite
-            la compra.
-            <span style={{ color: "red", fontStyle: "bold" }}>
-              Los productos ingresados pasarán de "En transito" a "Stock"
-            </span>
+            Según la venta cargada, estos son los productos que deberían haber
+            retirado. Si acepta, está confirmando que se vendieron todos, sino
+            edite la venta.
           </Row>
           <Row className="page-header py-4">
             <table className="table table-bordered table-hover">
@@ -110,28 +107,26 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
                 </tr>
               </thead>
               <tbody>
-                {detallesCompra.data.compra[0].detalle_compra.map(
-                  (item, idx) => (
-                    <tr key={idx}>
-                      <td>
-                        <input
-                          type="text"
-                          value={item.producto.nombre}
-                          className="form-control"
-                          disabled
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          value={item.cantidad}
-                          className="form-control"
-                          disabled
-                        />
-                      </td>
-                    </tr>
-                  )
-                )}
+                {detallesVenta.data.venta[0].detalle_venta.map((item, idx) => (
+                  <tr key={idx}>
+                    <td>
+                      <input
+                        type="text"
+                        value={item.producto.nombre}
+                        className="form-control"
+                        disabled
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={item.cantidad}
+                        className="form-control"
+                        disabled
+                      />
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
             <Row style={{ margin: "auto" }}>
@@ -150,7 +145,7 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
                   }}
                 >
                   El precio final a abonar era $
-                  {detallesCompra.data.compra[0].precio_total}. Confirme en el
+                  {detallesVenta.data.venta[0].precio_total}. Confirme en el
                   siguiente campo si se abonó el total o cuánto se abonó.
                 </Title>
                 <Col xs={24} md={12} style={{ margin: "auto" }}>
@@ -185,7 +180,7 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
           onOk={() =>
             confirmaAlerta(
               modalAlerta.pago,
-              modalAlerta.pago - modalAlerta.deberiaPagar
+              modalAlerta.deberiaPagar - modalAlerta.pago
             )
           }
         >
@@ -206,8 +201,7 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
                   {modalAlerta.deberiaPagar > modalAlerta.pago
                     ? "Se registrará una deuda de "
                     : "Se registrará un saldo positivo de "}
-                  ${modalAlerta.pago - modalAlerta.deberiaPagar} con el
-                  proveedor.
+                  ${modalAlerta.pago - modalAlerta.deberiaPagar} con el cliente.
                 </span>
               </>
             )}
@@ -218,4 +212,4 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
   );
 };
 
-export default ModalConfirmarCompra;
+export default ModalNuevaVenta;

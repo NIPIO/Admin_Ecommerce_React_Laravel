@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clientes;
+use App\Models\CtaCte;
 use App\Models\Productos;
 use App\Models\Vendedores;
 use App\Models\Ventas;
@@ -25,6 +26,7 @@ class VentasController extends Controller
         $cliente = request()->get('cliente');
         $vendedor = request()->get('vendedor');
         $fechas = request()->get('fechas');
+        $producto = request()->get('producto');
 
         $ventas = Ventas::orderBy('id', 'DESC')->with(['cliente', 'vendedor']);
         if ($cliente) {
@@ -33,111 +35,126 @@ class VentasController extends Controller
         if ($vendedor) {
             $ventas->whereVendedorId((int) $vendedor);
         }
+        if ($producto) {
+            $ventas->whereHas('detalleVenta', function($innerQuery) use ($producto) {
+                $innerQuery->where('producto_id', (int) $producto);
+            });
+        }
         if ($fechas) {
             $ventas->whereBetween('fecha_venta', [Carbon::parse(substr($fechas[0], 1, -1))->format('Y-m-d'), Carbon::parse(substr($fechas[1], 1, -1))->format('Y-m-d')]);
         } else {
             $ventas->whereDate('fecha_venta', '<=' ,$this->fecha);
         }
-        
+
         return response()->json(['error' => false, 'allVentas' => Ventas::all(), 'ventasFiltro' => $ventas->get()]);
-    }
-
-
-
-    public function ventasByFilter(Request $request) {
-        $filtros = $request->all();
-        
-        try {
-            $ventas = Ventas::orderBy('id', 'DESC')->with(['cliente', 'producto', 'vendedor'])
-            ->whereBetween('fecha_venta', [$filtros['desde'], $filtros['hasta']]);
-            
-            if (isset($filtros['cliente'])) {
-                $cliente = Clientes::where('nombre', $filtros['cliente'])->first();
-                $ventas->where('cliente_id', $cliente->id);
-            }
-    
-            if (isset($filtros['vendedor'])) {
-                $vendedor = Vendedores::where('nombre', $filtros['vendedor'])->first();
-                $ventas->where('vendedor_id', $vendedor->id);
-            }
-    
-            if (isset($filtros['producto'])) {
-                $producto = Productos::where('nombre', $filtros['producto'])->first();
-                $ventas->where('producto_id', $producto->id);
-            }
-    
-        } catch (\Throwable $th) {
-            throw new \Exception($th->getMessage());;
-        }
-        
-        return response()->json(['error' => false, 'data' => $ventas->get()]);
     }
 
     public function nuevaVenta(Request $request) {
         $req = $request->all();
-
-        $cliente = Clientes::where('nombre', $req['cliente'])->first();
-        $vendedor = Vendedores::where('nombre', $req['vendedor'])->first();
-        
         DB::beginTransaction();
         try {
 
-            $precio_final = 0;
-            foreach ($req['rowsProductos'] as $productoVenta) {
-                $precio_final += $productoVenta['cantidad'] * $productoVenta['precioUnitario'];
-            }
-
             $venta = Ventas::create([
-                'cliente_id' => $cliente['id'],
-                'vendedor_id' => $vendedor['id'],
-                'cantidad' => array_sum(array_column($req['rowsProductos'], 'cantidad')),
-                'precio_total' => $precio_final, 
-                'vendedor_comision' => $precio_final * 0.01 ,
-                'fecha_venta' => $this->fecha,
+                'cliente_id' => $req['cliente'],
+                'vendedor_id' => $req['vendedor'],
+                'cantidad' => array_sum(array_column($req['productos'], 'cantidad')),
+                'precio_total' => 0,
+                'fecha_venta' => Carbon::now()->format('Y-m-d'),
             ]);
             
-            $venta->save();
+            DB::commit();
+            $totalPrecioVenta = 0;
+            foreach ($req['productos'] as $ventaDetalleRow) {
 
-            foreach ($req['rowsProductos'] as $productoVenta) {
-                $producto = Productos::where('nombre', $productoVenta['nombre'])->first();
-
-                $venta = VentasDetalle::create([
+                VentasDetalle::create([
                     'venta_id' => $venta->id,
-                    'producto_id' => $producto['id'],
-                    'cantidad' => $productoVenta['cantidad'],
-                    'precio_unidad' => $productoVenta['precioUnitario'],
+                    'producto_id' => $ventaDetalleRow['producto'],
+                    'cantidad' => $ventaDetalleRow['cantidad'],
+                    'precio' => $ventaDetalleRow['precioUnitario']
                 ]);
+
+                //el total es para sumar cantidad producto por precio prodcuto. Al final cuando grabo en compra sumo todo de todods. Despues elimino este campo no lo preciso
+                $totalPrecioVenta += $ventaDetalleRow['cantidad'] * $ventaDetalleRow['precioUnitario'];
+
+                //pongo en stock en transito las nuevas compras
+                $productoAEditar = Productos::whereId($ventaDetalleRow['producto'])->first()->toArray();
+
+                $productoAEditar = Productos::whereId($ventaDetalleRow['producto'])->update([
+                        "stock_reservado" => $productoAEditar['stock_reservado'] + $ventaDetalleRow['cantidad']
+                ]);;
                 
-                $venta->save();
-
-                $producto->update(['stock_reservado' => $producto->stock_reservado + $productoVenta['cantidad']]);
-
-                $producto->save();
                 DB::commit();
-
             }
 
-        } catch (\Exception $e) {
+            Ventas::whereId($venta->id)->update([
+                "precio_total" => $totalPrecioVenta,
+                "vendedor_comision" => ($totalPrecioVenta * 0.01)
+            ]);
+
+        } catch (\Throwable $e) {
             Log::error($e->getMessage() . $e->getTraceAsString());
             DB::rollBack();
-            throw new \Exception($th->getMessage());;
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
+        }
+
+        return response()->json(['status' => 200]);
+    }
+
+    public function getVenta (int $id) {
+        return response()->json(['error' => false, 'venta' => Ventas::whereId($id)->with(['detalleVenta', 'detalleVenta.producto'])->get()->toArray()]);
+    }
+
+    public function confirmarVenta (Request $request) {
+        $req = $request->all();
+        DB::beginTransaction();
+        try {
+            //El saldo abonado en la compra.
+            $venta = Ventas::whereId($req['id']);
+            $cliente = CtaCte::where('proveedor_id', $venta->first()->proveedor_id)->first();
+
+            if ($req['diferencia'] <> 0) {
+                if (is_null($cliente)) {
+                    return response()->json(['error' => true, 'data' => 'Corrobore que el cliente tenga una cuenta corriente abierta']);
+                } else {
+                    //Actualizo la cuenta corriente con el proveedor
+                    $cliente = CtaCte::where('proveedor_id', $venta->first()->proveedor_id)->first();
+    
+                    $saldoProveedor = $cliente->saldo;
+                    CtaCte::where('proveedor_id', $venta->first()->proveedor_id)->update([
+                        'saldo' => $saldoProveedor + $req['diferencia']
+                    ]);
+    
+                    DB::commit();
+                }
+            }
+
+            $venta->update([
+                'precio_abonado' => $req['pago'],
+                'confirmada' => true,
+            ]);
+            DB::commit();
+
+            //Por ultimo paso el stock de la compra en tranisto a stock
+            $ventaDetalle = VentasDetalle::whereVentaId($req['id'])->get()->toArray();
+
+            foreach ($ventaDetalle as $value) {
+                //Obtengo los productos y actualizo su stock
+                $producto = Productos::whereId($value['producto_id'])->first();
+
+                Productos::whereId($value['producto_id'])->update([
+                    'stock_reservado' => $producto->stock_reservado - $value['cantidad'],
+                    'stock' => $producto->stock - $value['cantidad']
+                ]);
+                
+                DB::commit();
+            }
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
 
         return response()->json(['error' => false]);
-    }
-
-    public function getVenta(int $id) {
-
-        try {
-            $venta = VentasDetalle::orderBy('id', 'DESC')->with(['producto', 'venta.cliente', 'venta.vendedor', 'venta'])->where('venta_id', $id)->get();
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
-        }
-        return response()->json(['error' => false, 'data' => $venta]);
-
-    }
-
-    public function editarVenta(Request $request) {
-        dd($request);
     }
 }

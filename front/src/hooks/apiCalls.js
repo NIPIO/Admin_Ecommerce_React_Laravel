@@ -4,12 +4,14 @@ import { api } from "./api";
 export function useVentas({
   cliente = undefined,
   vendedor = undefined,
+  producto = undefined,
   fechas = undefined
 }) {
-  return useQuery(["ventas", cliente, vendedor, fechas], () =>
+  return useQuery(["ventas", cliente, producto, vendedor, fechas], () =>
     api.getVentas({
       cliente,
       vendedor,
+      producto,
       fechas
     })
   );
@@ -40,14 +42,20 @@ export function useVendedores({ vendedor = undefined }) {
   );
 }
 
-export function useCompras() {
-  return useQuery("compras", () => api.getCompras());
+export function useCompras({ proveedor = undefined, producto = undefined }) {
+  return useQuery(["compras", proveedor, producto], () =>
+    api.getCompras({
+      proveedor,
+      producto
+    })
+  );
 }
 
-export function useCuentas({ proveedor = undefined }) {
-  return useQuery(["cuentas", proveedor], () =>
+export function useCuentas({ proveedor = undefined, cliente = undefined }) {
+  return useQuery(["cuentas", proveedor, cliente], () =>
     api.getCuentasCorrientes({
-      proveedor
+      proveedor,
+      cliente
     })
   );
 }

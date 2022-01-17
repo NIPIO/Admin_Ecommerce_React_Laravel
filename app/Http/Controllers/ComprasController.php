@@ -28,7 +28,9 @@ class ComprasController extends Controller
             $compras->where('proveedor_id', (int) $proveedor);
         }
         if ($producto) {
-            $compras->where('producto_id', (int) $producto);
+            $compras->whereHas('detalleCompra', function($innerQuery) use ($producto) {
+                $innerQuery->where('producto_id', (int) $producto);
+            });
         }
         
         return response()->json(['error' => false, 'allCompras' => Compras::all(), 'comprasFiltro' => $compras->get()]);

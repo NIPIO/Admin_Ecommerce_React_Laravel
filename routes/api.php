@@ -41,10 +41,10 @@ Route::prefix('')->group(function () {
     Route::delete('producto/{id}', [ProductosController::class, 'borrarProducto']);
 
     Route::get('ventas', [VentasController::class, 'index']);
-    Route::get('ventasByFilter', [VentasController::class, 'ventasByFilter']);
     Route::get('venta/{id}', [VentasController::class, 'getVenta']);
     Route::post('venta', [VentasController::class, 'nuevaVenta']);
     Route::put('venta/{id}', [VentasController::class, 'editarVenta']);
+    Route::get('confirmarVenta', [VentasController::class, 'confirmarVenta']);
 
     Route::get('compras', [ComprasController::class, 'index']);
     Route::get('compra/{id}', [ComprasController::class, 'getCompra']);

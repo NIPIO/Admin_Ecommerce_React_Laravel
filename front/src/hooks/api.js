@@ -56,13 +56,14 @@ export const api = {
       })
       .then(res => res.data),
 
-  getVentas: ({ cliente, vendedor, fechas }) => {
+  getVentas: ({ cliente, vendedor, fechas, producto }) => {
     return client
       .get(API_PORT + "/api/ventas", {
         params: {
           cliente,
           vendedor,
-          fechas
+          fechas,
+          producto
         }
       })
       .then(res => res.data);
@@ -71,17 +72,25 @@ export const api = {
   getVenta: id =>
     client.get(API_PORT + `/api/venta/${id}`, id).then(res => res.data),
 
-  getCompras: () =>
-    client.get(API_PORT + "/api/compras", {}).then(res => res.data),
+  getCompras: ({ proveedor, producto }) =>
+    client
+      .get(API_PORT + "/api/compras", {
+        params: {
+          proveedor,
+          producto
+        }
+      })
+      .then(res => res.data),
 
   getCompra: id =>
     client.get(API_PORT + `/api/compra/${id}`, id).then(res => res.data),
 
-  getCuentasCorrientes: ({ proveedor }) =>
+  getCuentasCorrientes: ({ proveedor, cliente }) =>
     client
       .get(API_PORT + "/api/cuentas-corrientes", {
         params: {
-          proveedor
+          proveedor,
+          cliente
         }
       })
       .then(res => res.data),
@@ -97,6 +106,17 @@ export const api = {
       })
       .then(res => res.data),
 
+  confirmarVenta: (pago, id, diferencia) =>
+    client
+      .get(API_PORT + "/api/confirmarVenta", {
+        params: {
+          id,
+          pago,
+          diferencia
+        }
+      })
+      .then(res => res.data),
+
   ///SETTERS
   setNuevoProducto: data =>
     client.post(API_PORT + "/api/producto", data).then(res => res.data),
@@ -104,8 +124,10 @@ export const api = {
   setNuevaMarca: data =>
     client.post(API_PORT + "/api/marca", data).then(res => res.data),
 
-  setNuevaVenta: data =>
-    client.post(API_PORT + "/api/venta", data).then(res => res.data),
+  setNuevaVenta: (productos, cliente, vendedor) =>
+    client
+      .post(API_PORT + "/api/venta", { productos, cliente, vendedor })
+      .then(res => res.data),
 
   setNuevaCompra: (productos, proveedor) =>
     client

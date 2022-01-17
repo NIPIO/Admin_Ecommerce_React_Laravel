@@ -1,7 +1,8 @@
 import {
   useCuentas,
   useProveedores,
-  useCambiarEstado
+  useCambiarEstado,
+  useClientes
 } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
@@ -24,15 +25,34 @@ const Cuentas = () => {
   //INFO TABLA:
   const columnas = [
     {
-      title: "Proveedor",
-      dataIndex: ["proveedor", "nombre"],
+      title: "Nro",
+      dataIndex: ["id"],
       fixed: "left",
       render: text => text
     },
     {
+      title: "Proveedor",
+      dataIndex: ["proveedor", "nombre"],
+      render: text => (text ? text : "-")
+    },
+    {
+      title: "Cliente",
+      dataIndex: ["cliente", "nombre"],
+      render: text => (text ? text : "-")
+    },
+    {
       title: "Saldo",
       dataIndex: ["saldo"],
-      render: text => text,
+      render(text, record) {
+        return {
+          props: {
+            style: {
+              color: text != 0 ? (text > 0 ? "lightgreen" : "red") : null
+            }
+          },
+          children: <div>$ {text}</div>
+        };
+      },
       sorter: (a, b) => a.precio - b.precio
     },
     {
@@ -87,6 +107,7 @@ const Cuentas = () => {
   const [cuentaEdicion, setCuentaEdicion] = useState(false);
   const allCuentas = useCuentas(busqueda);
   const allProveedores = useProveedores({});
+  const allClientes = useClientes({});
 
   const openNotificationWithIcon = (type, message, description) => {
     notification[type]({
@@ -101,7 +122,11 @@ const Cuentas = () => {
     setModal(true);
   };
 
-  if (allCuentas.isLoading || allProveedores.isLoading) {
+  if (
+    allCuentas.isLoading ||
+    allProveedores.isLoading ||
+    allClientes.isLoading
+  ) {
     return (
       <Spin tip="Cargando" style={{ width: "100%", margin: "10% auto" }}></Spin>
     );
@@ -136,6 +161,7 @@ const Cuentas = () => {
               <Busqueda
                 setBusqueda={setBusqueda}
                 proveedores={allProveedores.data.allProveedores}
+                clientes={allClientes.data.allClientes}
               />
             </CardHeader>
             <CardBody className="p-0 pb-3">
@@ -157,6 +183,7 @@ const Cuentas = () => {
           modal={modal}
           setModal={setModal}
           proveedores={allProveedores.data.allProveedores}
+          clientes={allClientes.data.allClientes}
           openNotificationWithIcon={openNotificationWithIcon}
           cuentaEdicion={cuentaEdicion}
           setCuentaEdicion={setCuentaEdicion}

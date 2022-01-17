@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Clientes;
 use App\Models\CtaCte;
 use App\Models\Productos;
 use App\Models\Proveedores;
@@ -15,11 +16,13 @@ class CtaCteController extends Controller
 
     public function index() {
         $proveedor = request()->get('proveedor');
-
-        $cuentas = CtaCte::orderBy('id', 'DESC')->with(['proveedor']);
+        $cliente = request()->get('cliente');
+        $cuentas = CtaCte::orderBy('id', 'DESC')->with(['proveedor','cliente']);
 
         if ($proveedor) {
             $cuentas->where('proveedor_id', (int) $proveedor);
+        } elseif ($cliente) {
+            $cuentas->where('cliente_id', (int) $cliente);
         }
         
         return response()->json(['error' => false, 'allCuentas' => CtaCte::all(), 'cuentasFiltro' => $cuentas->get()]);
@@ -29,17 +32,25 @@ class CtaCteController extends Controller
     public function nuevaCtaCte(Request $request) {
         $req = $request->all();
         try {
-            $proveedor = Proveedores::whereId($req['proveedor'])->first()->toArray();
+            //PUede ser proveedor o cliente que necesita abrir una cuenta
+            if($this->chequearSiExiste($req['id'],$req['tipoCuenta'])){
+                return response()->json(['error' => true, 'data' => 'Esa persona ya tiene una cuenta']);
+            }
 
-                
-                if($this->chequearSiExiste($proveedor['id'])){
-                        return response()->json(['error' => true, 'data' => 'Ese proveedor ya tiene una cuenta']);
-                }
+            $cuenta = new CtaCte();
+            if ($req['tipoCuenta'] === 'p') {
+                $cuenta->proveedor_id = $req['id'];
+                $cuenta->cliente_id = null;
+            } else {
+                $cuenta->cliente_id = $req['id'];
+                $cuenta->proveedor_id = null;
+            }
 
-                $venta = new CtaCte();
-                $venta->proveedor_id = $proveedor['id'];
-                $venta->saldo = $req['saldo'];
-                $venta->save();
+            $cuenta->saldo = $req['saldo'];
+            $cuenta->tipo_cuenta = $req['tipoCuenta'];
+            $cuenta->save();
+
+
         } catch (\Exception $th) {
             throw new \Exception($th->getMessage());;
         }
@@ -61,7 +72,19 @@ class CtaCteController extends Controller
         return response()->json(['error' => false]);
     }
 
-    public function chequearSiExiste($proveedorId) {
-        return count(CtaCte::where('proveedor_id', $proveedorId)->get()->toArray()) > 0;
+    public function chequearSiExiste($id, $tipoCuenta) {
+        if ($tipoCuenta === 'p') {
+            return count(CtaCte::where([
+                'proveedor_id' => $id,
+                'tipo_cuenta' => $tipoCuenta,
+            ])->get()->toArray()) > 0;
+        } else {
+            return count(CtaCte::where([
+                'cliente_id' => $id,
+                'tipo_cuenta' => $tipoCuenta,
+            ])->get()->toArray()) > 0;
+        }
+     
+     
     }
 }

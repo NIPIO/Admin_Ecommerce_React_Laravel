@@ -4,11 +4,13 @@ import { SearchOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
-function Busqueda({ setBusqueda, proveedores }) {
+function Busqueda({ setBusqueda, proveedores, clientes }) {
   const [proveedor, setProveedor] = useState(null);
+  const [cliente, setCliente] = useState(null);
 
   const limpiar = () => {
     setProveedor(null);
+    setCliente(null);
     setBusqueda({});
   };
   return (
@@ -27,6 +29,7 @@ function Busqueda({ setBusqueda, proveedores }) {
             <Select
               showSearch
               allowClear
+              disabled={cliente}
               style={{ width: 200 }}
               placeholder="Buscá por proveedor"
               optionFilterProp="children"
@@ -47,7 +50,31 @@ function Busqueda({ setBusqueda, proveedores }) {
               ))}
             </Select>
           </Col>
-
+          <Col>
+            <Select
+              showSearch
+              allowClear
+              disabled={proveedor}
+              style={{ width: 200 }}
+              placeholder="Buscá por cliente"
+              optionFilterProp="children"
+              onChange={val => setCliente(val)}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+              filterSort={(optionA, optionB) =>
+                optionA.children
+                  .toLowerCase()
+                  .localeCompare(optionB.children.toLowerCase())
+              }
+            >
+              {clientes.map(cli => (
+                <Option key={cli.id} value={cli.id}>
+                  {cli.nombre}
+                </Option>
+              ))}
+            </Select>
+          </Col>
           <Col>
             <Space>
               <Button
@@ -55,7 +82,8 @@ function Busqueda({ setBusqueda, proveedores }) {
                 icon={<SearchOutlined />}
                 onClick={() => {
                   setBusqueda({
-                    proveedor
+                    proveedor,
+                    cliente
                   });
                 }}
               >

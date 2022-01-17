@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Container } from "shards-react";
-import { Form, Row, Modal, Select, InputNumber, Col } from "antd";
+import { Form, Row, Modal, Select, InputNumber, Col, Radio } from "antd";
 
 import { api } from "./../../hooks/api";
 const { Option } = Select;
@@ -9,11 +9,13 @@ const ModalNuevaCuenta = ({
   modal,
   setModal,
   proveedores,
+  clientes,
   openNotificationWithIcon,
   cuentaEdicion,
   setCuentaEdicion
 }) => {
   const [form] = Form.useForm();
+  const [tipoCuenta, setTipoCuenta] = useState();
 
   let rules = [
     {
@@ -53,6 +55,7 @@ const ModalNuevaCuenta = ({
           );
         });
     } else {
+      values.tipoCuenta = tipoCuenta;
       api
         .setNuevaCtaCte(values)
         .then(res => {
@@ -75,7 +78,6 @@ const ModalNuevaCuenta = ({
   };
 
   useEffect(() => {
-    console.log(cuentaEdicion);
     form.setFieldsValue({
       proveedor: cuentaEdicion.proveedor_id,
       saldo: cuentaEdicion.saldo
@@ -111,49 +113,73 @@ const ModalNuevaCuenta = ({
             }}
           >
             <Row gutter={24}>
-              <Col xs={24} md={12}>
-                <Form.Item name="proveedor" label="Proveedor" rules={rules}>
-                  <Select
-                    showSearch
-                    allowClear
-                    style={{ width: 200 }}
-                    placeholder="Elegí el proveedor"
-                    optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    }
-                    filterSort={(optionA, optionB) =>
-                      optionA.children
-                        .toLowerCase()
-                        .localeCompare(optionB.children.toLowerCase())
-                    }
+              <Col xs={24}>
+                <Form.Item rules={rules}>
+                  <Radio.Group
+                    onChange={val => setTipoCuenta(val.target.value)}
+                    label="Tipo de cuenta"
                   >
-                    {proveedores.map(proveedor => (
-                      <Option key={proveedor.id} value={proveedor.id}>
-                        {proveedor.nombre}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  name="saldo"
-                  label={cuentaEdicion ? "Saldo" : "Saldo Inicial"}
-                  rules={rules}
-                >
-                  <InputNumber
-                    formatter={value =>
-                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                    }
-                    parser={value => value.replace(/\$\s?|(,*)/g, "")}
-                    style={{ width: "100%" }}
-                  />
+                    <Radio.Button value={"c"}>Cliente</Radio.Button>
+                    <Radio.Button value={"p"}>Proveedor</Radio.Button>
+                  </Radio.Group>
                 </Form.Item>
               </Col>
             </Row>
+            {tipoCuenta && (
+              <Row gutter={24}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name="id"
+                    label={tipoCuenta === "c" ? "Cliente" : "Proveedor"}
+                    rules={rules}
+                  >
+                    <Select
+                      showSearch
+                      allowClear
+                      style={{ width: 200 }}
+                      placeholder={
+                        "Elegí el " +
+                        (tipoCuenta === "c" ? "cliente" : "proveedor")
+                      }
+                      optionFilterProp="children"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      }
+                      filterSort={(optionA, optionB) =>
+                        optionA.children
+                          .toLowerCase()
+                          .localeCompare(optionB.children.toLowerCase())
+                      }
+                    >
+                      {(tipoCuenta === "c" ? clientes : proveedores).map(
+                        persona => (
+                          <Option key={persona.id} value={persona.id}>
+                            {persona.nombre}
+                          </Option>
+                        )
+                      )}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name="saldo"
+                    label={cuentaEdicion ? "Saldo" : "Saldo Inicial"}
+                    rules={rules}
+                  >
+                    <InputNumber
+                      formatter={value =>
+                        `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      }
+                      parser={value => value.replace(/\$\s?|(,*)/g, "")}
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            )}
           </Form>
         </Modal>
       </Row>
