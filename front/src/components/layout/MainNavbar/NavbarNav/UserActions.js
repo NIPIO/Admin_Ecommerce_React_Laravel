@@ -35,7 +35,7 @@ export default class UserActions extends React.Component {
             className="user-avatar rounded-circle mr-2"
             src={require("./../../../../images/avatars/0.jpg")}
             alt="User Avatar"
-          />{" "}
+          />
           <span className="d-none d-md-inline-block">Sierra Brooks</span>
         </DropdownToggle>
         <Collapse tag={DropdownMenu} right small open={this.state.visible}>

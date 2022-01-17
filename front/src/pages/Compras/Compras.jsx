@@ -35,13 +35,14 @@ const Compras = () => {
         <Space size="middle">
           <Button
             type="primary"
-            danger
             onClick={() => {
               setModalCompraConfirmada(true);
               setIdCompraConfirmada(value.id);
             }}
+            success={value.confirmada}
+            disabled={value.confirmada}
           >
-            Llegó
+            {value.confirmada ? "Confirmada" : " Confirmar "}
           </Button>
           <Button onClick={() => edicion(text)} disabled>
             Editar (En desarrollo)

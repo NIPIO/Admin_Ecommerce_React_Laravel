@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Compras;
 use App\Models\ComprasDetalle;
+use App\Models\CtaCte;
 use App\Models\Productos;
 use App\Models\Proveedores;
 use Carbon\Carbon;
@@ -85,6 +86,58 @@ class ComprasController extends Controller
 
 
     public function getCompra (int $id) {
-        return response()->json(['error' => false, 'compra' => Compras::whereId($id)->with(['detalleCompra'])->get()->toArray()]);
+        return response()->json(['error' => false, 'compra' => Compras::whereId($id)->with(['detalleCompra', 'detalleCompra.producto'])->get()->toArray()]);
+    }
+
+    public function confirmarCompra (Request $request) {
+        $req = $request->all();
+        DB::beginTransaction();
+        try {
+            //El saldo abonado en la compra.
+            $compra = Compras::whereId($req['id']);
+            $proveedor = CtaCte::where('proveedor_id', $compra->first()->proveedor_id)->first();
+            
+            if (is_null($proveedor)) {
+                return response()->json(['error' => true, 'data' => 'Corrobore que el proveedor tenga una cuenta corriente abierta']);
+            }
+
+            $compra->update([
+                'precio_abonado' => $req['pago'],
+                'confirmada' => true,
+            ]);
+            DB::commit();
+
+            //Actualizo la cuenta corriente con el proveedor
+            $proveedor = CtaCte::where('proveedor_id', $compra->first()->proveedor_id)->first();
+
+            $saldoProveedor = $proveedor->saldo;
+            CtaCte::where('proveedor_id', $compra->first()->proveedor_id)->update([
+                'saldo' => $saldoProveedor + $req['diferencia']
+            ]);
+
+            DB::commit();
+
+            //Por ultimo paso el stock de la compra en tranisto a stock
+            $compraDetalle = ComprasDetalle::whereCompraId($req['id'])->get()->toArray();
+
+            foreach ($compraDetalle as $value) {
+                //Obtengo los productos y actualizo su stock
+                $producto = Productos::whereId($value['producto_id'])->first();
+
+                Productos::whereId($value['producto_id'])->update([
+                    'en_transito' => $producto->en_transito - $value['cantidad'],
+                    'stock' => $producto->stock + $value['cantidad']
+                ]);
+                
+                DB::commit();
+            }
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
+        }
+
+        return response()->json(['error' => false]);
     }
 }

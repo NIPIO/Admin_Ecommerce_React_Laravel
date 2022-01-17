@@ -31,8 +31,20 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
   const setearDato = (val, type, id) => {
     const filasCopia = [...filas];
     filasCopia[id][type] = val;
+
+    if (type === "producto") {
+      let precioProd = buscarPrecioProd(val);
+      filasCopia[id]["precioUnitario"] = precioProd.precio;
+    }
+
     setFilas([...filasCopia]);
   };
+
+  const buscarPrecioProd = id => {
+    let prod = productos.filter(prod => prod.id === id);
+    return prod[0];
+  };
+
   return (
     <Container fluid className="main-content-container px-4">
       <Row>
@@ -87,7 +99,6 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
                 <td>
                   <input
                     type="number"
-                    // value={filas[idx].cantidad}
                     onChange={val =>
                       setearDato(val.target.value, "cantidad", idx)
                     }
@@ -97,7 +108,7 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
                 <td>
                   <input
                     type="number"
-                    // value={filas[idx].precio}
+                    placeholder={filas[idx].precioUnitario}
                     onChange={val =>
                       setearDato(val.target.value, "precioUnitario", idx)
                     }

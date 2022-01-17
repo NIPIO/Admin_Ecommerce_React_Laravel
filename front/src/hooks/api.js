@@ -86,6 +86,17 @@ export const api = {
       })
       .then(res => res.data),
 
+  confirmarCompra: (pago, id, diferencia) =>
+    client
+      .get(API_PORT + "/api/confirmarCompra", {
+        params: {
+          id,
+          pago,
+          diferencia
+        }
+      })
+      .then(res => res.data),
+
   ///SETTERS
   setNuevoProducto: data =>
     client.post(API_PORT + "/api/producto", data).then(res => res.data),
