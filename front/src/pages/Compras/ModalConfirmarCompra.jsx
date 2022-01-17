@@ -42,6 +42,7 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
         } else {
           openNotificationWithIcon("success", "Compra confirmada!", "");
           setModal(false);
+          setModalAlerta(false);
         }
       })
       .catch(err =>
@@ -178,11 +179,20 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
             El precio ingresado difiere con los datos anteriores. <br /> Esta
             diferencia se verá impactada en la cuenta corriente con el
             proveedor.
-            {modalAlerta.deberiaPagar > modalAlerta.pago && (
+            {modalAlerta.deberiaPagar !== modalAlerta.pago && (
               <>
-                <span style={{ color: "red" }}>
-                  Se registrará una deuda de $
-                  {modalAlerta.deberiaPagar - modalAlerta.pago} con el
+                <span
+                  style={{
+                    color:
+                      modalAlerta.deberiaPagar > modalAlerta.pago
+                        ? "red"
+                        : "green"
+                  }}
+                >
+                  {modalAlerta.deberiaPagar > modalAlerta.pago
+                    ? "Se registrará una deuda de "
+                    : "Se registrará un saldo positivo de "}
+                  ${modalAlerta.pago - modalAlerta.deberiaPagar} con el
                   proveedor.
                 </span>
               </>
