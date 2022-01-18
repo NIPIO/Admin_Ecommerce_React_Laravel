@@ -6,7 +6,7 @@ import { api } from "./../../hooks/api";
 const ModalNuevaMarca = ({
   modal,
   setModal,
-  openNotificationWithIcon,
+  showNotification,
   marcaEdicion,
   setMarcaEdicion
 }) => {
@@ -32,18 +32,14 @@ const ModalNuevaMarca = ({
         .putMarca(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon(
-              "success",
-              "Marca modificado correctamente",
-              ""
-            );
+            showNotification("success", "Marca modificado correctamente", "");
             onReset();
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message
@@ -54,15 +50,15 @@ const ModalNuevaMarca = ({
         .setNuevaMarca(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon("success", "Marca alteada", "");
+            showNotification("success", "Marca alteada", "");
             setModal(false);
             form.resetFields();
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message

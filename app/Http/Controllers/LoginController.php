@@ -12,7 +12,7 @@ class LoginController extends Controller
         try {
             $usuario = Vendedores::where('usuario', $datos['usuario'])->where('password', $datos['password'])->firstOrFail();
         } catch (\Throwable $th) {
-            return response()->json(['status' => 401, 'data' => 'No existe el usuario o la contraseña es otra']);
+            return response()->json(['error' => true, 'data' => 'No existe el usuario o la contraseña es otra']);
         }
 
         return response()->json(['error' => false, 'data' => $usuario]);

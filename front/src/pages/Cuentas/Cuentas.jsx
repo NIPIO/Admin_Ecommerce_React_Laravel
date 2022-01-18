@@ -1,25 +1,11 @@
-import {
-  useCuentas,
-  useProveedores,
-  useCambiarEstado,
-  useClientes
-} from "../../hooks/apiCalls";
+import { useCuentas, useProveedores, useClientes } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import {
-  Table,
-  Space,
-  Spin,
-  Row,
-  Col,
-  Button,
-  Switch,
-  notification
-} from "antd";
+import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
 import PageTitle from "../../components/common/PageTitle";
-import "antd/dist/antd.css";
 import Busqueda from "./Busqueda";
 import ModalNuevaCuenta from "./ModalNuevaCuenta";
+import { showNotification, toggleEstado } from "./../notificacion";
 
 const Cuentas = () => {
   //INFO TABLA:
@@ -47,7 +33,7 @@ const Cuentas = () => {
         return {
           props: {
             style: {
-              color: text != 0 ? (text > 0 ? "lightgreen" : "red") : null
+              color: text !== 0 ? (text > 0 ? "lightgreen" : "red") : null
             }
           },
           children: <div>$ {text}</div>
@@ -80,23 +66,7 @@ const Cuentas = () => {
       )
     }
   ];
-  const toggleEstado = (tabla, id, estado) => {
-    useCambiarEstado(tabla, id, estado)
-      .then(res => {
-        if (res.error) {
-          openNotificationWithIcon("error", "Ocurrio un error", res.data);
-        } else {
-          openNotificationWithIcon("success", "Cambio realizado!", "");
-        }
-      })
-      .catch(err => {
-        openNotificationWithIcon(
-          "error",
-          "Ocurrio un error",
-          err.response.data.message
-        );
-      });
-  };
+
   //FIN INFO TABLA.
 
   const [busqueda, setBusqueda] = useState({
@@ -108,14 +78,6 @@ const Cuentas = () => {
   const allCuentas = useCuentas(busqueda);
   const allProveedores = useProveedores({});
   const allClientes = useClientes({});
-
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message,
-      description,
-      placement: "bottomRight"
-    });
-  };
 
   const edicion = marca => {
     setCuentaEdicion(marca);
@@ -184,7 +146,7 @@ const Cuentas = () => {
           setModal={setModal}
           proveedores={allProveedores.data.allProveedores}
           clientes={allClientes.data.allClientes}
-          openNotificationWithIcon={openNotificationWithIcon}
+          showNotification={showNotification}
           cuentaEdicion={cuentaEdicion}
           setCuentaEdicion={setCuentaEdicion}
         />

@@ -16,6 +16,8 @@ import Proveedores from "./pages/Proveedores/Proveedores";
 import Cuentas from "./pages/Cuentas/Cuentas";
 import Ventas from "./pages/Ventas/Ventas";
 import Compras from "./pages/Compras/Compras";
+import Login from "./pages/Login/Login";
+import NuevoUsuario from "./pages/Login/NuevoUsuario";
 
 export default [
   {
@@ -63,6 +65,14 @@ export default [
     path: "/cuentas",
     layout: DefaultLayout,
     component: Cuentas
+  },
+  {
+    path: "/login",
+    component: Login
+  },
+  {
+    path: "/registrarse",
+    component: NuevoUsuario
   },
   {
     path: "/blog-overview",

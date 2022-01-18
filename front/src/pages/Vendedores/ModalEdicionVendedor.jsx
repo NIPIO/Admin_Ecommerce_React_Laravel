@@ -7,7 +7,7 @@ import { api } from "../../hooks/api";
 const ModalEdicionVendedor = ({
   modal,
   setModal,
-  openNotificationWithIcon,
+  showNotification,
   vendedorEdicion,
   setVendedorEdicion
 }) => {
@@ -33,18 +33,14 @@ const ModalEdicionVendedor = ({
         .putVendedor(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon(
-              "success",
-              "Cliente modificado correctamente",
-              ""
-            );
+            showNotification("success", "Cliente modificado correctamente", "");
             onReset();
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message

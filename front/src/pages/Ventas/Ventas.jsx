@@ -2,21 +2,11 @@ import {
   useClientes,
   useVendedores,
   useVentas,
-  useCambiarEstado,
   useProductos
 } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import {
-  Table,
-  Spin,
-  Row,
-  Col,
-  Space,
-  Button,
-  Switch,
-  notification
-} from "antd";
+import { Table, Spin, Row, Col, Space, Button } from "antd";
 import PageTitle from "../../components/common/PageTitle";
 import ModalNuevaVenta from "./ModalNuevaVenta";
 import ModalConfirmarVenta from "./ModalConfirmarVenta";
@@ -54,20 +44,20 @@ const Ventas = () => {
       dataIndex: ["fecha_venta"],
       render: text => text
     },
-    {
-      title: "Estado",
-      dataIndex: ["activo"],
-      render: (text, row) => (
-        <Space>
-          <Switch
-            checked={text}
-            onChange={() => toggleEstado("Vendedor", row.id, text)}
-            checkedChildren={"Activo"}
-            unCheckedChildren={"Inactivo"}
-          />
-        </Space>
-      )
-    },
+    // {
+    //   title: "Estado",
+    //   dataIndex: ["activo"],
+    //   render: (text, row) => (
+    //     <Space>
+    //
+    //         checked={text}
+    //         onChange={() => toggleEstado("Vendedor", row.id, text)}
+    //         checkedChildren={"Activo"}
+    //         unCheckedChildren={"Inactivo"}
+    //       />
+    //     </Space>
+    //   )
+    // },
     {
       title: "Acciones",
       key: "action",
@@ -92,24 +82,6 @@ const Ventas = () => {
       )
     }
   ];
-
-  const toggleEstado = (tabla, id, estado) => {
-    useCambiarEstado(tabla, id, estado)
-      .then(res => {
-        if (res.error) {
-          openNotificationWithIcon("error", "Ocurrio un error", res.data);
-        } else {
-          openNotificationWithIcon("success", "Cambio realizado!", "");
-        }
-      })
-      .catch(err => {
-        openNotificationWithIcon(
-          "error",
-          "Ocurrio un error",
-          err.response.data.message
-        );
-      });
-  };
   //FIN INFO TABLA.
 
   const [busqueda, setBusqueda] = useState({
@@ -129,14 +101,6 @@ const Ventas = () => {
 
   const edicion = () => {
     setModal(true);
-  };
-
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message,
-      description,
-      placement: "bottomRight"
-    });
   };
 
   if (

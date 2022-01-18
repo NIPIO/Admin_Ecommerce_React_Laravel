@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Container } from "shards-react";
-import { Form, Row, Modal, Col, notification, Alert, Select } from "antd";
+import { Form, Row, Modal, Col, Alert, Select } from "antd";
 import TablaItemsVenta from "./TablaItemsVenta";
+import { showNotification } from "./../notificacion";
 
 import { api } from "../../hooks/api";
 
@@ -16,8 +17,6 @@ const ModalNuevaVenta = ({
 }) => {
   const [filas, setFilas] = useState([]);
   const [error, setError] = useState(false);
-  let logueado = localStorage.getItem("logueado");
-  logueado = JSON.parse(logueado);
   const [cliente, setCliente] = useState(false);
   const [vendedor, setVendedor] = useState(false);
 
@@ -41,28 +40,20 @@ const ModalNuevaVenta = ({
         .setNuevaVenta(filas, cliente, vendedor)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon("success", "Venta alteada", "");
+            showNotification("success", "Venta alteada", "");
             setModal(false);
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message
           );
         });
     }
-  };
-
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message,
-      description,
-      placement: "bottomRight"
-    });
   };
 
   return (

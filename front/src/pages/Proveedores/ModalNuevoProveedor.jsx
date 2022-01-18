@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
 import { Container } from "shards-react";
-import { Form, Input, Row, Modal, notification, Col } from "antd";
+import { Form, Input, Row, Modal, Col } from "antd";
 
 import { api } from "./../../hooks/api";
 
 const ModalNuevoProveedor = ({
   modal,
   setModal,
-  openNotificationWithIcon,
+  showNotification,
   proveedorEdicion,
   setProveedorEdicion
 }) => {
@@ -33,9 +33,9 @@ const ModalNuevoProveedor = ({
         .putProveedor(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon(
+            showNotification(
               "success",
               "Proveedor modificado correctamente",
               ""
@@ -44,7 +44,7 @@ const ModalNuevoProveedor = ({
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message
@@ -55,15 +55,15 @@ const ModalNuevoProveedor = ({
         .setNuevoProveedor(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon("success", "Proveedor alteado", "");
+            showNotification("success", "Proveedor alteado", "");
             setModal(false);
             form.resetFields();
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message

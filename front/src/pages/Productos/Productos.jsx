@@ -1,23 +1,9 @@
-import {
-  useCambiarEstado,
-  useMarcas,
-  useProductos
-} from "../../hooks/apiCalls";
+import { useMarcas, useProductos } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import {
-  Table,
-  Space,
-  Spin,
-  Row,
-  Col,
-  Button,
-  Switch,
-  notification
-} from "antd";
-
+import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
 import PageTitle from "../../components/common/PageTitle";
-import "antd/dist/antd.css";
+import { showNotification, toggleEstado } from "./../notificacion";
 import Busqueda from "./Busqueda";
 import ModalNuevoProducto from "./ModalNuevoProducto";
 
@@ -98,24 +84,6 @@ const Productos = () => {
   ];
   //FIN INFO TABLA.
 
-  const toggleEstado = (tabla, id, estado) => {
-    useCambiarEstado(tabla, id, estado)
-      .then(res => {
-        if (res.error) {
-          openNotificationWithIcon("error", "Ocurrio un error", res.data);
-        } else {
-          openNotificationWithIcon("success", "Cambio realizado!", "");
-        }
-      })
-      .catch(err => {
-        openNotificationWithIcon(
-          "error",
-          "Ocurrio un error",
-          err.response.data.message
-        );
-      });
-  };
-
   const [busqueda, setBusqueda] = useState({
     producto: null,
     marca: null
@@ -125,14 +93,6 @@ const Productos = () => {
   const [modal, setModal] = useState(false);
   const allMarcas = useMarcas({});
   const allProductos = useProductos(busqueda);
-
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message,
-      description,
-      placement: "bottomRight"
-    });
-  };
 
   const edicion = producto => {
     setProductoEdicion(producto);
@@ -196,7 +156,7 @@ const Productos = () => {
           modal={modal}
           setModal={setModal}
           marcas={allMarcas.data.allMarcas}
-          openNotificationWithIcon={openNotificationWithIcon}
+          showNotification={showNotification}
           productoEdicion={productoEdicion}
           setProductoEdicion={setProductoEdicion}
         />

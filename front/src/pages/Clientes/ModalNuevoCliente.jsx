@@ -7,7 +7,7 @@ import { api } from "./../../hooks/api";
 const ModalNuevoCliente = ({
   modal,
   setModal,
-  openNotificationWithIcon,
+  showNotification,
   clienteEdicion,
   setClienteEdicion
 }) => {
@@ -33,18 +33,14 @@ const ModalNuevoCliente = ({
         .putCliente(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon(
-              "success",
-              "Cliente modificado correctamente",
-              ""
-            );
+            showNotification("success", "Cliente modificado correctamente", "");
             onReset();
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message
@@ -55,15 +51,15 @@ const ModalNuevoCliente = ({
         .setNuevoCliente(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon("success", "Cliente alteado", "");
+            showNotification("success", "Cliente alteado", "");
             setModal(false);
             form.resetFields();
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message

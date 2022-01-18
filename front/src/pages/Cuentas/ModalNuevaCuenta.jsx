@@ -10,7 +10,7 @@ const ModalNuevaCuenta = ({
   setModal,
   proveedores,
   clientes,
-  openNotificationWithIcon,
+  showNotification,
   cuentaEdicion,
   setCuentaEdicion
 }) => {
@@ -37,18 +37,14 @@ const ModalNuevaCuenta = ({
         .putCliente(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon(
-              "success",
-              "Cuenta modificada correctamente",
-              ""
-            );
+            showNotification("success", "Cuenta modificada correctamente", "");
             onReset();
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message
@@ -60,15 +56,15 @@ const ModalNuevaCuenta = ({
         .setNuevaCtaCte(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon("success", "Cuenta alteada", "");
+            showNotification("success", "Cuenta alteada", "");
             setModal(false);
             form.resetFields();
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message

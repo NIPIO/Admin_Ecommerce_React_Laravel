@@ -1,18 +1,10 @@
-import { useCambiarEstado, useMarcas } from "../../hooks/apiCalls";
+import { useMarcas } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
 import PageTitle from "../../components/common/PageTitle";
-import {
-  Table,
-  Space,
-  Spin,
-  Row,
-  Col,
-  Button,
-  Switch,
-  notification
-} from "antd";
-import "antd/dist/antd.css";
+import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
+import { showNotification, toggleEstado } from "./../notificacion";
+
 import Busqueda from "./Busqueda";
 import ModalNuevaMarca from "./ModalNuevaMarca";
 
@@ -62,23 +54,6 @@ const Marcas = () => {
     }
   ];
 
-  const toggleEstado = (tabla, id, estado) => {
-    useCambiarEstado(tabla, id, estado)
-      .then(res => {
-        if (res.error) {
-          openNotificationWithIcon("error", "Ocurrio un error", res.data);
-        } else {
-          openNotificationWithIcon("success", "Cambio realizado!", "");
-        }
-      })
-      .catch(err => {
-        openNotificationWithIcon(
-          "error",
-          "Ocurrio un error",
-          err.response.data.message
-        );
-      });
-  };
   //FIN INFO TABLA.
 
   const [busqueda, setBusqueda] = useState({
@@ -87,14 +62,6 @@ const Marcas = () => {
   const [marcaEdicion, setMarcaEdicion] = useState(false);
   const [modal, setModal] = useState(false);
   const allMarcas = useMarcas(busqueda);
-
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message,
-      description,
-      placement: "bottomRight"
-    });
-  };
 
   const edicion = marca => {
     setMarcaEdicion(marca);
@@ -157,7 +124,7 @@ const Marcas = () => {
         <ModalNuevaMarca
           modal={modal}
           setModal={setModal}
-          openNotificationWithIcon={openNotificationWithIcon}
+          showNotification={showNotification}
           marcaEdicion={marcaEdicion}
           setMarcaEdicion={setMarcaEdicion}
         />

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Container } from "shards-react";
-import { Form, Row, Modal, Col, notification, Alert, Select } from "antd";
+import { Form, Row, Modal, Col, Alert, Select } from "antd";
 import TablaItemsCompra from "./TablaItemsCompra";
+import { showNotification } from "./../notificacion";
 
 import { api } from "../../hooks/api";
 
@@ -39,28 +40,20 @@ const ModalNuevaCompra = ({
         .setNuevaCompra(filas, proveedor)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon("success", "Compra alteada", "");
+            showNotification("success", "Compra alteada", "");
             setModal(false);
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message
           );
         });
     }
-  };
-
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message,
-      description,
-      placement: "bottomRight"
-    });
   };
 
   return (

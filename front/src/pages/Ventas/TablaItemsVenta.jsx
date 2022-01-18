@@ -1,14 +1,5 @@
-import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Row,
-  Form,
-  Select,
-  InputNumber,
-  Col,
-  Button,
-  Space
-} from "antd";
+import React from "react";
+import { Row, Form, Select, Col, Button } from "antd";
 import { Container } from "shards-react";
 const { Option } = Select;
 

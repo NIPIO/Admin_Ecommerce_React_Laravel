@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
 import PageTitle from "../../components/common/PageTitle";
 import { Table, Spin, Row, Col, Space, Button } from "antd";
-import "antd/dist/antd.css";
+
 import ModalNuevaCompra from "./ModalNuevaCompra";
 import ModalConfirmarCompra from "./ModalConfirmarCompra";
 import Busqueda from "./Busqueda";

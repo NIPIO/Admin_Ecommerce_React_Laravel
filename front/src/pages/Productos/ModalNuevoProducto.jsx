@@ -10,7 +10,7 @@ const ModalNuevoProducto = ({
   modal,
   setModal,
   marcas,
-  openNotificationWithIcon,
+  showNotification,
   productoEdicion,
   setProductoEdicion
 }) => {
@@ -36,9 +36,9 @@ const ModalNuevoProducto = ({
         .putProducto(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon(
+            showNotification(
               "success",
               "Producto modificado correctamente",
               ""
@@ -47,7 +47,7 @@ const ModalNuevoProducto = ({
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message
@@ -58,15 +58,15 @@ const ModalNuevoProducto = ({
         .setNuevoProducto(values)
         .then(res => {
           if (res.error) {
-            openNotificationWithIcon("error", "Ocurrio un error", res.data);
+            showNotification("error", "Ocurrio un error", res.data);
           } else {
-            openNotificationWithIcon("success", "Producto alteado", "");
+            showNotification("success", "Producto alteado", "");
             setModal(false);
             form.resetFields();
           }
         })
         .catch(err => {
-          openNotificationWithIcon(
+          showNotification(
             "error",
             "Ocurrio un error",
             err.response.data.message

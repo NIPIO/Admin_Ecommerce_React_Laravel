@@ -1,18 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Container } from "shards-react";
-import {
-  Row,
-  Modal,
-  Spin,
-  Form,
-  Col,
-  InputNumber,
-  Typography,
-  Space,
-  notification
-} from "antd";
+import { Row, Modal, Spin, Form, Col, InputNumber, Typography } from "antd";
 import { api } from "../../hooks/api";
 import { useQuery } from "react-query";
+import { showNotification } from "./../notificacion";
 
 const { Title } = Typography;
 
@@ -38,33 +29,21 @@ const ModalConfirmarCompra = ({ modal, setModal, id }) => {
       .confirmarCompra(pago, id, diferencia)
       .then(res => {
         if (res.error) {
-          openNotificationWithIcon("error", "Ocurrio un error", res.data);
+          showNotification("error", "Ocurrio un error", res.data);
         } else {
-          openNotificationWithIcon("success", "Compra confirmada!", "");
+          showNotification("success", "Compra confirmada!", "");
           setModal(false);
           setModalAlerta(false);
         }
       })
       .catch(err =>
-        openNotificationWithIcon(
-          "error",
-          "Ocurrio un error",
-          err.response.data.message
-        )
+        showNotification("error", "Ocurrio un error", err.response.data.message)
       );
   };
 
   const detallesCompra = useQuery(["compraId", id], () => {
     if (id !== null) return api.getCompra(id);
   });
-
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message,
-      description,
-      placement: "bottomRight"
-    });
-  };
 
   useEffect(() => {
     if (detallesCompra.data !== undefined) {

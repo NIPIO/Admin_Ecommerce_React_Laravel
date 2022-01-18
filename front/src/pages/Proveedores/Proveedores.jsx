@@ -1,19 +1,11 @@
-import { useCambiarEstado, useProveedores } from "../../hooks/apiCalls";
+import { useProveedores } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import {
-  Table,
-  Space,
-  Spin,
-  Row,
-  Col,
-  Button,
-  Switch,
-  notification
-} from "antd";
+import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
+import { showNotification, toggleEstado } from "./../notificacion";
 
 import PageTitle from "../../components/common/PageTitle";
-import "antd/dist/antd.css";
+
 import ModalNuevoProveedor from "./ModalNuevoProveedor";
 import Busqueda from "./Busqueda";
 const Proveedores = () => {
@@ -52,23 +44,6 @@ const Proveedores = () => {
     }
   ];
 
-  const toggleEstado = (tabla, id, estado) => {
-    useCambiarEstado(tabla, id, estado)
-      .then(res => {
-        if (res.error) {
-          openNotificationWithIcon("error", "Ocurrio un error", res.data);
-        } else {
-          openNotificationWithIcon("success", "Cambio realizado!", "");
-        }
-      })
-      .catch(err => {
-        openNotificationWithIcon(
-          "error",
-          "Ocurrio un error",
-          err.response.data.message
-        );
-      });
-  };
   //FIN INFO TABLA.
   const [modal, setModal] = useState(false);
   const [busqueda, setBusqueda] = useState({
@@ -76,14 +51,6 @@ const Proveedores = () => {
   });
   const [proveedorEdicion, setProveedorEdicion] = useState(false);
   const allProveedores = useProveedores(busqueda);
-
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message,
-      description,
-      placement: "bottomRight"
-    });
-  };
 
   const edicion = marca => {
     setProveedorEdicion(marca);
@@ -145,7 +112,7 @@ const Proveedores = () => {
         <ModalNuevoProveedor
           modal={modal}
           setModal={setModal}
-          openNotificationWithIcon={openNotificationWithIcon}
+          showNotification={showNotification}
           proveedorEdicion={proveedorEdicion}
           setProveedorEdicion={setProveedorEdicion}
         />

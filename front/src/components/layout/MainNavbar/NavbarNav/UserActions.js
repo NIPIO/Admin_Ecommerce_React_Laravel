@@ -27,9 +27,15 @@ export default class UserActions extends React.Component {
     });
   }
 
+  cerrarSesion() {
+    localStorage.removeItem("logueado");
+    window.location.href = "/login";
+  }
+
   render() {
     let logueado = localStorage.getItem("logueado");
     logueado = JSON.parse(logueado);
+
     return (
       <NavItem tag={Dropdown} caret toggle={this.toggleUserActions}>
         <DropdownToggle caret tag={NavLink} className="text-nowrap px-3">
@@ -54,8 +60,11 @@ export default class UserActions extends React.Component {
             <i className="material-icons">&#xE896;</i> Transactions
           </DropdownItem>
           <DropdownItem divider /> */}
-          <DropdownItem tag={Link} to="/" className="text-danger">
-            <i className="material-icons text-danger">&#xE879;</i> Logout
+          <DropdownItem
+            className="text-danger"
+            onClick={() => this.cerrarSesion()}
+          >
+            <i className="material-icons text-danger">&#xE879;</i> Salir
           </DropdownItem>
         </Collapse>
       </NavItem>

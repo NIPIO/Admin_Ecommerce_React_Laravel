@@ -1,20 +1,12 @@
-import { useCambiarEstado, useVendedores } from "../../hooks/apiCalls";
+import { useVendedores } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import {
-  Table,
-  Space,
-  Spin,
-  Row,
-  Col,
-  Button,
-  Switch,
-  notification
-} from "antd";
+import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
 import PageTitle from "../../components/common/PageTitle";
-import "antd/dist/antd.css";
+
 import Busqueda from "./Busqueda";
 import ModalEdicionVendedor from "./ModalEdicionVendedor";
+import { showNotification, toggleEstado } from "./../notificacion";
 
 const Vendedores = () => {
   //INFO TABLA:
@@ -75,23 +67,6 @@ const Vendedores = () => {
     }
   ];
 
-  const toggleEstado = (tabla, id, estado) => {
-    useCambiarEstado(tabla, id, estado)
-      .then(res => {
-        if (res.error) {
-          openNotificationWithIcon("error", "Ocurrio un error", res.data);
-        } else {
-          openNotificationWithIcon("success", "Cambio realizado!", "");
-        }
-      })
-      .catch(err => {
-        openNotificationWithIcon(
-          "error",
-          "Ocurrio un error",
-          err.response.data.message
-        );
-      });
-  };
   //FIN INFO TABLA.
 
   const [busqueda, setBusqueda] = useState({
@@ -100,14 +75,6 @@ const Vendedores = () => {
   const [modal, setModal] = useState(false);
   const [vendedorEdicion, setVendedorEdicion] = useState(false);
   const allVendedores = useVendedores(busqueda);
-
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message,
-      description,
-      placement: "bottomRight"
-    });
-  };
 
   const edicion = marca => {
     setVendedorEdicion(marca);
@@ -157,7 +124,7 @@ const Vendedores = () => {
         <ModalEdicionVendedor
           modal={modal}
           setModal={setModal}
-          openNotificationWithIcon={openNotificationWithIcon}
+          showNotification={showNotification}
           vendedorEdicion={vendedorEdicion}
           setVendedorEdicion={setVendedorEdicion}
         />

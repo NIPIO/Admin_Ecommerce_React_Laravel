@@ -1,18 +1,9 @@
-import { useCambiarEstado, useClientes } from "../../hooks/apiCalls";
+import { useClientes } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import {
-  Table,
-  Space,
-  Spin,
-  Row,
-  Col,
-  Button,
-  Switch,
-  notification
-} from "antd";
+import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
 import PageTitle from "../../components/common/PageTitle";
-import "antd/dist/antd.css";
+import { showNotification, toggleEstado } from "./../notificacion";
 import Busqueda from "./Busqueda";
 import ModalNuevoCliente from "./ModalNuevoCliente";
 
@@ -61,23 +52,6 @@ const Clientes = () => {
     }
   ];
 
-  const toggleEstado = (tabla, id, estado) => {
-    useCambiarEstado(tabla, id, estado)
-      .then(res => {
-        if (res.error) {
-          openNotificationWithIcon("error", "Ocurrio un error", res.data);
-        } else {
-          openNotificationWithIcon("success", "Cambio realizado!", "");
-        }
-      })
-      .catch(err => {
-        openNotificationWithIcon(
-          "error",
-          "Ocurrio un error",
-          err.response.data.message
-        );
-      });
-  };
   //FIN INFO TABLA.
 
   const [busqueda, setBusqueda] = useState({
@@ -86,14 +60,6 @@ const Clientes = () => {
   const [modal, setModal] = useState(false);
   const [clienteEdicion, setClienteEdicion] = useState(false);
   const allClientes = useClientes(busqueda);
-
-  const openNotificationWithIcon = (type, message, description) => {
-    notification[type]({
-      message,
-      description,
-      placement: "bottomRight"
-    });
-  };
 
   const edicion = marca => {
     setClienteEdicion(marca);
@@ -155,7 +121,7 @@ const Clientes = () => {
         <ModalNuevoCliente
           modal={modal}
           setModal={setModal}
-          openNotificationWithIcon={openNotificationWithIcon}
+          showNotification={showNotification}
           clienteEdicion={clienteEdicion}
           setClienteEdicion={setClienteEdicion}
         />
