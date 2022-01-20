@@ -43,8 +43,8 @@ function Busqueda({ setBusqueda, proveedores, clientes }) {
                   .localeCompare(optionB.children.toLowerCase())
               }
             >
-              {proveedores.map(prov => (
-                <Option key={prov.id} value={prov.id}>
+              {proveedores.map((prov, idx) => (
+                <Option key={idx} value={prov.id}>
                   {prov.nombre}
                 </Option>
               ))}
@@ -68,8 +68,8 @@ function Busqueda({ setBusqueda, proveedores, clientes }) {
                   .localeCompare(optionB.children.toLowerCase())
               }
             >
-              {clientes.map(cli => (
-                <Option key={cli.id} value={cli.id}>
+              {clientes.map((cli, idx) => (
+                <Option key={idx} value={cli.id}>
                   {cli.nombre}
                 </Option>
               ))}

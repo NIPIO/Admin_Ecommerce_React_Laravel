@@ -13,7 +13,8 @@ const ModalNuevaVenta = ({
   setModal,
   vendedores,
   clientes,
-  productos
+  productos,
+  queryClient
 }) => {
   const [filas, setFilas] = useState([]);
   const [error, setError] = useState(false);
@@ -43,6 +44,7 @@ const ModalNuevaVenta = ({
             showNotification("error", "Ocurrio un error", res.data);
           } else {
             showNotification("success", "Venta alteada", "");
+            queryClient.invalidateQueries("ventas");
             setModal(false);
           }
         })
@@ -93,8 +95,8 @@ const ModalNuevaVenta = ({
                         .localeCompare(optionB.children.toLowerCase())
                     }
                   >
-                    {clientes.map(cliente => (
-                      <Option key={cliente.id} value={cliente.id}>
+                    {clientes.map((cliente, idx) => (
+                      <Option key={idx} value={cliente.id}>
                         {cliente.nombre}
                       </Option>
                     ))}
@@ -124,8 +126,8 @@ const ModalNuevaVenta = ({
                         .localeCompare(optionB.children.toLowerCase())
                     }
                   >
-                    {vendedores.map(vendedor => (
-                      <Option key={vendedor.id} value={vendedor.id}>
+                    {vendedores.map((vendedor, idx) => (
+                      <Option key={idx} value={vendedor.id}>
                         {vendedor.nombre}
                       </Option>
                     ))}

@@ -34,6 +34,7 @@ class LoginController extends Controller
             $nuevoUsuario->usuario = $datos['usuario'];
             $nuevoUsuario->password = $datos['password'];
             $nuevoUsuario->nombre = $datos['nombre'];
+            $nuevoUsuario->rol_id = 2;
 
             $nuevoUsuario->save();
 

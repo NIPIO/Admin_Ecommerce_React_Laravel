@@ -7,14 +7,20 @@ import { Table, Spin, Row, Col, Space, Button } from "antd";
 import ModalNuevaCompra from "./ModalNuevaCompra";
 import ModalConfirmarCompra from "./ModalConfirmarCompra";
 import Busqueda from "./Busqueda";
+import { useQueryClient } from "react-query";
 
 const Compras = () => {
   //INFO TABLA:
   const columnas = [
     {
+      title: "Nro",
+      dataIndex: ["id"],
+      width: "7%",
+      render: text => text
+    },
+    {
       title: "Proveedor",
       dataIndex: ["proveedor", "nombre"],
-      fixed: "left",
       render: text => text
     },
     {
@@ -57,7 +63,7 @@ const Compras = () => {
     provedor: null,
     producto: null
   });
-
+  const queryClient = useQueryClient();
   const [idCompraConfirmada, setIdCompraConfirmada] = useState(null);
   const [modalCompraConfirmada, setModalCompraConfirmada] = useState(false);
   const [modal, setModal] = useState(false);
@@ -132,11 +138,13 @@ const Compras = () => {
           setModal={setModal}
           proveedores={allProveedores.data.allProveedores}
           productos={allProductos.data.allProductos}
+          queryClient={queryClient}
         />
         <ModalConfirmarCompra
           modal={modalCompraConfirmada}
           setModal={setModalCompraConfirmada}
           id={idCompraConfirmada}
+          queryClient={queryClient}
         />
       </Row>
     </Container>

@@ -12,7 +12,8 @@ const ModalNuevaCuenta = ({
   clientes,
   showNotification,
   cuentaEdicion,
-  setCuentaEdicion
+  setCuentaEdicion,
+  queryClient
 }) => {
   const [form] = Form.useForm();
   const [tipoCuenta, setTipoCuenta] = useState();
@@ -26,6 +27,7 @@ const ModalNuevaCuenta = ({
 
   const onReset = () => {
     setCuentaEdicion(false);
+    setTipoCuenta(false);
     form.resetFields();
     setModal(false);
   };
@@ -33,13 +35,16 @@ const ModalNuevaCuenta = ({
   const onCreate = values => {
     if (cuentaEdicion) {
       values.id = cuentaEdicion.id;
+      values.esCliente = !!cuentaEdicion.cliente_id;
+
       api
-        .putCliente(values)
+        .putCuenta(values)
         .then(res => {
           if (res.error) {
             showNotification("error", "Ocurrio un error", res.data);
           } else {
             showNotification("success", "Cuenta modificada correctamente", "");
+            queryClient.invalidateQueries("cuentas");
             onReset();
           }
         })
@@ -59,6 +64,7 @@ const ModalNuevaCuenta = ({
             showNotification("error", "Ocurrio un error", res.data);
           } else {
             showNotification("success", "Cuenta alteada", "");
+            queryClient.invalidateQueries("cuentas");
             setModal(false);
             form.resetFields();
           }
@@ -75,7 +81,9 @@ const ModalNuevaCuenta = ({
 
   useEffect(() => {
     form.setFieldsValue({
-      proveedor: cuentaEdicion.proveedor_id,
+      proveedor: cuentaEdicion.proveedor_id
+        ? cuentaEdicion.proveedor_id
+        : cuentaEdicion.cliente_id,
       saldo: cuentaEdicion.saldo
     });
   }, [cuentaEdicion]);
@@ -115,8 +123,19 @@ const ModalNuevaCuenta = ({
                     onChange={val => setTipoCuenta(val.target.value)}
                     label="Tipo de cuenta"
                   >
-                    <Radio.Button value={"c"}>Cliente</Radio.Button>
-                    <Radio.Button value={"p"}>Proveedor</Radio.Button>
+                    <Radio.Button
+                      disabled={cuentaEdicion.tipo_cuenta === "p"}
+                      value={"c"}
+                      defaultChecked={true}
+                    >
+                      Cliente
+                    </Radio.Button>
+                    <Radio.Button
+                      disabled={cuentaEdicion.tipo_cuenta === "c"}
+                      value={"p"}
+                    >
+                      Proveedor
+                    </Radio.Button>
                   </Radio.Group>
                 </Form.Item>
               </Col>
@@ -125,7 +144,7 @@ const ModalNuevaCuenta = ({
               <Row gutter={24}>
                 <Col xs={24} md={12}>
                   <Form.Item
-                    name="id"
+                    name="proveedor"
                     label={tipoCuenta === "c" ? "Cliente" : "Proveedor"}
                     rules={rules}
                   >
@@ -150,8 +169,8 @@ const ModalNuevaCuenta = ({
                       }
                     >
                       {(tipoCuenta === "c" ? clientes : proveedores).map(
-                        persona => (
-                          <Option key={persona.id} value={persona.id}>
+                        (persona, idx) => (
+                          <Option key={idx} value={persona.id}>
                             {persona.nombre}
                           </Option>
                         )

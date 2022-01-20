@@ -7,7 +7,7 @@ import { showNotification } from "./../notificacion";
 
 const { Title } = Typography;
 
-const ModalNuevaVenta = ({ modal, setModal, id }) => {
+const ModalNuevaVenta = ({ modal, setModal, id, queryClient }) => {
   const [modalAlerta, setModalAlerta] = useState(false);
   const [form] = Form.useForm();
 
@@ -32,6 +32,7 @@ const ModalNuevaVenta = ({ modal, setModal, id }) => {
           showNotification("error", "Ocurrio un error", res.data);
         } else {
           showNotification("success", "Venta confirmada!", "");
+          queryClient.invalidateQueries("ventas");
           setModal(false);
           setModalAlerta(false);
         }

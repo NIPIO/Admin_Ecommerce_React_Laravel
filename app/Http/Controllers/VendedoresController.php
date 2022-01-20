@@ -13,7 +13,7 @@ class VendedoresController extends Controller
 
     public function index() {
         $vendedor = request()->get('vendedor');
-        $vendedores = Vendedores::orderBy('id', 'DESC');
+        $vendedores = Vendedores::orderBy('id', 'DESC')->with(['rol']);
 
         if ($vendedor) {
             $vendedores->whereId((int) $vendedor);
@@ -31,6 +31,7 @@ class VendedoresController extends Controller
                 "nombre" => $req['nombre'],
                 "email" => $req['email'],
                 "telefono" => $req['telefono'],
+                "rol_id" => $req['rol'],
             ]);
         } catch (\Exception $th) {
             throw new \Exception($th->getMessage());;

@@ -1,52 +1,49 @@
-import { useProveedores } from "../../hooks/apiCalls";
+import { useRoles, usePermisos } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
-import { showNotification, toggleEstado } from "./../notificacion";
+import { Table, Space, Spin, Row, Col, Button, Tag } from "antd";
+import { showNotification } from "./../notificacion";
 
 import PageTitle from "../../components/common/PageTitle";
 import { useQueryClient } from "react-query";
-import ModalNuevoProveedor from "./ModalNuevoProveedor";
+import ModalNuevoRol from "./ModalNuevoRol";
 import Busqueda from "./Busqueda";
-const Proveedores = () => {
+const RolesPermisos = () => {
   //INFO TABLA:
   const columnas = [
     {
       title: "Nombre",
       dataIndex: ["nombre"],
-
       render: text => text
     },
-
     {
-      title: "Estado",
-      dataIndex: ["activo"],
-      render: (text, row) => (
-        <Space>
-          <Switch
-            checked={text}
-            onChange={() =>
-              toggleEstado(
-                "Proveedor",
-                "proveedores",
-                row.id,
-                text,
-                queryClient
-              )
-            }
-            checkedChildren={"Activo"}
-            unCheckedChildren={"Inactivo"}
-          />
-        </Space>
-      )
+      title: "Descripcion",
+      dataIndex: ["descripcion"],
+      render: text => text
     },
+    // {
+    //   title: "Permisos",
+    //   key: "permisos",
+    //   dataIndex: ["permisos"],
+    //   render: permisos => (
+    //     <span>
+    //       {permisos.map((tag, idx) => (
+    //         <Tag color={"green"} key={idx}>
+    //           {tag.nombre.toUpperCase()}
+    //         </Tag>
+    //       ))}
+    //     </span>
+    //   )
+    // },
     {
       title: "Acciones",
       key: "action",
-
+      width: "18%",
       render: (text, record) => (
         <Space size="middle">
-          <Button onClick={() => edicion(text)}>Editar</Button>
+          <Button disabled onClick={() => edicion(text)}>
+            Editar
+          </Button>
         </Space>
       )
     }
@@ -56,17 +53,18 @@ const Proveedores = () => {
   const queryClient = useQueryClient();
   const [modal, setModal] = useState(false);
   const [busqueda, setBusqueda] = useState({
-    proveedor: null
+    rol: null
   });
-  const [proveedorEdicion, setProveedorEdicion] = useState(false);
-  const allProveedores = useProveedores(busqueda);
+  const [rolEdicion, setRolEdicion] = useState(false);
+  const allRoles = useRoles(busqueda);
+  const allPermisos = usePermisos();
 
-  const edicion = marca => {
-    setProveedorEdicion(marca);
+  const edicion = rol => {
+    setRolEdicion(rol);
     setModal(true);
   };
 
-  if (allProveedores.isLoading) {
+  if (allRoles.isLoading || allPermisos.isLoading) {
     return (
       <Spin tip="Cargando" style={{ width: "100%", margin: "10% auto" }}></Spin>
     );
@@ -82,14 +80,14 @@ const Proveedores = () => {
           <Col span={8}>
             <PageTitle
               sm="4"
-              title="Proveedores"
+              title="Roles"
               subtitle=""
               className="text-sm-left"
             />
           </Col>
           <Col span={8}>
             <Button onClick={() => setModal(true)} type="primary">
-              Nuevo Proveedor
+              Nuevo Rol
             </Button>
           </Col>
         </Space>
@@ -100,7 +98,8 @@ const Proveedores = () => {
             <CardHeader className="border-bottom">
               <Busqueda
                 setBusqueda={setBusqueda}
-                proveedores={allProveedores.data.allProveedores}
+                permisos={allPermisos.data.allPermisos}
+                roles={allRoles.data.allRoles}
               />
             </CardHeader>
             <CardBody className="p-0 pb-3">
@@ -108,7 +107,7 @@ const Proveedores = () => {
                 rowKey="imiID"
                 columns={columnas}
                 scroll={{ x: 700, y: 450 }}
-                dataSource={allProveedores.data.proveedoresFiltro}
+                dataSource={allRoles.data.rolesFiltro}
                 pagination={{
                   defaultPageSize: 10,
                   showSizeChanger: true,
@@ -118,12 +117,13 @@ const Proveedores = () => {
             </CardBody>
           </Card>
         </Col>
-        <ModalNuevoProveedor
+        <ModalNuevoRol
           modal={modal}
           setModal={setModal}
           showNotification={showNotification}
-          proveedorEdicion={proveedorEdicion}
-          setProveedorEdicion={setProveedorEdicion}
+          rolEdicion={rolEdicion}
+          setRolEdicion={setRolEdicion}
+          permisos={allPermisos.data.allPermisos}
           queryClient={queryClient}
         />
       </Row>
@@ -131,4 +131,4 @@ const Proveedores = () => {
   );
 };
 
-export default Proveedores;
+export default RolesPermisos;

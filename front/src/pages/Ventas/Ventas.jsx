@@ -11,6 +11,7 @@ import PageTitle from "../../components/common/PageTitle";
 import ModalNuevaVenta from "./ModalNuevaVenta";
 import ModalConfirmarVenta from "./ModalConfirmarVenta";
 import Busqueda from "./Busqueda";
+import { useQueryClient } from "react-query";
 
 const Ventas = () => {
   //INFO TABLA:
@@ -18,14 +19,12 @@ const Ventas = () => {
     {
       title: "Nro",
       dataIndex: ["id"],
-      maxWidth: "10%",
-      fixed: "left",
+      width: "7%",
       render: text => text
     },
     {
       title: "Cliente",
       dataIndex: ["cliente", "nombre"],
-      fixed: "left",
       render: text => text
     },
     {
@@ -44,20 +43,6 @@ const Ventas = () => {
       dataIndex: ["fecha_venta"],
       render: text => text
     },
-    // {
-    //   title: "Estado",
-    //   dataIndex: ["activo"],
-    //   render: (text, row) => (
-    //     <Space>
-    //
-    //         checked={text}
-    //         onChange={() => toggleEstado("Vendedor", row.id, text)}
-    //         checkedChildren={"Activo"}
-    //         unCheckedChildren={"Inactivo"}
-    //       />
-    //     </Space>
-    //   )
-    // },
     {
       title: "Acciones",
       key: "action",
@@ -83,7 +68,7 @@ const Ventas = () => {
     }
   ];
   //FIN INFO TABLA.
-
+  const queryClient = useQueryClient();
   const [busqueda, setBusqueda] = useState({
     cliente: null,
     vendedor: null,
@@ -168,11 +153,13 @@ const Ventas = () => {
           clientes={allClientes.data.allClientes}
           productos={allProductos.data.allProductos}
           vendedores={allVendedores.data.allVendedores}
+          queryClient={queryClient}
         />
         <ModalConfirmarVenta
           modal={modalVentaConfirmada}
           setModal={setModalVentaConfirmada}
           id={idVentaConfirmada}
+          queryClient={queryClient}
         />
       </Row>
     </Container>

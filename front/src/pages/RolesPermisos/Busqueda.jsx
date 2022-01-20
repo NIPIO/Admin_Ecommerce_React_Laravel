@@ -4,11 +4,11 @@ import { SearchOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
-function Busqueda({ setBusqueda, marcas }) {
-  const [marca, setMarca] = useState(null);
+function Busqueda({ setBusqueda, roles, permisos }) {
+  const [rol, setRol] = useState(null);
 
   const limpiar = () => {
-    setMarca(null);
+    setRol(null);
     setBusqueda({});
   };
   return (
@@ -28,9 +28,9 @@ function Busqueda({ setBusqueda, marcas }) {
               showSearch
               allowClear
               style={{ width: 200 }}
-              placeholder="Buscá por marcas"
+              placeholder="Buscá por rol"
               optionFilterProp="children"
-              onChange={val => setMarca(val)}
+              onChange={val => setRol(val)}
               filterOption={(input, option) =>
                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
@@ -40,9 +40,9 @@ function Busqueda({ setBusqueda, marcas }) {
                   .localeCompare(optionB.children.toLowerCase())
               }
             >
-              {marcas.map((marca, idx) => (
-                <Option key={idx} value={marca.id}>
-                  {marca.nombre}
+              {roles.map((rol, idx) => (
+                <Option key={idx} value={rol.id}>
+                  {rol.nombre}
                 </Option>
               ))}
             </Select>
@@ -55,7 +55,7 @@ function Busqueda({ setBusqueda, marcas }) {
                 icon={<SearchOutlined />}
                 onClick={() => {
                   setBusqueda({
-                    marca
+                    rol
                   });
                 }}
               >

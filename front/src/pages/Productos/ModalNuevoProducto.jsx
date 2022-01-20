@@ -12,7 +12,8 @@ const ModalNuevoProducto = ({
   marcas,
   showNotification,
   productoEdicion,
-  setProductoEdicion
+  setProductoEdicion,
+  queryClient
 }) => {
   const [form] = Form.useForm();
 
@@ -43,6 +44,7 @@ const ModalNuevoProducto = ({
               "Producto modificado correctamente",
               ""
             );
+            queryClient.invalidateQueries("productos");
             onReset();
           }
         })
@@ -61,6 +63,7 @@ const ModalNuevoProducto = ({
             showNotification("error", "Ocurrio un error", res.data);
           } else {
             showNotification("success", "Producto alteado", "");
+            queryClient.invalidateQueries("productos");
             setModal(false);
             form.resetFields();
           }
@@ -131,8 +134,8 @@ const ModalNuevoProducto = ({
                         .localeCompare(optionB.children.toLowerCase())
                     }
                   >
-                    {marcas.map(marca => (
-                      <Option key={marca.id} value={marca.id}>
+                    {marcas.map((marca, idx) => (
+                      <Option key={idx} value={marca.id}>
                         {marca.nombre}
                       </Option>
                     ))}

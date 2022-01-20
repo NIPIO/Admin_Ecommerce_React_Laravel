@@ -6,16 +6,11 @@ import PageTitle from "../../components/common/PageTitle";
 import Busqueda from "./Busqueda";
 import ModalNuevaCuenta from "./ModalNuevaCuenta";
 import { showNotification, toggleEstado } from "./../notificacion";
+import { useQueryClient } from "react-query";
 
 const Cuentas = () => {
   //INFO TABLA:
   const columnas = [
-    {
-      title: "Nro",
-      dataIndex: ["id"],
-      fixed: "left",
-      render: text => text
-    },
     {
       title: "Proveedor",
       dataIndex: ["proveedor", "nombre"],
@@ -48,7 +43,9 @@ const Cuentas = () => {
         <Space>
           <Switch
             checked={text}
-            onChange={() => toggleEstado("Cuenta", row.id, text)}
+            onChange={() =>
+              toggleEstado("Cuenta", "cuentas", row.id, text, queryClient)
+            }
             checkedChildren={"Activo"}
             unCheckedChildren={"Inactivo"}
           />
@@ -72,7 +69,7 @@ const Cuentas = () => {
   const [busqueda, setBusqueda] = useState({
     proveedor: null
   });
-
+  const queryClient = useQueryClient();
   const [modal, setModal] = useState(false);
   const [cuentaEdicion, setCuentaEdicion] = useState(false);
   const allCuentas = useCuentas(busqueda);
@@ -149,6 +146,7 @@ const Cuentas = () => {
           showNotification={showNotification}
           cuentaEdicion={cuentaEdicion}
           setCuentaEdicion={setCuentaEdicion}
+          queryClient={queryClient}
         />
       </Row>
     </Container>

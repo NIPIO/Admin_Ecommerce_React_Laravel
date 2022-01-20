@@ -17,7 +17,7 @@ import Cuentas from "./pages/Cuentas/Cuentas";
 import Ventas from "./pages/Ventas/Ventas";
 import Compras from "./pages/Compras/Compras";
 import Login from "./pages/Login/Login";
-import NuevoUsuario from "./pages/Login/NuevoUsuario";
+import RolesPermisos from "./pages/RolesPermisos/RolesPermisos";
 
 export default [
   {
@@ -71,8 +71,9 @@ export default [
     component: Login
   },
   {
-    path: "/registrarse",
-    component: NuevoUsuario
+    path: "/roles-permisos",
+    layout: DefaultLayout,
+    component: RolesPermisos
   },
   {
     path: "/blog-overview",

@@ -56,8 +56,8 @@ export const api = {
       })
       .then(res => res.data),
 
-  getVentas: ({ cliente, vendedor, fechas, producto }) => {
-    return client
+  getVentas: ({ cliente, vendedor, fechas, producto }) =>
+    client
       .get(API_PORT + "/api/ventas", {
         params: {
           cliente,
@@ -66,8 +66,7 @@ export const api = {
           producto
         }
       })
-      .then(res => res.data);
-  },
+      .then(res => res.data),
 
   getVenta: id =>
     client.get(API_PORT + `/api/venta/${id}`, id).then(res => res.data),
@@ -94,6 +93,18 @@ export const api = {
         }
       })
       .then(res => res.data),
+
+  getRoles: ({ rol }) =>
+    client
+      .get(API_PORT + "/api/roles", {
+        params: {
+          rol
+        }
+      })
+      .then(res => res.data),
+
+  getPermisos: () =>
+    client.get(API_PORT + "/api/permisos").then(res => res.data),
 
   confirmarCompra: (pago, id, diferencia) =>
     client
@@ -148,6 +159,9 @@ export const api = {
       .post(API_PORT + "/api/cuentas-corrientes", data)
       .then(res => res.data),
 
+  setRol: data =>
+    client.post(API_PORT + "/api/roles", data).then(res => res.data),
+
   //PUTTERS
   putProducto: data =>
     client
@@ -155,14 +169,22 @@ export const api = {
       .then(res => res.data),
   putMarca: data =>
     client.put(API_PORT + `/api/marca/${data.id}`, data).then(res => res.data),
+
   putCliente: data =>
     client
       .put(API_PORT + `/api/cliente/${data.id}`, data)
       .then(res => res.data),
+
+  putCuenta: data =>
+    client
+      .put(API_PORT + `/api/cuentas-corrientes/${data.id}`, data)
+      .then(res => res.data),
+
   putProveedor: data =>
     client
       .put(API_PORT + `/api/proveedor/${data.id}`, data)
       .then(res => res.data),
+
   putCtaCte: data =>
     client
       .put(API_PORT + `/api/cuentas-corrientes/${data.id}`, data)
@@ -175,6 +197,9 @@ export const api = {
     client
       .put(API_PORT + `/api/vendedor/${data.id}`, data)
       .then(res => res.data),
+
+  putRol: data =>
+    client.put(API_PORT + `/api/rol/${data.id}`, data).then(res => res.data),
 
   //DELETERS
   deleteProducto: id =>

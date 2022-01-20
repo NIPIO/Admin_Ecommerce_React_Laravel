@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Vendedores extends Model
+class Roles extends Model
 {
     use HasFactory;
     /**
@@ -13,7 +13,7 @@ class Vendedores extends Model
      *
      * @var string
      */
-    protected $table = 'vendedores';
+    protected $table = 'roles';
 
     /**
      * The primary key for the model.
@@ -25,7 +25,7 @@ class Vendedores extends Model
     /**
      * @var array
      */
-    protected $fillable = ['nombre', 'email', 'telefono', 'comision', 'rol_id', 'created_at', 'updated_at', 'activo'];
+    protected $fillable = ['nombre', 'descripcion', 'created_at', 'updated_at'];
 
     
     protected $casts = [
@@ -42,8 +42,8 @@ class Vendedores extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
-    public function rol()
+    public function permisos()
     {
-        return $this->belongsTo(Roles::class, 'rol_id', 'id');
+        return $this->hasMany(Permisos::class, 'rol_id', 'id');
     }
 }

@@ -9,7 +9,8 @@ const ModalNuevoProveedor = ({
   setModal,
   showNotification,
   proveedorEdicion,
-  setProveedorEdicion
+  setProveedorEdicion,
+  queryClient
 }) => {
   const [form] = Form.useForm();
 
@@ -40,6 +41,7 @@ const ModalNuevoProveedor = ({
               "Proveedor modificado correctamente",
               ""
             );
+            queryClient.invalidateQueries("proveedores");
             onReset();
           }
         })
@@ -58,6 +60,7 @@ const ModalNuevoProveedor = ({
             showNotification("error", "Ocurrio un error", res.data);
           } else {
             showNotification("success", "Proveedor alteado", "");
+            queryClient.invalidateQueries("proveedores");
             setModal(false);
             form.resetFields();
           }

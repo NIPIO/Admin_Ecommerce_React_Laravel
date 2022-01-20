@@ -6,6 +6,7 @@ import PageTitle from "../../components/common/PageTitle";
 import { showNotification, toggleEstado } from "./../notificacion";
 import Busqueda from "./Busqueda";
 import ModalNuevoProducto from "./ModalNuevoProducto";
+import { useQueryClient } from "react-query";
 
 const Productos = () => {
   //INFO TABLA:
@@ -13,7 +14,7 @@ const Productos = () => {
     {
       title: "Nombre",
       dataIndex: ["nombre"],
-      fixed: "left",
+
       render: text => text
     },
     {
@@ -64,7 +65,9 @@ const Productos = () => {
         <Space>
           <Switch
             checked={text}
-            onChange={() => toggleEstado("Producto", row.id, text)}
+            onChange={() =>
+              toggleEstado("Producto", "productos", row.id, text, queryClient)
+            }
             checkedChildren={"Activo"}
             unCheckedChildren={"Inactivo"}
           />
@@ -83,7 +86,7 @@ const Productos = () => {
     }
   ];
   //FIN INFO TABLA.
-
+  const queryClient = useQueryClient();
   const [busqueda, setBusqueda] = useState({
     producto: null,
     marca: null
@@ -159,6 +162,7 @@ const Productos = () => {
           showNotification={showNotification}
           productoEdicion={productoEdicion}
           setProductoEdicion={setProductoEdicion}
+          queryClient={queryClient}
         />
       </Row>
     </Container>

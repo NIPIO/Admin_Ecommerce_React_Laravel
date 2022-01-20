@@ -4,7 +4,7 @@ import { Container, Card, CardHeader, CardBody } from "shards-react";
 import PageTitle from "../../components/common/PageTitle";
 import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
 import { showNotification, toggleEstado } from "./../notificacion";
-
+import { useQueryClient } from "react-query";
 import Busqueda from "./Busqueda";
 import ModalNuevaMarca from "./ModalNuevaMarca";
 
@@ -35,7 +35,9 @@ const Marcas = () => {
         <Space>
           <Switch
             checked={text}
-            onChange={() => toggleEstado("Marca", row.id, text)}
+            onChange={() =>
+              toggleEstado("Marca", "marcas", row.id, text, queryClient)
+            }
             checkedChildren={"Activo"}
             unCheckedChildren={"Inactivo"}
           />
@@ -55,7 +57,7 @@ const Marcas = () => {
   ];
 
   //FIN INFO TABLA.
-
+  const queryClient = useQueryClient();
   const [busqueda, setBusqueda] = useState({
     marca: null
   });
@@ -127,6 +129,7 @@ const Marcas = () => {
           showNotification={showNotification}
           marcaEdicion={marcaEdicion}
           setMarcaEdicion={setMarcaEdicion}
+          queryClient={queryClient}
         />
       </Row>
     </Container>

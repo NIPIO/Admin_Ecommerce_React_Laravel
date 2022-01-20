@@ -1,6 +1,12 @@
 import { useQuery } from "react-query";
 import { api } from "./api";
 
+export function esAdmin() {
+  let localSto = localStorage.getItem("logueado");
+  localSto = JSON.parse(localSto);
+  return localSto.rol_id === 1;
+}
+
 export function useVentas({
   cliente = undefined,
   vendedor = undefined,
@@ -73,6 +79,18 @@ export function useMarcas({ marca = undefined }) {
       marca
     })
   );
+}
+
+export function useRoles({ rol = undefined }) {
+  return useQuery(["roles", rol], () =>
+    api.getRoles({
+      rol
+    })
+  );
+}
+
+export function usePermisos() {
+  return useQuery(["permisos"], () => api.getPermisos());
 }
 
 export function useCambiarEstado(tabla, id, estado) {

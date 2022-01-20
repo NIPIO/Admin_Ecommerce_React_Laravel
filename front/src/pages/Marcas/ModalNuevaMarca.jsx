@@ -8,7 +8,8 @@ const ModalNuevaMarca = ({
   setModal,
   showNotification,
   marcaEdicion,
-  setMarcaEdicion
+  setMarcaEdicion,
+  queryClient
 }) => {
   const [form] = Form.useForm();
 
@@ -35,6 +36,7 @@ const ModalNuevaMarca = ({
             showNotification("error", "Ocurrio un error", res.data);
           } else {
             showNotification("success", "Marca modificado correctamente", "");
+            queryClient.invalidateQueries("marcas");
             onReset();
           }
         })
@@ -53,6 +55,7 @@ const ModalNuevaMarca = ({
             showNotification("error", "Ocurrio un error", res.data);
           } else {
             showNotification("success", "Marca alteada", "");
+            queryClient.invalidateQueries("marcas");
             setModal(false);
             form.resetFields();
           }

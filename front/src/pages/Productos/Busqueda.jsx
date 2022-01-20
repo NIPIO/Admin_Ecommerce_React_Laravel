@@ -42,8 +42,8 @@ function Busqueda({ setBusqueda, marcas, productos }) {
                   .localeCompare(optionB.children.toLowerCase())
               }
             >
-              {productos.map(producto => (
-                <Option key={producto.id} value={producto.id}>
+              {productos.map((producto, idx) => (
+                <Option key={idx} value={producto.id}>
                   {producto.nombre}
                 </Option>
               ))}
@@ -66,8 +66,8 @@ function Busqueda({ setBusqueda, marcas, productos }) {
                   .localeCompare(optionB.children.toLowerCase())
               }
             >
-              {marcas.map(marca => (
-                <Option key={marca.id} value={marca.id}>
+              {marcas.map((marca, idx) => (
+                <Option key={idx} value={marca.id}>
                   {marca.nombre}
                 </Option>
               ))}

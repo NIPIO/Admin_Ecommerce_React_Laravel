@@ -11,8 +11,11 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProductosController;
 use App\Http\Controllers\VendedoresController;
 use App\Http\Controllers\MarcasController;
+use App\Http\Controllers\PermisosController;
 use App\Http\Controllers\ProveedoresController;
+use App\Http\Controllers\RolesController;
 use App\Http\Controllers\VentasController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -71,6 +74,12 @@ Route::prefix('')->group(function () {
     Route::get('cuentas-corrientes', [CtaCteController::class, 'index']);
     Route::post('cuentas-corrientes', [CtaCteController::class, 'nuevaCtaCte']);
     Route::put('cuentas-corrientes/{id}', [CtaCteController::class, 'editarCuenta']);
+
+    Route::get('roles', [RolesController::class, 'index']);
+    Route::get('permisos', [PermisosController::class, 'index']);
+    Route::post('roles', [RolesController::class, 'nuevoRol']);
+    //  Route::put('rol/{id}', [RolesController::class, 'editarRol']);
+
 
     Route::post('login', [LoginController::class, 'login']);
     Route::post('registro', [LoginController::class, 'registro']);

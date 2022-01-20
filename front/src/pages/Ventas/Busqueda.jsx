@@ -54,8 +54,8 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
                     .localeCompare(optionB.children.toLowerCase())
                 }
               >
-                {vendedores.map(vendedor => (
-                  <Option key={vendedor.id} value={vendedor.id}>
+                {vendedores.map((vendedor, idx) => (
+                  <Option key={idx} value={vendedor.id}>
                     {vendedor.nombre}
                   </Option>
                 ))}
@@ -79,8 +79,8 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
                     .localeCompare(optionB.children.toLowerCase())
                 }
               >
-                {clientes.map(cliente => (
-                  <Option key={cliente.id} value={cliente.id}>
+                {clientes.map((cliente, idx) => (
+                  <Option key={idx} value={cliente.id}>
                     {cliente.nombre}
                   </Option>
                 ))}
@@ -104,8 +104,8 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
                     .localeCompare(optionB.children.toLowerCase())
                 }
               >
-                {productos.map(producto => (
-                  <Option key={producto.id} value={producto.id}>
+                {productos.map((producto, idx) => (
+                  <Option key={idx} value={producto.id}>
                     {producto.nombre}
                   </Option>
                 ))}

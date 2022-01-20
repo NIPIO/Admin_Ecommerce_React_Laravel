@@ -13,7 +13,8 @@ const ModalNuevaCompra = ({
   setModal,
   compraEdicion,
   proveedores,
-  productos
+  productos,
+  queryClient
 }) => {
   const [filas, setFilas] = useState([]);
   const [error, setError] = useState(false);
@@ -43,6 +44,7 @@ const ModalNuevaCompra = ({
             showNotification("error", "Ocurrio un error", res.data);
           } else {
             showNotification("success", "Compra alteada", "");
+            queryClient.invalidateQueries("compras");
             setModal(false);
           }
         })
@@ -93,8 +95,8 @@ const ModalNuevaCompra = ({
                         .localeCompare(optionB.children.toLowerCase())
                     }
                   >
-                    {proveedores.map(proveedor => (
-                      <Option key={proveedor.id} value={proveedor.id}>
+                    {proveedores.map((proveedor, idx) => (
+                      <Option key={idx} value={proveedor.id}>
                         {proveedor.nombre}
                       </Option>
                     ))}

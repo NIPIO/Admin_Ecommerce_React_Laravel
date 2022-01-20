@@ -1,12 +1,13 @@
-import { useVendedores } from "../../hooks/apiCalls";
+import { useRoles, useVendedores, esAdmin } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
+import { Table, Space, Spin, Row, Col, Button, Switch, Tag } from "antd";
 import PageTitle from "../../components/common/PageTitle";
 
 import Busqueda from "./Busqueda";
 import ModalEdicionVendedor from "./ModalEdicionVendedor";
 import { showNotification, toggleEstado } from "./../notificacion";
+import { useQueryClient } from "react-query";
 
 const Vendedores = () => {
   //INFO TABLA:
@@ -14,7 +15,6 @@ const Vendedores = () => {
     {
       title: "Nombre",
       dataIndex: ["nombre"],
-      fixed: "left",
       render: text => text
     },
     {
@@ -22,7 +22,18 @@ const Vendedores = () => {
       dataIndex: ["usuario"],
       render: text => text
     },
-
+    {
+      title: "Rol",
+      dataIndex: ["rol"],
+      key: "rol",
+      render: rol => (
+        <span>
+          <Tag color={rol.id === 1 ? "black" : rol.id === 2 ? "green" : "red"}>
+            {rol.nombre.toUpperCase()}
+          </Tag>
+        </span>
+      )
+    },
     {
       title: "Email",
       dataIndex: ["email"],
@@ -37,7 +48,14 @@ const Vendedores = () => {
       title: "Comision",
       dataIndex: ["comision"],
       sorter: (a, b) => a.comision - b.comision,
-      render: text => text
+      render: text => (
+        <Space
+          size="middle"
+          style={{ visibility: !esAdmin() ? "hidden" : "visible" }}
+        >
+          {text}
+        </Space>
+      )
     },
 
     {
@@ -47,7 +65,10 @@ const Vendedores = () => {
         <Space>
           <Switch
             checked={text}
-            onChange={() => toggleEstado("Vendedor", row.id, text)}
+            disabled={!esAdmin()}
+            onChange={() =>
+              toggleEstado("Vendedor", "vendedores", row.id, text, queryClient)
+            }
             checkedChildren={"Activo"}
             unCheckedChildren={"Inactivo"}
           />
@@ -61,27 +82,30 @@ const Vendedores = () => {
 
       render: text => (
         <Space size="middle">
-          <Button onClick={() => edicion(text)}>Editar</Button>
+          <Button disabled={!esAdmin()} onClick={() => edicion(text)}>
+            Editar
+          </Button>
         </Space>
       )
     }
   ];
 
   //FIN INFO TABLA.
-
+  const queryClient = useQueryClient();
   const [busqueda, setBusqueda] = useState({
     vendedor: null
   });
   const [modal, setModal] = useState(false);
   const [vendedorEdicion, setVendedorEdicion] = useState(false);
   const allVendedores = useVendedores(busqueda);
+  const allRoles = useRoles({});
 
   const edicion = marca => {
     setVendedorEdicion(marca);
     setModal(true);
   };
 
-  if (allVendedores.isLoading) {
+  if (allVendedores.isLoading || allRoles.isLoading) {
     return (
       <Spin tip="Cargando" style={{ width: "100%", margin: "10% auto" }}></Spin>
     );
@@ -127,6 +151,8 @@ const Vendedores = () => {
           showNotification={showNotification}
           vendedorEdicion={vendedorEdicion}
           setVendedorEdicion={setVendedorEdicion}
+          queryClient={queryClient}
+          roles={allRoles.data.allRoles}
         />
       </Row>
     </Container>

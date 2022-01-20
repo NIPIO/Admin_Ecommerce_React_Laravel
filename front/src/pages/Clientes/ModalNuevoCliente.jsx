@@ -9,7 +9,8 @@ const ModalNuevoCliente = ({
   setModal,
   showNotification,
   clienteEdicion,
-  setClienteEdicion
+  setClienteEdicion,
+  queryClient
 }) => {
   const [form] = Form.useForm();
 
@@ -36,6 +37,8 @@ const ModalNuevoCliente = ({
             showNotification("error", "Ocurrio un error", res.data);
           } else {
             showNotification("success", "Cliente modificado correctamente", "");
+            queryClient.invalidateQueries("clientes");
+
             onReset();
           }
         })
@@ -54,6 +57,7 @@ const ModalNuevoCliente = ({
             showNotification("error", "Ocurrio un error", res.data);
           } else {
             showNotification("success", "Cliente alteado", "");
+            queryClient.invalidateQueries("clientes");
             setModal(false);
             form.resetFields();
           }

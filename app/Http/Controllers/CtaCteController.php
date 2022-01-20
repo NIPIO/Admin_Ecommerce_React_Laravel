@@ -62,9 +62,10 @@ class CtaCteController extends Controller
     public function editarCuenta(Request $request) {
         $req = $request->all();
         try {
-            CtaCte::whereId($req['id'])->update([
-                "saldo" => $req['saldo'],
-            ]);
+                CtaCte::whereId($req['id'])->update([
+                    "saldo" => $req['saldo'],
+                    ($req['esCliente'] ? "cliente_id" : "proveedor_id") => $req['proveedor']
+                ]);
         } catch (\Exception $th) {
             throw new \Exception($th->getMessage());;
         }

@@ -40,8 +40,8 @@ function Busqueda({ setBusqueda, proveedores }) {
                   .localeCompare(optionB.children.toLowerCase())
               }
             >
-              {proveedores.map(proveedor => (
-                <Option key={proveedor.id} value={proveedor.id}>
+              {proveedores.map((proveedor, idx) => (
+                <Option key={idx} value={proveedor.id}>
                   {proveedor.nombre}
                 </Option>
               ))}
