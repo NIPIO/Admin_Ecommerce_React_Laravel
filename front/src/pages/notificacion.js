@@ -15,9 +15,13 @@ export const toggleEstado = (
   refreshQuery,
   id,
   estado,
-  queryClient = undefined
+  queryClient = undefined,
+  usuario
 ) => {
-  useCambiarEstado(tabla, id, estado)
+  let localSto = localStorage.getItem("logueado");
+  localSto = JSON.parse(localSto);
+
+  useCambiarEstado(tabla, id, estado, localSto.id)
     .then(res => {
       if (res.error) {
         showNotification("error", "Ocurrio un error", res.data);

@@ -1,14 +1,14 @@
-import { useRoles, usePermisos } from "../../hooks/apiCalls";
+import { useCaja } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import { Table, Space, Spin, Row, Col, Button, Tag } from "antd";
-import { showNotification } from "./../notificacion";
-
+import { Table, Space, Spin, Row, Col, Button } from "antd";
 import PageTitle from "../../components/common/PageTitle";
-import { useQueryClient } from "react-query";
-import ModalNuevoRol from "./ModalNuevoRol";
 import Busqueda from "./Busqueda";
-const RolesPermisos = () => {
+import ModalNuevaCaja from "./NuevaCaja";
+import { showNotification } from "../notificacion";
+import { useQueryClient } from "react-query";
+
+const Caja = () => {
   //INFO TABLA:
   const columnas = [
     {
@@ -18,46 +18,53 @@ const RolesPermisos = () => {
       render: text => text
     },
     {
-      title: "Nombre",
-      dataIndex: ["nombre"],
+      title: "Tipo Movimiento",
+      dataIndex: ["tipo_movimiento"],
       render: text => text
     },
     {
-      title: "Descripcion",
-      dataIndex: ["descripcion"],
+      title: "Importe",
+      dataIndex: ["importe"],
+      render(text, record) {
+        return {
+          props: {
+            style: {
+              color: text !== 0 ? (text > 0 ? "lightgreen" : "red") : null
+            }
+          },
+          children: <div>$ {text}</div>
+        };
+      },
+      sorter: (a, b) => a.importe - b.importe
+    },
+    {
+      title: "Usuario",
+      dataIndex: ["usuario", "nombre"],
       render: text => text
     },
-
     {
-      title: "Acciones",
-      key: "action",
-      width: "18%",
-      render: (text, record) => (
-        <Space size="middle">
-          <Button disabled onClick={() => edicion(text)}>
-            Editar
-          </Button>
-        </Space>
-      )
+      title: "Observacion",
+      dataIndex: ["observacion"],
+      render: text => text
+    },
+    {
+      title: "Fecha Mov.",
+      dataIndex: ["created_at"],
+      render: text => text
     }
   ];
 
   //FIN INFO TABLA.
+  const tipoMovimientoObj = ["Ingreso", "Egreso"];
+  const [busqueda, setBusqueda] = useState({
+    tipoMovimiento: null,
+    fechas: null
+  });
   const queryClient = useQueryClient();
   const [modal, setModal] = useState(false);
-  const [busqueda, setBusqueda] = useState({
-    rol: null
-  });
-  const [rolEdicion, setRolEdicion] = useState(false);
-  const allRoles = useRoles(busqueda);
-  const allPermisos = usePermisos();
+  const allCaja = useCaja(busqueda);
 
-  const edicion = rol => {
-    setRolEdicion(rol);
-    setModal(true);
-  };
-
-  if (allRoles.isLoading || allPermisos.isLoading) {
+  if (allCaja.isLoading) {
     return (
       <Spin tip="Cargando" style={{ width: "100%", margin: "10% auto" }}></Spin>
     );
@@ -71,16 +78,11 @@ const RolesPermisos = () => {
           style={{ width: "100%", justifyContent: "space-between" }}
         >
           <Col span={8}>
-            <PageTitle
-              sm="4"
-              title="Roles"
-              subtitle=""
-              className="text-sm-left"
-            />
+            <PageTitle sm="4" title="Caja" className="text-sm-left" />
           </Col>
           <Col span={8}>
             <Button onClick={() => setModal(true)} type="primary">
-              Nuevo Rol
+              Nuevo Movimiento
             </Button>
           </Col>
         </Space>
@@ -91,16 +93,15 @@ const RolesPermisos = () => {
             <CardHeader className="border-bottom">
               <Busqueda
                 setBusqueda={setBusqueda}
-                permisos={allPermisos.data.allPermisos}
-                roles={allRoles.data.allRoles}
+                tipoMovimientoObj={tipoMovimientoObj}
               />
             </CardHeader>
             <CardBody className="p-0 pb-3">
               <Table
                 rowKey="imiID"
                 columns={columnas}
-                scroll={{ x: 700, y: 450 }}
-                dataSource={allRoles.data.rolesFiltro}
+                scroll={{ x: 900, y: 450 }}
+                dataSource={allCaja.data.cajaFiltro}
                 pagination={{
                   defaultPageSize: 10,
                   showSizeChanger: true,
@@ -110,13 +111,11 @@ const RolesPermisos = () => {
             </CardBody>
           </Card>
         </Col>
-        <ModalNuevoRol
+        <ModalNuevaCaja
           modal={modal}
           setModal={setModal}
+          tipoMovimientoObj={tipoMovimientoObj}
           showNotification={showNotification}
-          rolEdicion={rolEdicion}
-          setRolEdicion={setRolEdicion}
-          permisos={allPermisos.data.allPermisos}
           queryClient={queryClient}
         />
       </Row>
@@ -124,4 +123,4 @@ const RolesPermisos = () => {
   );
 };
 
-export default RolesPermisos;
+export default Caja;

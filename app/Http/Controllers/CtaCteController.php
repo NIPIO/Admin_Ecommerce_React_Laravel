@@ -10,8 +10,11 @@ use Illuminate\Http\Request;
 
 class CtaCteController extends Controller
 {
-    public function __construct()
+    private $movimientosController;
+
+    public function __construct(MovimientosController $movimientosController)
     {
+        $this->movimientosController = $movimientosController;    
     }
 
     public function index() {
@@ -31,6 +34,9 @@ class CtaCteController extends Controller
 
     public function nuevaCtaCte(Request $request) {
         $req = $request->all();
+        $usuario = $req['usuario'];
+        $req = $req['data'];
+        
         try {
             //PUede ser proveedor o cliente que necesita abrir una cuenta
             if($this->chequearSiExiste($req['id'],$req['tipoCuenta'])){
@@ -50,22 +56,40 @@ class CtaCteController extends Controller
             $cuenta->tipo_cuenta = $req['tipoCuenta'];
             $cuenta->save();
 
+                        
+            $this->movimientosController->guardarMovimiento(
+                'cuentas_corrientes', 'ALTA', $usuario, $cuenta->id, null, null, null
+            );
 
         } catch (\Exception $th) {
             throw new \Exception($th->getMessage());;
         }
-        
 
         return response()->json(['status' => 200]);
     }
 
     public function editarCuenta(Request $request) {
         $req = $request->all();
+        $usuario = $req['usuario'];
+        $req = $req['data'];
+        
         try {
-                CtaCte::whereId($req['id'])->update([
+                $cuenta = CtaCte::whereId($req['id']);
+            
+                $cambios = $this->buscarCamposEditados($cuenta, $req);
+
+                $cuenta->update([
                     "saldo" => $req['saldo'],
                     ($req['esCliente'] ? "cliente_id" : "proveedor_id") => $req['proveedor']
                 ]);
+
+                // if ($cambios) { //EDITÓ ALGÚN CAMPO
+                //     dd($cambios);
+                //     $this->movimientosController->guardarMovimiento(
+                //         'cuentas_corrientes', 'MODIFICACION', $usuario, $req['id'], $cambios[1], $req[$cambios[0]], $cambios[2], $cambios[0] === 'saldo' ? 'saldo' : 'responsable'
+                //     );
+                // }
+
         } catch (\Exception $th) {
             throw new \Exception($th->getMessage());;
         }
@@ -85,7 +109,18 @@ class CtaCteController extends Controller
                 'tipo_cuenta' => $tipoCuenta,
             ])->get()->toArray()) > 0;
         }
-     
-     
     }
+                
+    private function buscarCamposEditados($cuenta, $req) {
+        $cuenta = $cuenta->first();
+
+        // if ($cuenta->saldo !== $req['saldo']) {
+        //     return ['saldo', $cuenta->saldo, $req['saldo'] - $cuenta->saldo];
+        // }
+        
+        // if ($req['esCliente'] ? $cuenta->cliente_id : $cuenta->proveedor_id !== $req['proveedor']) {
+        //     return ['proveedor', $cuenta->cliente_id , null];
+        // }
+    }
+
 }

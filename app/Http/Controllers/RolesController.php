@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class RolesController extends Controller
 {
+    private $movimientosController;
+
+    public function __construct(MovimientosController $movimientosController)
+    {
+        $this->movimientosController = $movimientosController;    
+    }
+    
     public function index() {
         // $rol = request()->get('rol');
         // $permiso = request()->get('permiso');
@@ -28,6 +35,9 @@ class RolesController extends Controller
 
     public function nuevoRol(Request $request) {
         $req = $request->all();
+        $usuario = $req['usuario'];
+        $req = $req['data'];
+        
 
         try {
             if($this->chequearSiExiste($req['nombre'])){

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CtaCte extends Model
+class Caja extends Model
 {
     use HasFactory;
     /**
@@ -13,7 +13,7 @@ class CtaCte extends Model
      *
      * @var string
      */
-    protected $table = 'cuentas_corrientes';
+    protected $table = 'caja';
 
     /**
      * The primary key for the model.
@@ -25,13 +25,13 @@ class CtaCte extends Model
     /**
      * @var array
      */
-    protected $fillable = ['proveedor_id', 'cliente_id', 'saldo', 'tipo_cuenta', 'activo', 'created_at', 'updated_at'];
+    protected $fillable = ['tipo_movimiento', 'importe', 'usuario', 'observacion', 'created_at', 'updated_at',];
 
-    
     protected $casts = [
         'created_at'  => 'datetime:d-m-Y',
         'updated_at'  => 'datetime:d-m-Y',
     ];
+
     /**
      * Indicates if the model should be timestamped.
      *
@@ -42,13 +42,9 @@ class CtaCte extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
-    public function proveedor()
+    public function usuario()
     {
-        return $this->belongsTo(Proveedores::class, 'proveedor_id', 'id');
-    }
-
-    public function cliente()
-    {
-        return $this->belongsTo(Clientes::class, 'cliente_id', 'id');
+        return $this->belongsTo(Vendedores::class, 'usuario', 'id');
     }
 }
+

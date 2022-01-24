@@ -12,6 +12,12 @@ const Proveedores = () => {
   //INFO TABLA:
   const columnas = [
     {
+      title: "Id",
+      dataIndex: ["id"],
+      width: "5%",
+      render: text => text
+    },
+    {
       title: "Nombre",
       dataIndex: ["nombre"],
 
@@ -27,7 +33,7 @@ const Proveedores = () => {
             checked={text}
             onChange={() =>
               toggleEstado(
-                "Proveedor",
+                "proveedores",
                 "proveedores",
                 row.id,
                 text,

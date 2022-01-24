@@ -10,27 +10,46 @@ import NewDraft from "./../components/blog/NewDraft";
 import Discussions from "./../components/blog/Discussions";
 import TopReferrals from "./../components/common/TopReferrals";
 
-const BlogOverview = ({ smallStats }) => (
-  <Container fluid className="main-content-container px-4">
-    {/* Page Header */}
-    <Row noGutters className="page-header py-4">
-      <PageTitle title="Blog Overview" subtitle="Dashboard" className="text-sm-left mb-3" />
-    </Row>
+const chartLabels = [null, null, null, null, null, null, null];
+const datasets = [
+  {
+    label: "Today",
+    fill: "start",
+    borderWidth: 1.5,
+    backgroundColor1: "rgba(0, 184, 216, 0.1)",
+    backgroundColor2: "rgba(23,198,113,0.1)",
+    backgroundColor3: "rgba(255,180,0,0.1)",
+    borderColor: "rgb(0, 184, 216)",
+    data: [1, 2, 1, 3, 5, 4, 7]
+  }
+];
 
-    {/* Small Stats Blocks */}
+const BlogOverview = ({ datosIniciales }) => (
+  <Container fluid className="main-content-container px-4">
+    {/* <Row noGutters className="page-header py-4">
+      <PageTitle
+        title="Blog Overview"
+        subtitle="Dashboard"
+        className="text-sm-left mb-3"
+      />
+    </Row> */}
+
     <Row>
-      {smallStats.map((stats, idx) => (
+      {/* {smallStats.map((stats, idx) => ( */}
+      {datosIniciales.map((stats, idx) => (
         <Col className="col-lg mb-4" key={idx} {...stats.attrs}>
           <SmallStats
-            id={`small-stats-${idx}`}
+            // id={`small-stats-${idx}`}
             variation="1"
-            chartData={stats.datasets}
-            chartLabels={stats.chartLabels}
+            // chartData={stats.datasets}
+            chartData={datasets}
+            // chartLabels={stats.chartLabels}
+            chartLabels={chartLabels}
             label={stats.label}
             value={stats.value}
-            percentage={stats.percentage}
-            increase={stats.increase}
-            decrease={stats.decrease}
+            // percentage={stats.percentage}
+            // increase={stats.increase}
+            // decrease={stats.decrease}
           />
         </Col>
       ))}
@@ -39,28 +58,28 @@ const BlogOverview = ({ smallStats }) => (
     <Row>
       {/* Users Overview */}
       <Col lg="8" md="12" sm="12" className="mb-4">
-        <UsersOverview />
+        {/* <UsersOverview /> */}
       </Col>
 
       {/* Users by Device */}
       <Col lg="4" md="6" sm="12" className="mb-4">
-        <UsersByDevice />
+        {/* <UsersByDevice /> */}
       </Col>
 
-      {/* New Draft */}
+      {/* New Draft 
       <Col lg="4" md="6" sm="12" className="mb-4">
         <NewDraft />
       </Col>
 
-      {/* Discussions */}
+       Discussions
       <Col lg="5" md="12" sm="12" className="mb-4">
         <Discussions />
       </Col>
 
-      {/* Top Referrals */}
+       Top Referrals 
       <Col lg="3" md="12" sm="12" className="mb-4">
         <TopReferrals />
-      </Col>
+      </Col>*/}
     </Row>
   </Container>
 );

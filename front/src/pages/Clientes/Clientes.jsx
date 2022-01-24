@@ -12,9 +12,14 @@ const Clientes = () => {
   //INFO TABLA:
   const columnas = [
     {
+      title: "Id",
+      dataIndex: ["id"],
+      width: "5%",
+      render: text => text
+    },
+    {
       title: "Nombre",
       dataIndex: ["nombre"],
-
       render: text => text
     },
     {
@@ -36,7 +41,7 @@ const Clientes = () => {
             checked={text}
             checkedChildren={"Activo"}
             onChange={() =>
-              toggleEstado("Cliente", "clientes", row.id, text, queryClient)
+              toggleEstado("clientes", "clientes", row.id, text, queryClient)
             }
             unCheckedChildren={"Inactivo"}
           />

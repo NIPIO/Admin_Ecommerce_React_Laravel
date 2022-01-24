@@ -8,11 +8,12 @@ use Illuminate\Http\Request;
 
 class MarcasController extends Controller
 {
-
     public $marcas;
+    private $movimientosController;
 
-    public function __construct()
+    public function __construct(MovimientosController $movimientosController)
     {
+        $this->movimientosController = $movimientosController;    
     }
 
     public function index() {
@@ -34,6 +35,8 @@ class MarcasController extends Controller
     public function nuevaMarca(Request $request) {
 
         $req = $request->all();
+        $usuario = $req['usuario'];
+        $req = $req['data'];
 
         try {
             if($this->chequearSiExiste($req['nombre'])){
@@ -43,6 +46,12 @@ class MarcasController extends Controller
             $marca = new Marcas();
             $marca->nombre = $req['nombre'];
             $marca->save();
+
+                        
+            $this->movimientosController->guardarMovimiento(
+                'marcas', 'ALTA', $usuario, $marca->id, null, null, null
+            );
+
        } catch (\Exception $th) {
             throw new \Exception($th->getMessage());
         }
@@ -72,30 +81,31 @@ class MarcasController extends Controller
         }
     }
 
-    public function borrarMarca(int $id) {
-
-        try {
-            $marca = Marcas::whereId($id)->first();
-            $marca->update(['activo' => $marca['activo'] === 0 ? 1 : 0]);
-       } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
-        }
-     
-        return response()->json(['error' => false]);
-    }
-
     public function editarMarca(Request $request) {
         $req = $request->all();
+        $usuario = $req['usuario'];
+        $req = $req['data'];
 
         try {
             if($this->chequearSiExiste($req['nombre'])){
                 return response()->json(['error' => true, 'data' => 'Existe una marca con ese nombre']);
             }
     
-            Marcas::whereId($req['id'])->update([
+            $marca = Marcas::whereId($req['id']);
+
+            $mNombre = $marca->first()->toArray()['nombre'];
+
+            $marca->update([
                 "nombre" => $req['nombre'],
             ]);
-       } catch (\Exception $th) {
+
+            if ($mNombre !== $req['nombre']) { 
+                $this->movimientosController->guardarMovimiento(
+                    'marcas', 'MODIFICACION', $usuario, $req['id'], $mNombre, $req['nombre'], null, 'nombre'
+                );
+            }
+
+        } catch (\Exception $th) {
             throw new \Exception($th->getMessage());;
         }
 

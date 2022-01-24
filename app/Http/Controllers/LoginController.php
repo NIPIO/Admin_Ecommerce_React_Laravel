@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
+    private $movimientosController;
+
+    public function __construct(MovimientosController $movimientosController)
+    {
+        $this->movimientosController = $movimientosController;    
+    }
+    
     public function login(Request $request) {
         $datos = $request->all();
         try {
@@ -22,7 +29,6 @@ class LoginController extends Controller
     public function registro(Request $request) {
 
         $datos = $request->all();
-
         try {
             $usuario = Vendedores::where('usuario', $datos['usuario'])->get();
 
@@ -37,6 +43,10 @@ class LoginController extends Controller
             $nuevoUsuario->rol_id = 2;
 
             $nuevoUsuario->save();
+
+            $this->movimientosController->guardarMovimiento(
+                'vendedores', 'ALTA', null, $nuevoUsuario->id, null, null, null
+            );
 
             return response()->json(['error' => false, 'data' => $nuevoUsuario]);
 

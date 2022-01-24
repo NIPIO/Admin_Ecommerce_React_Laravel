@@ -5,15 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CtaCte extends Model
+class Movimientos extends Model
 {
     use HasFactory;
-    /**
+
+     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'cuentas_corrientes';
+    protected $table = 'movimientos';
 
     /**
      * The primary key for the model.
@@ -25,7 +26,7 @@ class CtaCte extends Model
     /**
      * @var array
      */
-    protected $fillable = ['proveedor_id', 'cliente_id', 'saldo', 'tipo_cuenta', 'activo', 'created_at', 'updated_at'];
+    protected $fillable = ['tabla', 'tipo_movimiento', 'usuario', 'item_id', 'estado_viejo', 'estado_nuevo', 'diferencia', 'campo_modificado', 'created_at', 'updated_at'];
 
     
     protected $casts = [
@@ -41,14 +42,9 @@ class CtaCte extends Model
 
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
-
-    public function proveedor()
+    
+    public function usuario()
     {
-        return $this->belongsTo(Proveedores::class, 'proveedor_id', 'id');
-    }
-
-    public function cliente()
-    {
-        return $this->belongsTo(Clientes::class, 'cliente_id', 'id');
+        return $this->belongsTo(Vendedores::class, 'usuario', 'id');
     }
 }

@@ -1,10 +1,22 @@
 import { useQuery } from "react-query";
-import { api } from "./api";
+import { api, getStorage } from "./api";
 
-export function esAdmin() {
-  let localSto = localStorage.getItem("logueado");
-  localSto = JSON.parse(localSto);
-  return localSto.rol_id === 1;
+export const esAdmin = () => {
+  return getStorage().rol_id === 1;
+};
+
+export function useMovimientos({
+  usuario = undefined,
+  fechas = undefined,
+  tipoMovimiento = undefined
+}) {
+  return useQuery(["movimientos", usuario, fechas, tipoMovimiento], () =>
+    api.getMovimientos({
+      usuario,
+      fechas,
+      tipoMovimiento
+    })
+  );
 }
 
 export function useVentas({
@@ -65,6 +77,16 @@ export function useCuentas({ proveedor = undefined, cliente = undefined }) {
     })
   );
 }
+
+export function useCaja({ tipoMovimiento = undefined, fechas = undefined }) {
+  return useQuery(["caja", tipoMovimiento, fechas], () =>
+    api.getCaja({
+      tipoMovimiento,
+      fechas
+    })
+  );
+}
+
 export function useProveedores({ proveedor = undefined }) {
   return useQuery(["proveedores", proveedor], () =>
     api.getProveedores({
@@ -93,6 +115,6 @@ export function usePermisos() {
   return useQuery(["permisos"], () => api.getPermisos());
 }
 
-export function useCambiarEstado(tabla, id, estado) {
-  return api.patchEstado(tabla, id, estado).then(res => res);
+export function useCambiarEstado(tabla, id, estado, usuario) {
+  return api.patchEstado(tabla, id, estado, usuario).then(res => res);
 }

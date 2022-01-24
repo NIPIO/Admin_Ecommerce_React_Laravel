@@ -5,6 +5,11 @@ export default function() {
 
     let arrayMenu = [
       {
+        title: "General",
+        htmlBefore: '<i class="material-icons">move_up</i>',
+        to: "/general"
+      },
+      {
         title: "Ventas",
         htmlBefore: '<i class="material-icons">attach_money</i>',
         to: "/ventas"
@@ -41,7 +46,6 @@ export default function() {
         htmlBefore: '<i class="material-icons">account_balance</i>',
         to: "/cuentas"
       }
-
       // {
       //   title: "Blog Dashboard",
       //   to: "/blog-overview",
@@ -66,7 +70,7 @@ export default function() {
         {
           title: "Caja",
           htmlBefore: '<i class="material-icons">paid</i>',
-          to: "/cuentas"
+          to: "/caja"
         },
         {
           title: "Roles y permisos",

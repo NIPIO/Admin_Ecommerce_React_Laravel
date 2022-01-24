@@ -12,6 +12,12 @@ const Cuentas = () => {
   //INFO TABLA:
   const columnas = [
     {
+      title: "Id",
+      dataIndex: ["id"],
+      width: "5%",
+      render: text => text
+    },
+    {
       title: "Proveedor",
       dataIndex: ["proveedor", "nombre"],
       render: text => (text ? text : "-")
@@ -44,7 +50,13 @@ const Cuentas = () => {
           <Switch
             checked={text}
             onChange={() =>
-              toggleEstado("Cuenta", "cuentas", row.id, text, queryClient)
+              toggleEstado(
+                "cuentas_corrientes",
+                "cuentas",
+                row.id,
+                text,
+                queryClient
+              )
             }
             checkedChildren={"Activo"}
             unCheckedChildren={"Inactivo"}

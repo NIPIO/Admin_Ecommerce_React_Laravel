@@ -7,8 +7,11 @@ use Illuminate\Http\Request;
 
 class ProveedoresController extends Controller
 {
-    public function __construct()
+    private $movimientosController;
+
+    public function __construct(MovimientosController $movimientosController)
     {
+        $this->movimientosController = $movimientosController;    
     }
 
     public function index() {
@@ -25,7 +28,9 @@ class ProveedoresController extends Controller
 
     public function nuevoProveedor(Request $request) {
         $req = $request->all();
-
+        $usuario = $req['usuario'];
+        $req = $req['data'];
+        
         try {
             if($this->chequearSiExiste($req['nombre'])){
                 return response()->json(['error' => true, 'data' => 'Existe un proveedor con ese nombre']);
@@ -34,6 +39,13 @@ class ProveedoresController extends Controller
             $proveedor = new Proveedores();
             $proveedor->nombre = $req['nombre'];
             $proveedor->save();
+
+                        
+            $this->movimientosController->guardarMovimiento(
+                'proveedores', 'ALTA', $usuario, $proveedor->id, null, null, null
+            );
+
+
         } catch (\Exception $th) {
             throw new \Exception($th->getMessage());;
         }
@@ -42,18 +54,30 @@ class ProveedoresController extends Controller
         return response()->json(['status' => 200]);
     }
 
-    
     public function editarProveedor(Request $request) {
         $req = $request->all();
+        $usuario = $req['usuario'];
+        $req = $req['data'];
 
         try {
             if($this->chequearSiExiste($req['nombre'])){
                 return response()->json(['error' => true, 'data' => 'Existe un proveedor con ese nombre']);
             }
     
-            Proveedores::whereId($req['id'])->update([
+            $proveedor = Proveedores::whereId($req['id']);
+
+            $pNombre = $proveedor->first()->toArray()['nombre'];
+
+            $proveedor->update([
                 "nombre" => $req['nombre'],
             ]);
+
+            if ($pNombre !== $req['nombre']) { 
+                $this->movimientosController->guardarMovimiento(
+                    'proveedores', 'MODIFICACION', $usuario, $req['id'], $pNombre, $req['nombre'], null, 'nombre'
+                );
+            }
+
         } catch (\Exception $th) {
             throw new \Exception($th->getMessage());;
         }
@@ -65,8 +89,4 @@ class ProveedoresController extends Controller
     public function chequearSiExiste($nombre) {
         return count(Proveedores::where('nombre', $nombre)->get()->toArray()) > 0;
     }
-
-    
-   
-
 }

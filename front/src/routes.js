@@ -5,15 +5,14 @@ import { Redirect } from "react-router-dom";
 import { DefaultLayout } from "./layouts";
 
 // Route Views
-import BlogOverview from "./views/BlogOverview";
-import UserProfileLite from "./views/UserProfileLite";
-
 import Productos from "./pages/Productos/Productos";
 import Marcas from "./pages/Marcas/Marcas";
 import Clientes from "./pages/Clientes/Clientes";
 import Vendedores from "./pages/Vendedores/Vendedores";
 import Proveedores from "./pages/Proveedores/Proveedores";
 import Cuentas from "./pages/Cuentas/Cuentas";
+import Caja from "./pages/Caja/Caja";
+import General from "./pages/General/General";
 import Ventas from "./pages/Ventas/Ventas";
 import Compras from "./pages/Compras/Compras";
 import Login from "./pages/Login/Login";
@@ -24,7 +23,7 @@ export default [
     path: "/",
     exact: true,
     layout: DefaultLayout,
-    component: () => <Redirect to="/ventas" />
+    component: () => <Redirect to="/general" />
   },
   {
     path: "/productos",
@@ -67,6 +66,17 @@ export default [
     component: Cuentas
   },
   {
+    path: "/caja",
+    layout: DefaultLayout,
+    component: Caja
+  },
+  {
+    path: "/general",
+    layout: DefaultLayout,
+    component: General
+  },
+
+  {
     path: "/login",
     component: Login
   },
@@ -74,15 +84,10 @@ export default [
     path: "/roles-permisos",
     layout: DefaultLayout,
     component: RolesPermisos
-  },
-  {
-    path: "/blog-overview",
-    layout: DefaultLayout,
-    component: BlogOverview
-  },
-  {
-    path: "/user-profile-lite",
-    layout: DefaultLayout,
-    component: UserProfileLite
   }
+  // {
+  //   path: "/blog-overview",
+  //   layout: DefaultLayout,
+  //   component: BlogOverview
+  // },
 ];

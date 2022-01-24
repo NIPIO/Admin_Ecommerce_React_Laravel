@@ -2,24 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Clientes;
 use App\Models\CtaCte;
 use App\Models\Productos;
-use App\Models\Vendedores;
 use App\Models\Ventas;
 use App\Models\VentasDetalle;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 class VentasController extends Controller
 {
+    private $movimientosController;
     public $fecha;
 
-    public function __construct()
+    public function __construct(MovimientosController $movimientosController)
     {
         $this->fecha = Carbon::now()->format('Y-m-d');
+        $this->movimientosController = $movimientosController;    
     }
 
     public function index() {
@@ -51,6 +50,8 @@ class VentasController extends Controller
 
     public function nuevaVenta(Request $request) {
         $req = $request->all();
+        $req = $req['data'];
+        // $usuario = $req['usuario'];
         DB::beginTransaction();
         try {
 
@@ -84,6 +85,7 @@ class VentasController extends Controller
                 ]);;
                 
                 DB::commit();
+    
             }
 
             Ventas::whereId($venta->id)->update([
@@ -106,6 +108,9 @@ class VentasController extends Controller
 
     public function confirmarVenta (Request $request) {
         $req = $request->all();
+        $usuario = $req['usuario'];
+        $req = $req['data'];
+
         DB::beginTransaction();
         try {
             //El saldo abonado en la compra.
@@ -148,6 +153,9 @@ class VentasController extends Controller
                 
                 DB::commit();
             }
+            $this->movimientosController->guardarMovimiento(
+                'ventas', 'CONFIRMACION', $usuario, $req['id'], null, null, $req['diferencia'], null
+            );
 
         } catch (\Throwable $e) {
             Log::error($e->getMessage() . $e->getTraceAsString());
@@ -156,5 +164,9 @@ class VentasController extends Controller
         }
 
         return response()->json(['error' => false]);
+    }
+
+    public function getVentasConfirmadas() {
+        return Ventas::where('confirmada', true)->get()->count();
     }
 }

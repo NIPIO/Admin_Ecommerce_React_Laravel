@@ -1,16 +1,17 @@
 <?php
 
-
+use App\Http\Controllers\CajaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientesController;
 use App\Http\Controllers\ComprasController;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ToggleController;
 use App\Http\Controllers\CtaCteController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProductosController;
 use App\Http\Controllers\VendedoresController;
 use App\Http\Controllers\MarcasController;
+use App\Http\Controllers\MovimientosController;
 use App\Http\Controllers\PermisosController;
 use App\Http\Controllers\ProveedoresController;
 use App\Http\Controllers\RolesController;
@@ -47,12 +48,12 @@ Route::prefix('')->group(function () {
     Route::get('venta/{id}', [VentasController::class, 'getVenta']);
     Route::post('venta', [VentasController::class, 'nuevaVenta']);
     Route::put('venta/{id}', [VentasController::class, 'editarVenta']);
-    Route::get('confirmarVenta', [VentasController::class, 'confirmarVenta']);
+    Route::post('confirmarVenta', [VentasController::class, 'confirmarVenta']);
 
     Route::get('compras', [ComprasController::class, 'index']);
     Route::get('compra/{id}', [ComprasController::class, 'getCompra']);
     Route::post('compra', [ComprasController::class, 'nuevaCompra']);
-    Route::get('confirmarCompra', [ComprasController::class, 'confirmarCompra']);
+    Route::post('confirmarCompra', [ComprasController::class, 'confirmarCompra']);
     
     Route::get('marcas', [MarcasController::class, 'index']);
     Route::post('marca', [MarcasController::class, 'nuevaMarca']);
@@ -80,11 +81,15 @@ Route::prefix('')->group(function () {
     Route::post('roles', [RolesController::class, 'nuevoRol']);
     //  Route::put('rol/{id}', [RolesController::class, 'editarRol']);
 
+    Route::get('caja', [CajaController::class, 'index']);
+    Route::post('caja', [CajaController::class, 'nuevaCaja']);
+
+    Route::get('movimientos', [MovimientosController::class, 'index']);
 
     Route::post('login', [LoginController::class, 'login']);
     Route::post('registro', [LoginController::class, 'registro']);
 
-    Route::patch('toggleEstado/{id}', [Controller::class, 'toggleEstado']);
+    Route::patch('toggleEstado/{id}', [ToggleController::class, 'toggleEstado']);
     
 
 

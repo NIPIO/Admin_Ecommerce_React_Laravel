@@ -14,8 +14,11 @@ use Illuminate\Support\Facades\Log;
 
 class ComprasController extends Controller
 {
-    public function __construct()
+    private $movimientosController;
+
+    public function __construct(MovimientosController $movimientosController)
     {
+        $this->movimientosController = $movimientosController;    
     }
 
     public function index() {
@@ -71,6 +74,7 @@ class ComprasController extends Controller
                 ]);;
                 
                 DB::commit();
+
             }
 
             Compras::whereId($compra->id)->update([
@@ -93,6 +97,9 @@ class ComprasController extends Controller
 
     public function confirmarCompra (Request $request) {
         $req = $request->all();
+        $usuario = $req['usuario'];
+        $req = $req['data'];
+        
         DB::beginTransaction();
         try {
             //El saldo abonado en la compra.
@@ -110,7 +117,8 @@ class ComprasController extends Controller
             DB::commit();
 
             //Actualizo la cuenta corriente con el proveedor
-            $proveedor = CtaCte::where('proveedor_id', $compra->first()->proveedor_id)->first();
+            $compra = $compra->first();
+            $proveedor = CtaCte::where('proveedor_id', $compra->proveedor_id)->first();
 
             $saldoProveedor = $proveedor->saldo;
             CtaCte::where('proveedor_id', $compra->first()->proveedor_id)->update([
@@ -133,6 +141,10 @@ class ComprasController extends Controller
                 
                 DB::commit();
             }
+
+            $this->movimientosController->guardarMovimiento(
+                'compras', 'CONFIRMACION', $usuario, $compra->id, null, null, $req['diferencia']
+            );
 
         } catch (\Throwable $e) {
             Log::error($e->getMessage() . $e->getTraceAsString());

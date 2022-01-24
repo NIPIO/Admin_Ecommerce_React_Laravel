@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Container } from "shards-react";
 import { Form, Input, Row, Modal, Col } from "antd";
 
-import { api } from "./../../hooks/api";
+import { api, getUsuario } from "./../../hooks/api";
 
 const ModalNuevoCliente = ({
   modal,
@@ -28,6 +28,8 @@ const ModalNuevoCliente = ({
   };
 
   const onCreate = values => {
+    values.usuario = getUsuario();
+
     if (clienteEdicion) {
       values.id = clienteEdicion.id;
       api
@@ -85,7 +87,7 @@ const ModalNuevoCliente = ({
       <Row className="page-header py-4">
         <Modal
           visible={modal}
-          title={(clienteEdicion ? "Editar" : "Nueva") + " Cliente"}
+          title={(clienteEdicion ? "Editar" : "Nuevo") + " Cliente"}
           okText={clienteEdicion ? "Editar" : "Crear"}
           cancelText="Cancelar"
           onCancel={() => onReset()}

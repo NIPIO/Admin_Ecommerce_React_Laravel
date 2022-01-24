@@ -8,8 +8,30 @@ export const client = axios.create({
 
 const API_PORT = "http://localhost:8000";
 
+export const getStorage = () => {
+  let localSto = localStorage.getItem("logueado");
+  localSto = JSON.parse(localSto);
+  return localSto;
+};
+
+export const getUsuario = () => {
+  return getStorage().id;
+};
+
 export const api = {
   ///GETTERS
+
+  getMovimientos: ({ usuario, fechas, tipoMovimiento }) =>
+    client
+      .get(API_PORT + "/api/movimientos", {
+        params: {
+          usuario,
+          fechas,
+          tipoMovimiento
+        }
+      })
+      .then(res => res.data),
+
   getProductos: ({ producto, marca }) =>
     client
       .get(API_PORT + "/api/productos", {
@@ -94,6 +116,16 @@ export const api = {
       })
       .then(res => res.data),
 
+  getCaja: ({ tipoMov, fechas }) =>
+    client
+      .get(API_PORT + "/api/caja", {
+        params: {
+          tipoMov,
+          fechas
+        }
+      })
+      .then(res => res.data),
+
   getRoles: ({ rol }) =>
     client
       .get(API_PORT + "/api/roles", {
@@ -106,100 +138,141 @@ export const api = {
   getPermisos: () =>
     client.get(API_PORT + "/api/permisos").then(res => res.data),
 
-  confirmarCompra: (pago, id, diferencia) =>
-    client
-      .get(API_PORT + "/api/confirmarCompra", {
-        params: {
-          id,
-          pago,
-          diferencia
-        }
-      })
-      .then(res => res.data),
-
-  confirmarVenta: (pago, id, diferencia) =>
-    client
-      .get(API_PORT + "/api/confirmarVenta", {
-        params: {
-          id,
-          pago,
-          diferencia
-        }
-      })
-      .then(res => res.data),
-
   ///SETTERS
   setNuevoProducto: data =>
-    client.post(API_PORT + "/api/producto", data).then(res => res.data),
+    client
+      .post(API_PORT + "/api/producto", { data, usuario: getUsuario() })
+      .then(res => res.data),
 
   setNuevaMarca: data =>
-    client.post(API_PORT + "/api/marca", data).then(res => res.data),
+    client
+      .post(API_PORT + "/api/marca", { data, usuario: getUsuario() })
+      .then(res => res.data),
 
   setNuevaVenta: (productos, cliente, vendedor) =>
     client
-      .post(API_PORT + "/api/venta", { productos, cliente, vendedor })
+      .post(API_PORT + "/api/venta", {
+        productos,
+        cliente,
+        vendedor,
+        usuario: getUsuario()
+      })
       .then(res => res.data),
 
   setNuevaCompra: (productos, proveedor) =>
     client
-      .post(API_PORT + "/api/compra", { productos, proveedor })
+      .post(API_PORT + "/api/compra", {
+        productos,
+        proveedor,
+        usuario: getUsuario()
+      })
+      .then(res => res.data),
+
+  setNuevaCaja: data =>
+    client
+      .post(API_PORT + "/api/caja", { data, usuario: getUsuario() })
       .then(res => res.data),
 
   setNuevoCliente: data =>
-    client.post(API_PORT + "/api/cliente", data).then(res => res.data),
+    client
+      .post(API_PORT + "/api/cliente", { data, usuario: getUsuario() })
+      .then(res => res.data),
 
   setNuevoVendedor: data =>
-    client.post(API_PORT + "/api/vendedor", data).then(res => res.data),
+    client
+      .post(API_PORT + "/api/vendedor", { data, usuario: getUsuario() })
+      .then(res => res.data),
 
   setNuevoProveedor: data =>
-    client.post(API_PORT + "/api/proveedor", data).then(res => res.data),
+    client
+      .post(API_PORT + "/api/proveedor", { data, usuario: getUsuario() })
+      .then(res => res.data),
 
   setNuevaCtaCte: data =>
     client
-      .post(API_PORT + "/api/cuentas-corrientes", data)
+      .post(API_PORT + "/api/cuentas-corrientes", {
+        data,
+        usuario: getUsuario()
+      })
       .then(res => res.data),
 
   setRol: data =>
-    client.post(API_PORT + "/api/roles", data).then(res => res.data),
+    client
+      .post(API_PORT + "/api/roles", { data, usuario: getUsuario() })
+      .then(res => res.data),
+
+  confirmarCompra: data =>
+    client
+      .post(API_PORT + "/api/confirmarCompra", { data, usuario: getUsuario() })
+      .then(res => res.data),
+
+  confirmarVenta: data =>
+    client
+      .post(API_PORT + "/api/confirmarVenta", { data, usuario: getUsuario() })
+      .then(res => res.data),
 
   //PUTTERS
   putProducto: data =>
     client
-      .put(API_PORT + `/api/producto/${data.id}`, data)
+      .put(API_PORT + `/api/producto/${data.id}`, {
+        data,
+        usuario: getUsuario()
+      })
       .then(res => res.data),
   putMarca: data =>
-    client.put(API_PORT + `/api/marca/${data.id}`, data).then(res => res.data),
+    client
+      .put(API_PORT + `/api/marca/${data.id}`, { data, usuario: getUsuario() })
+      .then(res => res.data),
 
   putCliente: data =>
     client
-      .put(API_PORT + `/api/cliente/${data.id}`, data)
+      .put(API_PORT + `/api/cliente/${data.id}`, {
+        data,
+        usuario: getUsuario()
+      })
       .then(res => res.data),
 
   putCuenta: data =>
     client
-      .put(API_PORT + `/api/cuentas-corrientes/${data.id}`, data)
+      .put(API_PORT + `/api/cuentas-corrientes/${data.id}`, {
+        data,
+        usuario: getUsuario()
+      })
       .then(res => res.data),
 
   putProveedor: data =>
     client
-      .put(API_PORT + `/api/proveedor/${data.id}`, data)
+      .put(API_PORT + `/api/proveedor/${data.id}`, {
+        data,
+        usuario: getUsuario()
+      })
       .then(res => res.data),
 
   putCtaCte: data =>
     client
-      .put(API_PORT + `/api/cuentas-corrientes/${data.id}`, data)
+      .put(API_PORT + `/api/cuentas-corrientes/${data.id}`, {
+        data,
+        usuario: getUsuario()
+      })
       .then(res => res.data),
 
   putVenta: data =>
-    client.put(API_PORT + `/api/venta/${data.id}`, data).then(res => res.data),
+    client
+      .put(API_PORT + `/api/venta/${data.id}`, { data, usuario: getUsuario() })
+      .then(res => res.data),
 
   putVendedor: data =>
     client
-      .put(API_PORT + `/api/vendedor/${data.id}`, data)
+      .put(API_PORT + `/api/vendedor/${data.id}`, {
+        data,
+        usuario: getUsuario()
+      })
       .then(res => res.data),
 
   putRol: data =>
-    client.put(API_PORT + `/api/rol/${data.id}`, data).then(res => res.data),
+    client
+      .put(API_PORT + `/api/rol/${data.id}`, { data, usuario: getUsuario() })
+      .then(res => res.data),
 
   //DELETERS
   deleteProducto: id =>
@@ -212,9 +285,14 @@ export const api = {
     client.delete(API_PORT + `/api/vendedor/${id}`, id).then(res => res.data),
 
   //PATCHERS
-  patchEstado: (tabla, id, estado) =>
+  patchEstado: (tabla, id, estado, usuario) =>
     client
-      .patch(API_PORT + `/api/toggleEstado/${id}`, { tabla, id, estado })
+      .patch(API_PORT + `/api/toggleEstado/${id}`, {
+        tabla,
+        id,
+        estado,
+        usuario
+      })
       .then(res => res.data)
 };
 

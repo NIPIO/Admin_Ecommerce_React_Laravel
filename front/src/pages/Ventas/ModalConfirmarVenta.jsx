@@ -26,7 +26,7 @@ const ModalNuevaVenta = ({ modal, setModal, id, queryClient }) => {
 
   const confirmaAlerta = (pago, diferencia) => {
     api
-      .confirmarVenta(pago, id, diferencia)
+      .confirmarVenta({ pago, id, diferencia })
       .then(res => {
         if (res.error) {
           showNotification("error", "Ocurrio un error", res.data);

@@ -13,6 +13,12 @@ const Vendedores = () => {
   //INFO TABLA:
   const columnas = [
     {
+      title: "Id",
+      dataIndex: ["id"],
+      width: "5%",
+      render: text => text
+    },
+    {
       title: "Nombre",
       dataIndex: ["nombre"],
       render: text => text
@@ -67,7 +73,13 @@ const Vendedores = () => {
             checked={text}
             disabled={!esAdmin()}
             onChange={() =>
-              toggleEstado("Vendedor", "vendedores", row.id, text, queryClient)
+              toggleEstado(
+                "vendedores",
+                "vendedores",
+                row.id,
+                text,
+                queryClient
+              )
             }
             checkedChildren={"Activo"}
             unCheckedChildren={"Inactivo"}

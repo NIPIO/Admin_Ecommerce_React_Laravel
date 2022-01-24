@@ -12,9 +12,14 @@ const Productos = () => {
   //INFO TABLA:
   const columnas = [
     {
+      title: "Id",
+      dataIndex: ["id"],
+      width: "5%",
+      render: text => text
+    },
+    {
       title: "Nombre",
       dataIndex: ["nombre"],
-
       render: text => text
     },
     {
@@ -66,7 +71,7 @@ const Productos = () => {
           <Switch
             checked={text}
             onChange={() =>
-              toggleEstado("Producto", "productos", row.id, text, queryClient)
+              toggleEstado("productos", "productos", row.id, text, queryClient)
             }
             checkedChildren={"Activo"}
             unCheckedChildren={"Inactivo"}

@@ -126,7 +126,6 @@ const ModalNuevaCuenta = ({
                     <Radio.Button
                       disabled={cuentaEdicion.tipo_cuenta === "p"}
                       value={"c"}
-                      defaultChecked={true}
                     >
                       Cliente
                     </Radio.Button>
