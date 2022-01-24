@@ -39,23 +39,23 @@ class MovimientosController extends Controller
             ], 
             [
                 'label' => 'Clientes',
-                'value' => $clientes->id
+                'value' => $clientes ? $clientes->id : 0
             ],
             [
                 'label' => 'Stock',
-                'value' => $productos[0]
+                'value' => $productos ? $productos[0] : 0
             ],
             [
                 'label' => 'Stock reservado',
-                'value' => $productos[1]
+                'value' => $productos ? $productos[1] : 0
             ],
             [
                 'label' => 'En transito',
-                'value' => $productos[2]
+                'value' => $productos ? $productos[2] : 0
             ],
             [
                 'label' => 'En transito reservado',
-                'value' => $productos[3]
+                'value' => $productos ? $productos[3] : 0
             ],
         ]]);
    }

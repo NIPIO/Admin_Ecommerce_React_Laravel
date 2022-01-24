@@ -7,6 +7,7 @@ import Busqueda from "./Busqueda";
 import ModalNuevaCaja from "./NuevaCaja";
 import { showNotification } from "../notificacion";
 import { useQueryClient } from "react-query";
+import BlogOverview from "../../views/BlogOverview";
 
 const Caja = () => {
   //INFO TABLA:
@@ -36,6 +37,11 @@ const Caja = () => {
         };
       },
       sorter: (a, b) => a.importe - b.importe
+    },
+    {
+      title: "Item",
+      dataIndex: ["item_id"],
+      render: text => text
     },
     {
       title: "Usuario",
@@ -87,6 +93,7 @@ const Caja = () => {
           </Col>
         </Space>
       </Row>
+      <BlogOverview datosIniciales={allCaja.data.datosIniciales} />
       <Row>
         <Col>
           <Card small className="mb-4">

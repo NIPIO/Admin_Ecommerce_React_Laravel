@@ -28,7 +28,24 @@ class CajaController extends Controller
             $caja->whereBetween('created_at', [Carbon::parse(substr($fechas[0], 1, -1))->format('Y-m-d'), Carbon::parse(substr($fechas[1], 1, -1))->format('Y-m-d')]);
         }
         
-        return response()->json(['error' => false, 'allCaja' => Caja::all(), 'cajaFiltro' => $caja->get()]);
+        return response()->json(['error' => false, 'allCaja' => Caja::all(), 'cajaFiltro' => $caja->get(), 'datosIniciales' => [
+            [
+                'label' => 'Ventas',
+                'value' => '$' . Caja::whereTipoMovimiento('VENTA')->sum('importe')
+            ], 
+            [
+                'label' => 'Compras',
+                'value' => '$' . Caja::whereTipoMovimiento('COMPRA')->sum('importe')
+            ],
+            [
+                'label' => 'Gastos',
+                'value' => '$' . Caja::whereTipoMovimiento('EGRESO')->sum('importe')
+            ],
+            [
+                'label' => 'Ingresos',
+                'value' => '$' . Caja::whereTipoMovimiento('INGRESO')->sum('importe')
+            ],
+        ]]);
     }
 
     public function nuevaCaja(Request $request) {
@@ -40,12 +57,11 @@ class CajaController extends Controller
         try {
 
             $caja = new Caja();
-            $caja->tipo_movimiento = $req['tipoMovimiento'];
+            $caja->tipo_movimiento = strtoupper($req['tipoMovimiento']);
             $caja->importe = $req['tipoMovimiento'] === 'Egreso' ? - $req['importe'] : $req['importe'];
             $caja->usuario = $usuario;
             $caja->observacion = $req['observacion'] ?? null;
             $caja->save();
-
                         
             $this->movimientosController->guardarMovimiento(
                 'caja', strtoupper($req['tipoMovimiento']), $usuario, $caja->id, null, null, null

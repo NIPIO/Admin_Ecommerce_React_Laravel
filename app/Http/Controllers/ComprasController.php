@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Caja;
 use App\Models\Compras;
 use App\Models\ComprasDetalle;
 use App\Models\CtaCte;
@@ -127,6 +128,14 @@ class ComprasController extends Controller
 
             DB::commit();
 
+            //grabo el ingreso en la caja
+            Caja::create([
+                'tipo_movimiento' => 'COMPRA',
+                'item_id' => $req['id'],
+                'importe' => - $req['pago'],
+                'usuario' => $usuario
+            ]);
+            
             //Por ultimo paso el stock de la compra en tranisto a stock
             $compraDetalle = ComprasDetalle::whereCompraId($req['id'])->get()->toArray();
 

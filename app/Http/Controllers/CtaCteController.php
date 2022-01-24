@@ -82,13 +82,13 @@ class CtaCteController extends Controller
                     "saldo" => $req['saldo'],
                     ($req['esCliente'] ? "cliente_id" : "proveedor_id") => $req['proveedor']
                 ]);
-
-                // if ($cambios) { //EDITÓ ALGÚN CAMPO
-                //     dd($cambios);
-                //     $this->movimientosController->guardarMovimiento(
-                //         'cuentas_corrientes', 'MODIFICACION', $usuario, $req['id'], $cambios[1], $req[$cambios[0]], $cambios[2], $cambios[0] === 'saldo' ? 'saldo' : 'responsable'
-                //     );
-                // }
+                if ($cambios) { //EDITÓ ALGÚN CAMPO
+                    foreach ($cambios as $cambio) {
+                        $this->movimientosController->guardarMovimiento(
+                            'cuentas_corrientes', 'MODIFICACION', $usuario, $req['id'], $cambio[1], $cambio[2], $cambio[3], $cambio[0] === 'saldo' ? 'saldo' : 'responsable'
+                        );
+                    }
+                }
 
         } catch (\Exception $th) {
             throw new \Exception($th->getMessage());;
@@ -113,14 +113,16 @@ class CtaCteController extends Controller
                 
     private function buscarCamposEditados($cuenta, $req) {
         $cuenta = $cuenta->first();
-
-        // if ($cuenta->saldo !== $req['saldo']) {
-        //     return ['saldo', $cuenta->saldo, $req['saldo'] - $cuenta->saldo];
-        // }
-        
-        // if ($req['esCliente'] ? $cuenta->cliente_id : $cuenta->proveedor_id !== $req['proveedor']) {
-        //     return ['proveedor', $cuenta->cliente_id , null];
-        // }
+        $campos = [];
+        if ($req['esCliente'] ? $cuenta->cliente_id : $cuenta->proveedor_id !== $req['proveedor']) {
+            //tabla, dato anterior, dato posterior, diferencia
+            array_push($campos, ['proveedor', $req['esCliente'] ? $cuenta->cliente_id : $cuenta->proveedor_id, $req['proveedor'] , null]);
+        }
+        if ($cuenta->saldo !== $req['saldo']) {
+            //tabla, dato anterior, dato posterior, diferencia
+            array_push($campos, ['saldo', $cuenta->saldo, $req['saldo'], $req['saldo'] - $cuenta->saldo]);
+        }
+        return $campos;
     }
 
 }

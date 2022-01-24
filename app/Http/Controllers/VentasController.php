@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Caja;
 use App\Models\CtaCte;
 use App\Models\Productos;
 use App\Models\Ventas;
@@ -138,6 +139,14 @@ class VentasController extends Controller
                 'confirmada' => true,
             ]);
             DB::commit();
+
+            //grabo el egreso en la caja
+            Caja::create([
+                'tipo_movimiento' => 'VENTA',
+                'item_id' => $req['id'],
+                'importe' => $req['pago'],
+                'usuario' => $usuario
+            ]);
 
             //Por ultimo paso el stock de la compra en tranisto a stock
             $ventaDetalle = VentasDetalle::whereVentaId($req['id'])->get()->toArray();
