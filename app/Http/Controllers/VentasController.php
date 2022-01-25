@@ -51,22 +51,36 @@ class VentasController extends Controller
 
     public function nuevaVenta(Request $request) {
         $req = $request->all();
-        $req = $req['data'];
-        // $usuario = $req['usuario'];
+
         DB::beginTransaction();
         try {
 
             $venta = Ventas::create([
                 'cliente_id' => $req['cliente'],
                 'vendedor_id' => $req['vendedor'],
-                'cantidad' => array_sum(array_column($req['productos'], 'cantidad')),
+                'cantidad' => array_sum(array_column($req['filas'], 'cantidad')),
                 'precio_total' => 0,
                 'fecha_venta' => Carbon::now()->format('Y-m-d'),
             ]);
             
-            DB::commit();
             $totalPrecioVenta = 0;
-            foreach ($req['productos'] as $ventaDetalleRow) {
+            foreach ($req['filas'] as $ventaDetalleRow) {
+
+                //el total es para sumar cantidad producto por precio prodcuto. Al final cuando grabo en compra sumo todo de todods. Despues elimino este campo no lo preciso
+                $totalPrecioVenta += $ventaDetalleRow['cantidad'] * $ventaDetalleRow['precioUnitario'];
+
+                //pongo en stock en transito las nuevas compras
+                $productoAEditar = Productos::whereId($ventaDetalleRow['producto'])->first()->toArray();
+
+                if ($productoAEditar['stock'] - $productoAEditar['stock_reservado'] - (int) $ventaDetalleRow['cantidad'] < 0 ) {
+                    return response()->json([
+                        'error' => true, 
+                        'data' => 'No hay stock suficiente para el ' . $productoAEditar['nombre'] . '. Stock disponible: ' . ($productoAEditar['stock'] - $productoAEditar['stock_reservado'])
+                    ]); 
+                }
+                $productoAEditar = Productos::whereId($ventaDetalleRow['producto'])->update([
+                        "stock_reservado" => $productoAEditar['stock_reservado'] + $ventaDetalleRow['cantidad']
+                ]);
 
                 VentasDetalle::create([
                     'venta_id' => $venta->id,
@@ -75,24 +89,14 @@ class VentasController extends Controller
                     'precio' => $ventaDetalleRow['precioUnitario']
                 ]);
 
-                //el total es para sumar cantidad producto por precio prodcuto. Al final cuando grabo en compra sumo todo de todods. Despues elimino este campo no lo preciso
-                $totalPrecioVenta += $ventaDetalleRow['cantidad'] * $ventaDetalleRow['precioUnitario'];
-
-                //pongo en stock en transito las nuevas compras
-                $productoAEditar = Productos::whereId($ventaDetalleRow['producto'])->first()->toArray();
-
-                $productoAEditar = Productos::whereId($ventaDetalleRow['producto'])->update([
-                        "stock_reservado" => $productoAEditar['stock_reservado'] + $ventaDetalleRow['cantidad']
-                ]);;
-                
-                DB::commit();
-    
             }
 
             Ventas::whereId($venta->id)->update([
                 "precio_total" => $totalPrecioVenta,
                 "vendedor_comision" => ($totalPrecioVenta * 0.01)
             ]);
+
+            DB::commit();
 
         } catch (\Throwable $e) {
             Log::error($e->getMessage() . $e->getTraceAsString());

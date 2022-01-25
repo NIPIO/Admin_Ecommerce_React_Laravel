@@ -39,16 +39,16 @@ class CtaCteController extends Controller
         
         try {
             //PUede ser proveedor o cliente que necesita abrir una cuenta
-            if($this->chequearSiExiste($req['id'],$req['tipoCuenta'])){
+            if($this->chequearSiExiste($req['proveedor'],$req['tipoCuenta'])){
                 return response()->json(['error' => true, 'data' => 'Esa persona ya tiene una cuenta']);
             }
 
             $cuenta = new CtaCte();
             if ($req['tipoCuenta'] === 'p') {
-                $cuenta->proveedor_id = $req['id'];
+                $cuenta->proveedor_id = $req['proveedor'];
                 $cuenta->cliente_id = null;
             } else {
-                $cuenta->cliente_id = $req['id'];
+                $cuenta->cliente_id = $req['proveedor'];
                 $cuenta->proveedor_id = null;
             }
 

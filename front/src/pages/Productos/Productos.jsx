@@ -1,4 +1,4 @@
-import { useMarcas, useProductos } from "../../hooks/apiCalls";
+import { useMarcas, useProductos, esAdmin } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
 import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
@@ -82,10 +82,11 @@ const Productos = () => {
     {
       title: "Acciones",
       key: "action",
-
       render: (text, record) => (
         <Space size="middle">
-          <Button onClick={() => edicion(text, record)}>Editar</Button>
+          <Button disabled={!esAdmin()} onClick={() => edicion(text, record)}>
+            Editar
+          </Button>
         </Space>
       )
     }

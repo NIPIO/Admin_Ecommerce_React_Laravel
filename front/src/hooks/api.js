@@ -149,10 +149,10 @@ export const api = {
       .post(API_PORT + "/api/marca", { data, usuario: getUsuario() })
       .then(res => res.data),
 
-  setNuevaVenta: (productos, cliente, vendedor) =>
+  setNuevaVenta: (filas, cliente, vendedor) =>
     client
       .post(API_PORT + "/api/venta", {
-        productos,
+        filas,
         cliente,
         vendedor,
         usuario: getUsuario()
