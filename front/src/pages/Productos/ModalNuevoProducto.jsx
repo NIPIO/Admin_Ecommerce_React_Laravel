@@ -112,7 +112,7 @@ const ModalNuevoProducto = ({
             <Row gutter={24}>
               <Col xs={24} md={12}>
                 <Form.Item name="nombre" label="Nombre" rules={rules}>
-                  <Input />
+                  <Input disabled={productoEdicion} />
                 </Form.Item>
               </Col>
               <Col xs={24} md={12}>

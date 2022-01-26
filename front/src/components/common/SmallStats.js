@@ -80,7 +80,7 @@ class SmallStats extends React.Component {
   }
 
   render() {
-    const { variation, label, value, percentage, increase } = this.props;
+    const { variation, label, value } = this.props;
 
     const cardClasses = classNames(
       "stats-small",
@@ -118,10 +118,10 @@ class SmallStats extends React.Component {
       variation !== "1" && "text-right align-items-center"
     );
 
-    const percentageClasses = classNames(
-      "stats-small__percentage",
-      `stats-small__percentage--${increase ? "increase" : "decrease"}`
-    );
+    // const percentageClasses = classNames(
+    //   "stats-small__percentage",
+    //   `stats-small__percentage--${increase ? "increase" : "decrease"}`
+    // );
 
     const canvasHeight = variation === "1" ? 120 : 60;
 
@@ -164,7 +164,7 @@ SmallStats.propTypes = {
   /**
    * The percentage number or string.
    */
-  percentage: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  // percentage: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   /**
    * Whether is a value increase, or not.
    */
@@ -189,7 +189,7 @@ SmallStats.propTypes = {
 
 SmallStats.defaultProps = {
   increase: true,
-  percentage: 0,
+  // percentage: 0,
   value: 0,
   label: "Label",
   chartOptions: Object.create(null),

@@ -15,8 +15,7 @@ export const toggleEstado = (
   refreshQuery,
   id,
   estado,
-  queryClient = undefined,
-  usuario
+  queryClient = undefined
 ) => {
   let localSto = localStorage.getItem("logueado");
   localSto = JSON.parse(localSto);

@@ -60,6 +60,7 @@ class VentasController extends Controller
                 'vendedor_id' => $req['vendedor'],
                 'cantidad' => array_sum(array_column($req['filas'], 'cantidad')),
                 'precio_total' => 0,
+                'activo' => 1,
                 'fecha_venta' => Carbon::now()->format('Y-m-d'),
             ]);
             
@@ -181,5 +182,16 @@ class VentasController extends Controller
 
     public function getVentasConfirmadas() {
         return Ventas::where('confirmada', true)->get()->count();
+    }
+
+    public function actualizarStock($venta, $quiereInactivar) {
+
+
+        $productosDeLaVenta = VentasDetalle::whereVentaId($venta->id)->get()->toArray();
+
+        foreach ($productosDeLaVenta as $productoVenta) {
+            $producto = Productos::whereId($productoVenta['producto_id']);
+            $quiereInactivar ? $producto->decrement('stock_reservado', $productoVenta['cantidad']) : $producto->increment('stock_reservado', $productoVenta['cantidad']);
+        }
     }
 }

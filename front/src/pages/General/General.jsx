@@ -63,7 +63,6 @@ const General = () => {
 
   //FIN INFO TABLA.
   const [busqueda, setBusqueda] = useState({
-    tipoMovimiento: null,
     fechas: null,
     tipoMovimiento: null
   });

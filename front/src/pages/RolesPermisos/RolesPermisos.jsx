@@ -1,7 +1,7 @@
 import { useRoles, usePermisos } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import { Table, Space, Spin, Row, Col, Button, Tag } from "antd";
+import { Table, Space, Spin, Row, Col, Button } from "antd";
 import { showNotification } from "./../notificacion";
 
 import PageTitle from "../../components/common/PageTitle";

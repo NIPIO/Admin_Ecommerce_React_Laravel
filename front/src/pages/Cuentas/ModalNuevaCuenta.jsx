@@ -18,6 +18,7 @@ const ModalNuevaCuenta = ({
   const [form] = Form.useForm();
   const [tipoCuenta, setTipoCuenta] = useState();
 
+  console.log(cuentaEdicion);
   let rules = [
     {
       required: true,
@@ -86,6 +87,7 @@ const ModalNuevaCuenta = ({
         : cuentaEdicion.cliente_id,
       saldo: cuentaEdicion.saldo
     });
+    setTipoCuenta(cuentaEdicion.tipo_cuenta);
   }, [cuentaEdicion]);
 
   return (
@@ -122,6 +124,9 @@ const ModalNuevaCuenta = ({
                   <Radio.Group
                     onChange={val => setTipoCuenta(val.target.value)}
                     label="Tipo de cuenta"
+                    defaultValue={
+                      cuentaEdicion ? cuentaEdicion.tipo_cuenta : null
+                    }
                   >
                     <Radio.Button
                       disabled={cuentaEdicion.tipo_cuenta === "p"}

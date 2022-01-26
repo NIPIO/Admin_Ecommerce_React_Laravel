@@ -2,12 +2,13 @@ import { useCompras, useProductos, useProveedores } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
 import PageTitle from "../../components/common/PageTitle";
-import { Table, Spin, Row, Col, Space, Button } from "antd";
+import { Table, Spin, Row, Col, Space, Button, Switch, Popconfirm } from "antd";
 
 import ModalNuevaCompra from "./ModalNuevaCompra";
 import ModalConfirmarCompra from "./ModalConfirmarCompra";
 import Busqueda from "./Busqueda";
 import { useQueryClient } from "react-query";
+import { toggleEstado } from "../notificacion";
 
 const Compras = () => {
   //INFO TABLA:
@@ -32,6 +33,35 @@ const Compras = () => {
       title: "Fecha",
       dataIndex: ["created_at"],
       render: text => text
+    },
+    {
+      title: "Estado",
+      dataIndex: ["activo"],
+      render: (text, row) => (
+        <Space>
+          <Popconfirm
+            title="Si cambia el estado de esta venta modificará el stock de los productos (van a pasar a reservados o disponibles según corresponda). Seguimos?"
+            onConfirm={() =>
+              toggleEstado(
+                "compras",
+                "compras",
+                row.id,
+                row.activo,
+                queryClient
+              )
+            }
+            onCancel={() => console.log("ta")}
+            okText="Sí"
+            cancelText="No"
+          >
+            <Switch
+              checked={text}
+              checkedChildren={"Activa"}
+              unCheckedChildren={"Cancelada"}
+            />
+          </Popconfirm>
+        </Space>
+      )
     },
     {
       title: "Acciones",

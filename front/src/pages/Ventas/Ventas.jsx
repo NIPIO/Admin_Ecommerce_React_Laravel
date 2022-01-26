@@ -6,8 +6,9 @@ import {
 } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
-import { Table, Spin, Row, Col, Space, Button } from "antd";
+import { Table, Spin, Row, Col, Space, Button, Switch, Popconfirm } from "antd";
 import PageTitle from "../../components/common/PageTitle";
+import { toggleEstado } from "./../notificacion";
 import ModalNuevaVenta from "./ModalNuevaVenta";
 import ModalConfirmarVenta from "./ModalConfirmarVenta";
 import Busqueda from "./Busqueda";
@@ -42,6 +43,29 @@ const Ventas = () => {
       title: "Fecha",
       dataIndex: ["fecha_venta"],
       render: text => text
+    },
+    {
+      title: "Estado",
+      dataIndex: ["activo"],
+      render: (text, row) => (
+        <Space>
+          <Popconfirm
+            title="Si cambia el estado de esta venta modificará el stock de los productos (van a pasar a reservados o disponibles según corresponda). Seguimos?"
+            onConfirm={() =>
+              toggleEstado("ventas", "ventas", row.id, row.activo, queryClient)
+            }
+            onCancel={() => console.log("ta")}
+            okText="Sí"
+            cancelText="No"
+          >
+            <Switch
+              checked={text}
+              checkedChildren={"Activa"}
+              unCheckedChildren={"Cancelada"}
+            />
+          </Popconfirm>
+        </Space>
+      )
     },
     {
       title: "Acciones",

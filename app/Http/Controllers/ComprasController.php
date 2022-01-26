@@ -50,6 +50,7 @@ class ComprasController extends Controller
                 'proveedor_id' => $req['proveedor'],
                 'cantidad' => array_sum(array_column($req['productos'], 'cantidad')),
                 'precio_total' => 0,
+                'activo' => 1,
                 'fecha_compra' => Carbon::now()->format('Y-m-d'),
             ]);
             
@@ -162,5 +163,15 @@ class ComprasController extends Controller
         }
 
         return response()->json(['error' => false]);
+    }
+    
+    public function actualizarStock($compra, $quiereInactivar) {
+
+        $productosDeLaCompra = ComprasDetalle::whereCompraId($compra->id)->get()->toArray();
+
+        foreach ($productosDeLaCompra as $productoCompra) {
+            $producto = Productos::whereId($productoCompra['producto_id']);
+            $quiereInactivar ? $producto->decrement('en_transito', $productoCompra['cantidad']) : $producto->increment('en_transito', $productoCompra['cantidad']);
+        }
     }
 }

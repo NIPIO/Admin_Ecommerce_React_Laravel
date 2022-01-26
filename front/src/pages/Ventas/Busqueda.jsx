@@ -26,7 +26,7 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
         header={
           <Space>
             <SearchOutlined style={{ color: "#aaa" }} />
-            Búsqueda (Por defecto las ventas son las del día de hoy)
+            Búsqueda
           </Space>
         }
       >

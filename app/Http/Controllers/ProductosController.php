@@ -72,9 +72,11 @@ class ProductosController extends Controller
         $req = $req['data'];
         
         try {
-            if($this->chequearSiExiste($req['nombre'])){
-                return response()->json(['error' => true, 'data' => 'Existe un producto con ese nombre']);
-            }
+            $producto = Productos::whereId($req['id']);
+
+            // if($this->chequearSiExiste($req['nombre'])){
+            //     return response()->json(['error' => true, 'data' => 'Existe un producto con ese nombre']);
+            // }
             
             $producto = Productos::whereId($req['id']);
 
@@ -117,9 +119,9 @@ class ProductosController extends Controller
         }
     }
 
-    public function chequearSiExiste($nombre) {
-        return count(Productos::where('nombre', $nombre)->get()->toArray()) > 0;
-    }
+    // public function chequearSiExiste($nombre) {
+    //     return count(Productos::where('nombre', $nombre)->get()->toArray()) > 0;
+    // }
 
     public function getStock() {
         return [Productos::sum('stock'), Productos::sum('stock_reservado'), Productos::sum('en_transito'), Productos::sum('en_transito_reservado')];

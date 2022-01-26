@@ -25,7 +25,7 @@ class ToggleController extends Controller
         $this->movimientosController = $movimientosController;    
     }
 
-    public function toggleEstado() {
+    public function toggleEstado(VentasController $ventasController, ComprasController $comprasController) {
         try {
             $req = request()->all();
             $tabla = null; 
@@ -65,6 +65,12 @@ class ToggleController extends Controller
             $this->movimientosController->guardarMovimiento(
                 $req['tabla'], 'ESTADO', $req['usuario'], $req['id'], $req['estado'] === 1 ? 'activo' : 'inactivo', $req['estado'] === 0 ? 'activo' : 'inactivo'
             );
+
+            if ($req['tabla'] === 'compras') {
+                $comprasController->actualizarStock($tabla->first(), $req['estado']);
+            } elseif ($req['tabla'] === 'ventas') {
+                $ventasController->actualizarStock($tabla->first(), $req['estado']);
+            }
 
         } catch (\Exception $th) {
             throw new \Exception($th->getMessage());
