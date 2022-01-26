@@ -8,6 +8,7 @@ use App\Models\ComprasDetalle;
 use App\Models\CtaCte;
 use App\Models\Productos;
 use App\Models\Proveedores;
+use App\Repositories\IndexRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,27 +17,20 @@ use Illuminate\Support\Facades\Log;
 class ComprasController extends Controller
 {
     private $movimientosController;
+    private $indexRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
     {
         $this->movimientosController = $movimientosController;    
+        $this->indexRepository = $indexRepository;    
     }
 
     public function index() {
         $proveedor = request()->get('proveedor');
         $producto = request()->get('producto');
 
-        $compras = Compras::orderBy('id', 'DESC')->with(['proveedor', 'producto']);
+        $compras = $this->indexRepository->indexCompras($proveedor, $producto);
 
-        if ($proveedor) {
-            $compras->where('proveedor_id', (int) $proveedor);
-        }
-        if ($producto) {
-            $compras->whereHas('detalleCompra', function($innerQuery) use ($producto) {
-                $innerQuery->where('producto_id', (int) $producto);
-            });
-        }
-        
         return response()->json(['error' => false, 'allCompras' => Compras::all(), 'comprasFiltro' => $compras->get()]);
     }
 
@@ -165,13 +159,5 @@ class ComprasController extends Controller
         return response()->json(['error' => false]);
     }
     
-    public function actualizarStock($compra, $quiereInactivar) {
 
-        $productosDeLaCompra = ComprasDetalle::whereCompraId($compra->id)->get()->toArray();
-
-        foreach ($productosDeLaCompra as $productoCompra) {
-            $producto = Productos::whereId($productoCompra['producto_id']);
-            $quiereInactivar ? $producto->decrement('en_transito', $productoCompra['cantidad']) : $producto->increment('en_transito', $productoCompra['cantidad']);
-        }
-    }
 }

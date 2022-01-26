@@ -6,31 +6,27 @@ use Illuminate\Http\Request;
 use App\Http\Responses\Json;
 use App\Models\Marcas;
 use App\Models\Productos;
+use App\Repositories\IndexRepository;
 
 class ProductosController extends Controller
 {
     private $movimientosController;
+    private $indexRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
     {
         $this->movimientosController = $movimientosController;    
+        $this->indexRepository = $indexRepository;    
     }
 
     public function index() {
         $producto = request()->get('producto');
         $marca = request()->get('marca');
-        $productos = Productos::orderBy('id', 'ASC')->with(['marcas']);
 
-        if ($producto) {
-            $productos->whereId((int) $producto);
-        }
-        if ($marca) {
-            $productos->whereMarca([(int) $marca]);
-        }
-        
+        $productos = $this->indexRepository->indexProductos($producto, $marca);
+
         return response()->json(['error' => false, 'allProductos' => Productos::all(), 'productosFiltro' => $productos->get()]);
     }
-
 
     public function nuevoProducto(Request $request) {
         $req = $request->all();

@@ -7,6 +7,7 @@ use App\Models\CtaCte;
 use App\Models\Productos;
 use App\Models\Ventas;
 use App\Models\VentasDetalle;
+use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,12 +15,12 @@ use Carbon\Carbon;
 class VentasController extends Controller
 {
     private $movimientosController;
-    public $fecha;
+    private $indexRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
     {
-        $this->fecha = Carbon::now()->format('Y-m-d');
         $this->movimientosController = $movimientosController;    
+        $this->indexRepository = $indexRepository;    
     }
 
     public function index() {
@@ -28,23 +29,7 @@ class VentasController extends Controller
         $fechas = request()->get('fechas');
         $producto = request()->get('producto');
 
-        $ventas = Ventas::orderBy('id', 'DESC')->with(['cliente', 'vendedor']);
-        if ($cliente) {
-            $ventas->whereClienteId((int) $cliente);
-        }
-        if ($vendedor) {
-            $ventas->whereVendedorId((int) $vendedor);
-        }
-        if ($producto) {
-            $ventas->whereHas('detalleVenta', function($innerQuery) use ($producto) {
-                $innerQuery->where('producto_id', (int) $producto);
-            });
-        }
-        if ($fechas) {
-            $ventas->whereBetween('fecha_venta', [Carbon::parse(substr($fechas[0], 1, -1))->format('Y-m-d'), Carbon::parse(substr($fechas[1], 1, -1))->format('Y-m-d')]);
-        } else {
-            $ventas->whereDate('fecha_venta', '<=' ,$this->fecha);
-        }
+        $ventas = $this->indexRepository->indexVentas($cliente, $vendedor, $producto, $fechas);
 
         return response()->json(['error' => false, 'allVentas' => Ventas::all(), 'ventasFiltro' => $ventas->get()]);
     }
@@ -52,8 +37,8 @@ class VentasController extends Controller
     public function nuevaVenta(Request $request) {
         $req = $request->all();
 
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
 
             $venta = Ventas::create([
                 'cliente_id' => $req['cliente'],
@@ -106,10 +91,6 @@ class VentasController extends Controller
         }
 
         return response()->json(['status' => 200]);
-    }
-
-    public function getVenta (int $id) {
-        return response()->json(['error' => false, 'venta' => Ventas::whereId($id)->with(['detalleVenta', 'detalleVenta.producto'])->get()->toArray()]);
     }
 
     public function confirmarVenta (Request $request) {
@@ -184,14 +165,7 @@ class VentasController extends Controller
         return Ventas::where('confirmada', true)->get()->count();
     }
 
-    public function actualizarStock($venta, $quiereInactivar) {
-
-
-        $productosDeLaVenta = VentasDetalle::whereVentaId($venta->id)->get()->toArray();
-
-        foreach ($productosDeLaVenta as $productoVenta) {
-            $producto = Productos::whereId($productoVenta['producto_id']);
-            $quiereInactivar ? $producto->decrement('stock_reservado', $productoVenta['cantidad']) : $producto->increment('stock_reservado', $productoVenta['cantidad']);
-        }
+    public function getVenta (int $id) {
+        return response()->json(['error' => false, 'venta' => Ventas::whereId($id)->with(['detalleVenta', 'detalleVenta.producto'])->get()->toArray()]);
     }
 }

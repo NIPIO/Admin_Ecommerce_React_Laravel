@@ -117,11 +117,11 @@ export const api = {
       })
       .then(res => res.data),
 
-  getCaja: ({ tipoMov, fechas }) =>
+  getCaja: ({ tipoMovimiento, fechas }) =>
     client
       .get(API_PORT + "/api/caja", {
         params: {
-          tipoMov,
+          tipoMovimiento,
           fechas
         }
       })

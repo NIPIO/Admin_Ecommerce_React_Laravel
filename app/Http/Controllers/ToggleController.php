@@ -10,11 +10,7 @@ use App\Models\Productos;
 use App\Models\Proveedores;
 use App\Models\Vendedores;
 use App\Models\Ventas;
-use GuzzleHttp\Psr7\Request;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Routing\Controller as BaseController;
+use App\Repositories\StockRepository;
 
 class ToggleController extends Controller
 {
@@ -25,7 +21,7 @@ class ToggleController extends Controller
         $this->movimientosController = $movimientosController;    
     }
 
-    public function toggleEstado(VentasController $ventasController, ComprasController $comprasController) {
+    public function toggleEstado(StockRepository $stockRepository, ComprasController $comprasController) {
         try {
             $req = request()->all();
             $tabla = null; 
@@ -67,9 +63,9 @@ class ToggleController extends Controller
             );
 
             if ($req['tabla'] === 'compras') {
-                $comprasController->actualizarStock($tabla->first(), $req['estado']);
+                $stockRepository->actualizarStockCompras($tabla->first(), $req['estado']);
             } elseif ($req['tabla'] === 'ventas') {
-                $ventasController->actualizarStock($tabla->first(), $req['estado']);
+                $stockRepository->actualizarStockVentas($tabla->first(), $req['estado']);
             }
 
         } catch (\Exception $th) {

@@ -4,10 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Clientes;
 use App\Models\Movimientos;
+use App\Repositories\IndexRepository;
 use Carbon\Carbon;
 
 class MovimientosController extends Controller
 {
+
+    private $indexRepository;
+
+    public function __construct(IndexRepository $indexRepository)
+    {
+        $this->indexRepository = $indexRepository;    
+    }
 
     public function index(ProductosController $productos, VentasController $ventas) {
 
@@ -15,24 +23,8 @@ class MovimientosController extends Controller
         $tipoMovi = request()->get('tipoMovimiento');
         $fechas = request()->get('fechas');
         $seccion = request()->get('seccion');
-        $movimientos = Movimientos::orderBy('id', 'DESC')->with('usuario');
         
-
-        if ($usuario) {
-            $movimientos->whereUsuario((int) $usuario);
-        }
-
-        if ($tipoMovi) {
-            $movimientos->whereTipoMovimiento($tipoMovi);
-        }
-
-        if ($seccion) {
-            $movimientos->whereTabla($seccion);
-        }
-        
-        if ($fechas) {
-            $movimientos->whereBetween('created_at', [Carbon::parse(substr($fechas[0], 1, -1))->format('Y-m-d'), Carbon::parse(substr($fechas[1], 1, -1))->format('Y-m-d')]);
-        }
+        $movimientos = $this->indexRepository->indexMovimientos($usuario, $tipoMovi, $fechas, $seccion);
 
         $clientes = Clientes::orderBy('id', 'DESC')->first();
         $ventas = $ventas->getVentasConfirmadas();

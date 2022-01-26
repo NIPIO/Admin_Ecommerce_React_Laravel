@@ -61,7 +61,7 @@ const Caja = () => {
   ];
 
   //FIN INFO TABLA.
-  const tipoMovimientoObj = ["Ingreso", "Egreso"];
+  const tipoMovimientoObj = ["Ingreso", "Egreso", "Venta", "Compra"];
   const [busqueda, setBusqueda] = useState({
     tipoMovimiento: null,
     fechas: null

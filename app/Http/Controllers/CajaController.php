@@ -3,31 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja;
-use Carbon\Carbon;
+use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
 
 class CajaController extends Controller
 {
     private $movimientosController;
+    private $indexRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
     {
         $this->movimientosController = $movimientosController;    
+        $this->indexRepository = $indexRepository;    
     }
-
-    public function index() {
-        $tipoMovimiento = request()->get('tipo_movimiento');
-        $fechas = request()->get('fechas');
-        $caja = Caja::orderBy('id', 'DESC')->with('usuario');
-
-        if ($tipoMovimiento) {
-            $tipoMovimiento->whereId((int) $tipoMovimiento);
-        }
     
-        if ($fechas) {
-            $caja->whereBetween('created_at', [Carbon::parse(substr($fechas[0], 1, -1))->format('Y-m-d'), Carbon::parse(substr($fechas[1], 1, -1))->format('Y-m-d')]);
-        }
-        
+    public function index() {
+        $tipoMovimiento = request()->get('tipoMovimiento');
+        $fechas = request()->get('fechas');
+
+        $caja = $this->indexRepository->indexCaja($tipoMovimiento, $fechas);
+
         return response()->json(['error' => false, 'allCaja' => Caja::all(), 'cajaFiltro' => $caja->get(), 'datosIniciales' => [
             [
                 'label' => 'Ventas',

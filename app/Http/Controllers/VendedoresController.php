@@ -3,23 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vendedores;
+use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
 
 class VendedoresController extends Controller
 {
     private $movimientosController;
+    private $indexRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
     {
         $this->movimientosController = $movimientosController;    
+        $this->indexRepository = $indexRepository;    
     }
+
     public function index() {
         $vendedor = request()->get('vendedor');
-        $vendedores = Vendedores::orderBy('id', 'DESC')->with(['rol']);
 
-        if ($vendedor) {
-            $vendedores->whereId((int) $vendedor);
-        }
+        $vendedores = $this->indexRepository->indexVendedores($vendedor);
         
         return response()->json(['error' => false, 'allVendedores' => Vendedores::all(), 'vendedoresFiltro' => $vendedores->get()]);
     }

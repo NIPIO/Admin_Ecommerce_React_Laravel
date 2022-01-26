@@ -6,28 +6,26 @@ use App\Models\Clientes;
 use App\Models\CtaCte;
 use App\Models\Productos;
 use App\Models\Proveedores;
+use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
 
 class CtaCteController extends Controller
 {
     private $movimientosController;
+    private $indexRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
     {
         $this->movimientosController = $movimientosController;    
+        $this->indexRepository = $indexRepository;    
     }
 
     public function index() {
         $proveedor = request()->get('proveedor');
         $cliente = request()->get('cliente');
-        $cuentas = CtaCte::orderBy('id', 'DESC')->with(['proveedor','cliente']);
 
-        if ($proveedor) {
-            $cuentas->where('proveedor_id', (int) $proveedor);
-        } elseif ($cliente) {
-            $cuentas->where('cliente_id', (int) $cliente);
-        }
-        
+        $cuentas = $this->indexRepository->indexCuentas($proveedor, $cliente);
+
         return response()->json(['error' => false, 'allCuentas' => CtaCte::all(), 'cuentasFiltro' => $cuentas->get()]);
     }
 

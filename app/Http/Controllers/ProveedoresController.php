@@ -3,24 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Proveedores;
+use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
 
 class ProveedoresController extends Controller
 {
     private $movimientosController;
+    private $indexRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
     {
         $this->movimientosController = $movimientosController;    
+        $this->indexRepository = $indexRepository;    
     }
 
     public function index() {
         $proveedor = request()->get('proveedor');
-        $proveedores = Proveedores::orderBy('id', 'DESC');
 
-        if ($proveedor) {
-            $proveedores->whereId((int) $proveedor);
-        }
+        $proveedores = $this->indexRepository->indexProveedores($proveedor);
         
         return response()->json(['error' => false, 'allProveedores' => Proveedores::all(), 'proveedoresFiltro' => $proveedores->get()]);
     }

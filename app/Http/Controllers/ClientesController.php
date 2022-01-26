@@ -3,24 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clientes;
+use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
 
 class ClientesController extends Controller
 {
     private $movimientosController;
+    private $indexRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
     {
         $this->movimientosController = $movimientosController;    
+        $this->indexRepository = $indexRepository;    
     }
 
     public function index() {
         $cliente = request()->get('cliente');
-        $clientes = Clientes::orderBy('id', 'DESC');
 
-        if ($cliente) {
-            $clientes->whereId((int) $cliente);
-        }
+        $clientes = $this->indexRepository->indexClientes($cliente);
         
         return response()->json(['error' => false, 'allClientes' => Clientes::all(), 'clientesFiltro' => $clientes->get()]);
     }

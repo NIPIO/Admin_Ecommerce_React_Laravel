@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Interfaces\RepositoryInterface;
+use App\Models\ComprasDetalle;
+use App\Models\Productos;
+use App\Models\VentasDetalle;
+
+class StockRepository implements RepositoryInterface 
+{
+
+    public function actualizarStockVentas($venta, $quiereInactivar) {
+        $productosDeLaVenta = VentasDetalle::whereVentaId($venta->id)->get()->toArray();
+
+        foreach ($productosDeLaVenta as $productoVenta) {
+            $producto = Productos::whereId($productoVenta['producto_id']);
+            $quiereInactivar ? $producto->decrement('stock_reservado', $productoVenta['cantidad']) : $producto->increment('stock_reservado', $productoVenta['cantidad']);
+        }
+    }
+
+    public function actualizarStockCompras($compra, $quiereInactivar) {
+
+        $productosDeLaCompra = ComprasDetalle::whereCompraId($compra->id)->get()->toArray();
+
+        foreach ($productosDeLaCompra as $productoCompra) {
+            $producto = Productos::whereId($productoCompra['producto_id']);
+            $quiereInactivar ? $producto->decrement('en_transito', $productoCompra['cantidad']) : $producto->increment('en_transito', $productoCompra['cantidad']);
+        }
+    }
+
+}
