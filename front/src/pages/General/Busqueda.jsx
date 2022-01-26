@@ -10,6 +10,7 @@ function Busqueda({ setBusqueda, allVendedores }) {
   const [fechas, setFechas] = useState(null);
   const [usuario, setUsuario] = useState(null);
   const [tipoMovimiento, setTipoMovimiento] = useState(null);
+  const [seccion, setSeccion] = useState(null);
 
   const tiposMovimientos = [
     "CONFIRMACION",
@@ -19,6 +20,17 @@ function Busqueda({ setBusqueda, allVendedores }) {
     "BAJA",
     "INGRESO",
     "EGRESO"
+  ];
+
+  const secciones = [
+    "ventas",
+    "compras",
+    "marcas",
+    "productos",
+    "proveedores",
+    "roles",
+    "vendedores",
+    "ventas"
   ];
 
   const limpiar = () => {
@@ -67,6 +79,20 @@ function Busqueda({ setBusqueda, allVendedores }) {
               ))}
             </Select>
           </Col>
+          <Col>
+            <Select
+              allowClear
+              style={{ width: 200 }}
+              placeholder="Buscá por sección"
+              onChange={val => setSeccion(val)}
+            >
+              {secciones.map((seccion, idx) => (
+                <Option key={idx} value={seccion}>
+                  {seccion}
+                </Option>
+              ))}
+            </Select>
+          </Col>
 
           <Col md={6}>
             <RangePicker
@@ -85,7 +111,8 @@ function Busqueda({ setBusqueda, allVendedores }) {
                   setBusqueda({
                     usuario,
                     fechas,
-                    tipoMovimiento
+                    tipoMovimiento,
+                    seccion
                   });
                 }}
               >

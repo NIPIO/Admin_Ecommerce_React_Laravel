@@ -60,6 +60,7 @@ const Ventas = () => {
           >
             <Switch
               checked={text}
+              disabled={row.confirmada}
               checkedChildren={"Activa"}
               unCheckedChildren={"Cancelada"}
             />
@@ -71,18 +72,18 @@ const Ventas = () => {
       title: "Acciones",
       key: "action",
 
-      render: (text, value, id) => (
+      render: (text, row, id) => (
         <Space size="middle">
           <Button
             type="primary"
             onClick={() => {
               setModalVentaConfirmada(true);
-              setIdVentaConfirmada(value.id);
+              setIdVentaConfirmada(row.id);
             }}
-            success={value.confirmada}
-            disabled={value.confirmada}
+            success={row.confirmada}
+            disabled={row.confirmada || !row.activo}
           >
-            {value.confirmada ? "Confirmada" : " Confirmar "}
+            {row.confirmada ? "Confirmada" : " Confirmar "}
           </Button>
           <Button onClick={() => edicion(text)} disabled>
             Editar (En desarrollo)

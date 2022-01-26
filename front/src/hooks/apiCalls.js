@@ -8,14 +8,18 @@ export const esAdmin = () => {
 export function useMovimientos({
   usuario = undefined,
   fechas = undefined,
-  tipoMovimiento = undefined
+  tipoMovimiento = undefined,
+  seccion = undefined
 }) {
-  return useQuery(["movimientos", usuario, fechas, tipoMovimiento], () =>
-    api.getMovimientos({
-      usuario,
-      fechas,
-      tipoMovimiento
-    })
+  return useQuery(
+    ["movimientos", usuario, fechas, tipoMovimiento, seccion],
+    () =>
+      api.getMovimientos({
+        usuario,
+        fechas,
+        tipoMovimiento,
+        seccion
+      })
   );
 }
 

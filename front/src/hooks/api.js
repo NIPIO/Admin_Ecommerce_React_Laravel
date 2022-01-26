@@ -21,13 +21,14 @@ export const getUsuario = () => {
 export const api = {
   ///GETTERS
 
-  getMovimientos: ({ usuario, fechas, tipoMovimiento }) =>
+  getMovimientos: ({ usuario, fechas, tipoMovimiento, seccion }) =>
     client
       .get(API_PORT + "/api/movimientos", {
         params: {
           usuario,
           fechas,
-          tipoMovimiento
+          tipoMovimiento,
+          seccion
         }
       })
       .then(res => res.data),

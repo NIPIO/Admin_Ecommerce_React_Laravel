@@ -14,7 +14,9 @@ class MovimientosController extends Controller
         $usuario = request()->get('usuario');
         $tipoMovi = request()->get('tipoMovimiento');
         $fechas = request()->get('fechas');
+        $seccion = request()->get('seccion');
         $movimientos = Movimientos::orderBy('id', 'DESC')->with('usuario');
+        
 
         if ($usuario) {
             $movimientos->whereUsuario((int) $usuario);
@@ -24,6 +26,10 @@ class MovimientosController extends Controller
             $movimientos->whereTipoMovimiento($tipoMovi);
         }
 
+        if ($seccion) {
+            $movimientos->whereTabla($seccion);
+        }
+        
         if ($fechas) {
             $movimientos->whereBetween('created_at', [Carbon::parse(substr($fechas[0], 1, -1))->format('Y-m-d'), Carbon::parse(substr($fechas[1], 1, -1))->format('Y-m-d')]);
         }
