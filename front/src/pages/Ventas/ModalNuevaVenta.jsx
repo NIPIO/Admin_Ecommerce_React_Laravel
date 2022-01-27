@@ -77,7 +77,7 @@ const ModalNuevaVenta = ({
                   <Select
                     showSearch
                     allowClear
-                    style={{ width: 200 }}
+                    style={{ marginBottom: "3%", width: "100%" }}
                     onChange={e => {
                       setCliente(e);
                       setError(false);
@@ -108,7 +108,7 @@ const ModalNuevaVenta = ({
                   <Select
                     showSearch
                     allowClear
-                    style={{ width: 200 }}
+                    style={{ marginBottom: "3%", width: "100%" }}
                     onChange={e => {
                       setVendedor(e);
                       setError(false);

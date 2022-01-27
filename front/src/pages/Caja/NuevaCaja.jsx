@@ -86,7 +86,7 @@ const ModalNuevaCaja = ({
                 >
                   <Select
                     allowClear
-                    style={{ width: 200 }}
+                    style={{ marginBottom: "3%", width: "100%" }}
                     placeholder="Elegí el mov."
                   >
                     {tipoMovimientoObj.map((mov, idx) => (

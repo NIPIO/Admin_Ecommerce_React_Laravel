@@ -27,7 +27,7 @@ function Busqueda({ setBusqueda, marcas }) {
             <Select
               showSearch
               allowClear
-              style={{ width: 200 }}
+              style={{ marginBottom: "3%", width: "100%" }}
               placeholder="Buscá por marcas"
               optionFilterProp="children"
               onChange={val => setMarca(val)}

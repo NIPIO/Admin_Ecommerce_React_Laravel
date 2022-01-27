@@ -120,7 +120,7 @@ const ModalNuevoProducto = ({
                   <Select
                     showSearch
                     allowClear
-                    style={{ width: 200 }}
+                    style={{ marginBottom: "3%", width: "100%" }}
                     placeholder="Elegí la marca"
                     optionFilterProp="children"
                     filterOption={(input, option) =>

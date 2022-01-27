@@ -27,7 +27,7 @@ function Busqueda({ setBusqueda, proveedores }) {
             <Select
               showSearch
               allowClear
-              style={{ width: 200 }}
+              style={{ marginBottom: "3%", width: "100%" }}
               placeholder="Buscá por proveedor"
               optionFilterProp="children"
               onChange={val => setProveedor(val)}

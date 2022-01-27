@@ -29,7 +29,7 @@ function Busqueda({ setBusqueda, proveedores, productos }) {
             <Select
               showSearch
               allowClear
-              style={{ width: 200 }}
+              style={{ marginBottom: "3%", width: "100%" }}
               placeholder="Buscá por proveedor"
               optionFilterProp="children"
               onChange={val => setProveedor(val)}
@@ -53,7 +53,7 @@ function Busqueda({ setBusqueda, proveedores, productos }) {
             <Select
               showSearch
               allowClear
-              style={{ width: 200 }}
+              style={{ marginBottom: "3%", width: "100%" }}
               placeholder="Buscá por producto"
               optionFilterProp="children"
               onChange={val => setProducto(val)}

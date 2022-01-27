@@ -30,7 +30,7 @@ function Busqueda({ setBusqueda, tipoMovimientoObj }) {
           <Col>
             <Select
               allowClear
-              style={{ width: 200 }}
+              style={{ marginBottom: "3%", width: "100%" }}
               placeholder="Buscá por movimiento"
               onChange={val => setTipoMovimiento(val)}
             >

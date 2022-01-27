@@ -27,7 +27,7 @@ function Busqueda({ setBusqueda, roles, permisos }) {
             <Select
               showSearch
               allowClear
-              style={{ width: 200 }}
+              style={{ marginBottom: "3%", width: "100%" }}
               placeholder="Buscá por rol"
               optionFilterProp="children"
               onChange={val => setRol(val)}

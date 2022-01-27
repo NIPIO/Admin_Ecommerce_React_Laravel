@@ -30,17 +30,13 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
           </Space>
         }
       >
-        <Space
-          direction="vertical"
-          size={30}
-          style={{ width: "100%", paddingBottom: "3em" }}
-        >
+        <Space direction="vertical" size={30} style={{ width: "100%" }}>
           <Row gutter={24}>
             <Col md={6}>
               <Select
                 showSearch
                 allowClear
-                style={{ width: "100%" }}
+                style={{ marginBottom: "3%", width: "100%" }}
                 placeholder="Buscá por vendedor"
                 optionFilterProp="children"
                 onChange={val => setVendedor(val)}
@@ -65,7 +61,7 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
               <Select
                 showSearch
                 allowClear
-                style={{ width: "100%" }}
+                style={{ marginBottom: "3%", width: "100%" }}
                 placeholder="Buscá por cliente"
                 optionFilterProp="children"
                 onChange={val => setCliente(val)}
@@ -90,7 +86,7 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
               <Select
                 showSearch
                 allowClear
-                style={{ width: "100%" }}
+                style={{ marginBottom: "3%", width: "100%" }}
                 placeholder="Buscá por producto"
                 optionFilterProp="children"
                 onChange={val => setProducto(val)}
@@ -113,7 +109,7 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
             </Col>
             <Col md={6}>
               <RangePicker
-                style={{ width: "100%" }}
+                style={{ marginBottom: "3%", width: "100%" }}
                 locale={locale}
                 allowClear
                 onChange={val => setFechas(val)}
@@ -121,11 +117,7 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
             </Col>
           </Row>
         </Space>
-        <Space
-          direction="vertical"
-          size={30}
-          style={{ width: "100%", paddingBottom: "3em" }}
-        >
+        <Space direction="vertical" size={30} style={{ width: "100%" }}>
           <Row>
             <Col md={8}>
               <Button

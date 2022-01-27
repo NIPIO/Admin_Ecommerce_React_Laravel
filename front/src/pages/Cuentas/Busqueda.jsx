@@ -30,7 +30,7 @@ function Busqueda({ setBusqueda, proveedores, clientes }) {
               showSearch
               allowClear
               disabled={cliente}
-              style={{ width: 200 }}
+              style={{ marginBottom: "3%", width: "100%" }}
               placeholder="Buscá por proveedor"
               optionFilterProp="children"
               onChange={val => setProveedor(val)}
@@ -55,7 +55,7 @@ function Busqueda({ setBusqueda, proveedores, clientes }) {
               showSearch
               allowClear
               disabled={proveedor}
-              style={{ width: 200 }}
+              style={{ marginBottom: "3%", width: "100%" }}
               placeholder="Buscá por cliente"
               optionFilterProp="children"
               onChange={val => setCliente(val)}

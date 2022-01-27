@@ -63,7 +63,7 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
                     <Select
                       showSearch
                       allowClear
-                      style={{ width: 200 }}
+                      style={{ marginBottom: "3%", width: "100%" }}
                       placeholder="Elegí el producto"
                       optionFilterProp="children"
                       initialValue={null}

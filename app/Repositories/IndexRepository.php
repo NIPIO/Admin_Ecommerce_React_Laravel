@@ -110,8 +110,9 @@ class IndexRepository implements RepositoryInterface
             $movimientos->whereTabla($seccion);
         }
         
+        
         if ($fechas) {
-            $movimientos->whereBetween('created_at', [Carbon::parse(substr($fechas[0], 1, -1))->format('Y-m-d'), Carbon::parse(substr($fechas[1], 1, -1))->format('Y-m-d')]);
+            $movimientos->whereBetween('created_at', [Carbon::parse(substr($fechas[0], 1, -1))->format('Y-m-d 00:00:00'), Carbon::parse(substr($fechas[1], 1, -1))->format('Y-m-d 23:59:59')]);
         }
 
         return $movimientos;

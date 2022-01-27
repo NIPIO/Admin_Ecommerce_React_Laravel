@@ -54,7 +54,7 @@ function Busqueda({ setBusqueda, allVendedores }) {
           <Col>
             <Select
               allowClear
-              style={{ width: 200 }}
+              style={{ marginBottom: "2%", width: 200 }}
               placeholder="Buscá por usuario"
               onChange={val => setUsuario(val)}
             >
@@ -68,7 +68,7 @@ function Busqueda({ setBusqueda, allVendedores }) {
           <Col>
             <Select
               allowClear
-              style={{ width: 200 }}
+              style={{ marginBottom: "2%", width: 200 }}
               placeholder="Buscá por movimiento"
               onChange={val => setTipoMovimiento(val)}
             >
@@ -82,7 +82,7 @@ function Busqueda({ setBusqueda, allVendedores }) {
           <Col>
             <Select
               allowClear
-              style={{ width: 200 }}
+              style={{ marginBottom: "2%", width: 200 }}
               placeholder="Buscá por sección"
               onChange={val => setSeccion(val)}
             >
@@ -96,7 +96,7 @@ function Busqueda({ setBusqueda, allVendedores }) {
 
           <Col md={6}>
             <RangePicker
-              style={{ width: "100%" }}
+              style={{ marginBottom: "3%", width: "100%" }}
               locale={locale}
               allowClear
               onChange={val => setFechas(val)}

@@ -27,7 +27,7 @@ function Busqueda({ setBusqueda, vendedores }) {
             <Select
               showSearch
               allowClear
-              style={{ width: 200 }}
+              style={{ marginBottom: "3%", width: "100%" }}
               placeholder="Buscá por vendedor"
               optionFilterProp="children"
               onChange={val => setVendedor(val)}

@@ -77,7 +77,7 @@ const ModalNuevaCompra = ({
                   <Select
                     showSearch
                     allowClear
-                    style={{ width: 200 }}
+                    style={{ marginBottom: "3%", width: "100%" }}
                     onChange={e => {
                       setProveedor(e);
                       setError(false);
