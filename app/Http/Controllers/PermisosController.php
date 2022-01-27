@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Permisos;
 use Illuminate\Http\Request;
+use App\Repositories\MovimientosRepository;
 
 class PermisosController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
     }
     
     public function index() {

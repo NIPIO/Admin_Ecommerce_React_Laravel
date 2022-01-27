@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Caja;
 use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
+use App\Repositories\MovimientosRepository;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CajaController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
     private $indexRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
         $this->indexRepository = $indexRepository;    
     }
     
@@ -50,21 +53,27 @@ class CajaController extends Controller
         $req = $req['data'];
 
         try {
+            DB::beginTransaction();
 
-            $caja = new Caja();
-            $caja->tipo_movimiento = strtoupper($req['tipoMovimiento']);
-            $caja->importe = $req['tipoMovimiento'] === 'Egreso' ? - $req['importe'] : $req['importe'];
-            $caja->usuario = $usuario;
-            $caja->observacion = $req['observacion'] ?? null;
-            $caja->save();
+            $caja = Caja::create([
+                'tipo_movimiento' => strtoupper($req['tipoMovimiento']),
+                'importe' => $req['tipoMovimiento'] === 'Egreso' ? - $req['importe'] : $req['importe'],
+                'usuario' => $usuario,
+                'observacion' => $req['observacion'] ?? null,
+            ]);
                         
-            $this->movimientosController->guardarMovimiento(
+            $this->movimientosRepository->guardarMovimiento(
                 'caja', strtoupper($req['tipoMovimiento']), $usuario, $caja->id, null, null, null
             );
 
-       } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());
+            DB::commit();
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
+
         return response()->json(['status' => 200]);
     }
 

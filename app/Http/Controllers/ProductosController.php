@@ -6,16 +6,20 @@ use Illuminate\Http\Request;
 use App\Http\Responses\Json;
 use App\Models\Marcas;
 use App\Models\Productos;
+use App\Repositories\CamposEditadosRepository;
 use App\Repositories\IndexRepository;
+use App\Repositories\MovimientosRepository;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProductosController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
     private $indexRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
         $this->indexRepository = $indexRepository;    
     }
 
@@ -41,28 +45,33 @@ class ProductosController extends Controller
                 return response()->json(['error' => true, 'data' => 'Existe un producto con ese nombre']);
             }
      
-            $producto = new Productos();
-            $producto->nombre = $req['nombre'];
-            $producto->marca = $req['marca'];
-            $producto->precio = $req['precio'];
-            $producto->costo = $req['costo'];
-            $producto->stock= $req['stock'];
-            $producto->stock_reservado = 0;
-            $producto->en_transito_reservado = 0;
-            $producto->save();
+            DB::beginTransaction();
+
+            $producto = Productos::create([
+                'nombre' => $req['nombre'],
+                'marca' => $req['marca'],
+                'precio' => $req['precio'],
+                'costo' => $req['costo'],
+                'stock' => $req['stock'],
+                'stock_reservado' => 0,
+                'en_transito_reservado' => 0,
+            ]);
     
-            $this->movimientosController->guardarMovimiento(
+            $this->movimientosRepository->guardarMovimiento(
                 'productos', 'ALTA', $usuario, $producto->id, null, null, null
             );
 
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());
+            DB::commit();
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
         
         return response()->json(['error' => false]);
     }
 
-    public function editarProducto(Request $request) {
+    public function editarProducto(Request $request, CamposEditadosRepository $camposEditadosRepository) {
         $req = $request->all();
         $usuario = $req['usuario'];
         $req = $req['data'];
@@ -70,13 +79,7 @@ class ProductosController extends Controller
         try {
             $producto = Productos::whereId($req['id']);
 
-            // if($this->chequearSiExiste($req['nombre'])){
-            //     return response()->json(['error' => true, 'data' => 'Existe un producto con ese nombre']);
-            // }
-            
-            $producto = Productos::whereId($req['id']);
-
-            $cambios = $this->buscarCamposEditados($producto, $req);
+            $cambios = $camposEditadosRepository->buscarCamposEditados($producto, $req);
 
             $producto->update([
                 "nombre" => $req['nombre'],
@@ -86,39 +89,21 @@ class ProductosController extends Controller
             ]);
 
             if ($cambios) { //EDITÓ ALGÚN CAMPO
-                $this->movimientosController->guardarMovimiento(
+                $this->movimientosRepository->guardarMovimiento(
                     'productos', 'MODIFICACION', $usuario, $req['id'], $cambios[1], $req[$cambios[0]], null, $cambios[0]
                 );
             }
-     
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
        
         return response()->json(['error' => false]);
     }
             
-    private function buscarCamposEditados($producto, $req) {
-        $producto = $producto->first();
-
-        if ($producto->nombre !== $req['nombre']) {
-            return ['nombre', $producto->nombre];
-        }
-        if ($producto->marca !== $req['marca']) {
-            return ['marca', $producto->marca];
-        }
-        if ($producto->stock !== $req['stock']) {
-            return ['stock', $producto->stock];
-        }
-        if ($producto->precio !== $req['precio']) {
-            return ['precio', $producto->precio];
-        }
-    }
-
-    // public function chequearSiExiste($nombre) {
-    //     return count(Productos::where('nombre', $nombre)->get()->toArray()) > 0;
-    // }
-
     public function getStock() {
         return [Productos::sum('stock'), Productos::sum('stock_reservado'), Productos::sum('en_transito'), Productos::sum('en_transito_reservado')];
     }

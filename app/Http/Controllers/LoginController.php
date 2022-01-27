@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Vendedores;
 use Illuminate\Http\Request;
+use App\Repositories\MovimientosRepository;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
     }
     
     public function login(Request $request) {
@@ -30,29 +33,34 @@ class LoginController extends Controller
 
         $datos = $request->all();
         try {
+            DB::beginTransaction();
+
             $usuario = Vendedores::where('usuario', $datos['usuario'])->get();
 
             if (count($usuario)) {
                 return response()->json(['status' => 400, 'data' => 'Ya existe ese usuario']);
             }
 
-            $nuevoUsuario = new Vendedores();
-            $nuevoUsuario->usuario = $datos['usuario'];
-            $nuevoUsuario->password = $datos['password'];
-            $nuevoUsuario->nombre = $datos['nombre'];
-            $nuevoUsuario->rol_id = 2;
+            $nuevoUsuario = Vendedores::create([
+                'usuario' => $datos['usuario'],
+                'password' => $datos['password'],
+                'nombre' => $datos['nombre'],
+                'rol_id' => 2,
+            ]);
 
-            $nuevoUsuario->save();
-
-            $this->movimientosController->guardarMovimiento(
+            $this->movimientosRepository->guardarMovimiento(
                 'vendedores', 'ALTA', null, $nuevoUsuario->id, null, null, null
             );
 
-            return response()->json(['error' => false, 'data' => $nuevoUsuario]);
+            DB::commit();
 
-        } catch (\Throwable $th) {
-            return response()->json(['status' => 500, 'data' => 'Ocurrió un error, intentá de nuevo con otro usuario.']);
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
+
+        return response()->json(['error' => false, 'data' => $nuevoUsuario]);
 
     }
 }

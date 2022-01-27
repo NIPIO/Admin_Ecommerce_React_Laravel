@@ -4,54 +4,51 @@ namespace App\Http\Controllers;
 
 use App\Models\Roles;
 use Illuminate\Http\Request;
+use App\Repositories\MovimientosRepository;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class RolesController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
     }
     
     public function index() {
-        // $rol = request()->get('rol');
-        // $permiso = request()->get('permiso');
-        $roles = Roles::orderBy('id', 'DESC')->with(['permisos']);
-
-        // if ($rol) {
-        //     $roles->where('id', (int) $rol);
-        // } elseif ($permiso) {
-        //     $roles->where('permiso_id', (int) $permiso);
-        // }
-        
-        return response()->json(['error' => false, 'allRoles' => Roles::all(), 'rolesFiltro' => $roles->get()]);
+        return response()->json(['error' => false, 'allRoles' => Roles::all(), 'rolesFiltro' => Roles::orderBy('id', 'DESC')->with(['permisos'])->get()]);
     }
-
-//     public function editarRol(Request $req) {
-//         $rol = $req->all();
-// dd($rol);
-//     }
 
     public function nuevoRol(Request $request) {
         $req = $request->all();
         $usuario = $req['usuario'];
         $req = $req['data'];
         
-
         try {
             if($this->chequearSiExiste($req['nombre'])){
                 return response()->json(['error' => true, 'data' => 'Existe un rol con ese nombre']);
             }
 
-            $rol = new Roles();
-            $rol->nombre = $req['nombre'];
-            $rol->descripcion = $req['descripcion'];
-            $rol->save();
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
+            DB::beginTransaction();
+
+            $rol = Roles::create([
+                'nombre' => $req['nombre'],
+                'descripcion' => $req['descripcion'],
+            ]);
+
+            $this->movimientosRepository->guardarMovimiento(
+                'roles', 'ALTA', $usuario, $req['id'], $rol->id, null, null, null
+            );
+
+            DB::commit();
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
-        
 
         return response()->json(['status' => 200]);
     }

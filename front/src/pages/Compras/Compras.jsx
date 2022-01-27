@@ -55,7 +55,6 @@ const Compras = () => {
             cancelText="No"
           >
             <Switch
-              disabled={row.confirmada}
               checked={text}
               checkedChildren={"Activa"}
               unCheckedChildren={"Cancelada"}
@@ -171,12 +170,14 @@ const Compras = () => {
           productos={allProductos.data.allProductos}
           queryClient={queryClient}
         />
-        <ModalConfirmarCompra
-          modal={modalCompraConfirmada}
-          setModal={setModalCompraConfirmada}
-          id={idCompraConfirmada}
-          queryClient={queryClient}
-        />
+        {idCompraConfirmada && (
+          <ModalConfirmarCompra
+            modal={modalCompraConfirmada}
+            setModal={setModalCompraConfirmada}
+            id={idCompraConfirmada}
+            queryClient={queryClient}
+          />
+        )}
       </Row>
     </Container>
   );

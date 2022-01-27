@@ -15,8 +15,15 @@ class StockRepository implements RepositoryInterface
 
         foreach ($productosDeLaVenta as $productoVenta) {
             $producto = Productos::whereId($productoVenta['producto_id']);
+            //Si reactiva la venta, chequeo que haya stock disponible para reactivarla.
+            if (!$quiereInactivar && $producto->first()->stock - $producto->first()->stock_reservado - $productoVenta['cantidad'] < 0) {
+                return 'Sin stock';
+            }
+
             $quiereInactivar ? $producto->decrement('stock_reservado', $productoVenta['cantidad']) : $producto->increment('stock_reservado', $productoVenta['cantidad']);
         }
+
+        return true;
     }
 
     public function actualizarStockCompras($compra, $quiereInactivar) {

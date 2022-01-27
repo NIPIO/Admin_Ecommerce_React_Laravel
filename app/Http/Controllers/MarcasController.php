@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Marcas;
 use App\Models\Productos;
 use Illuminate\Http\Request;
+use App\Repositories\MovimientosRepository;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MarcasController extends Controller
 {
     public $marcas;
-    private $movimientosController;
+    private $movimientosRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
     }
 
     public function index() {
@@ -43,18 +46,22 @@ class MarcasController extends Controller
                 return response()->json(['error' => true, 'data' => 'Existe una marca con ese nombre']);
             }
 
-            $marca = new Marcas();
-            $marca->nombre = $req['nombre'];
-            $marca->save();
+            DB::beginTransaction();
+            
+            $marca = Marcas::create(['nombre' => $req['nombre']]);
 
-                        
-            $this->movimientosController->guardarMovimiento(
+            $this->movimientosRepository->guardarMovimiento(
                 'marcas', 'ALTA', $usuario, $marca->id, null, null, null
             );
 
-       } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());
+            DB::commit();
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
+
         return response()->json(['status' => 200]);
     }
 
@@ -100,7 +107,7 @@ class MarcasController extends Controller
             ]);
 
             if ($mNombre !== $req['nombre']) { 
-                $this->movimientosController->guardarMovimiento(
+                $this->movimientosRepository->guardarMovimiento(
                     'marcas', 'MODIFICACION', $usuario, $req['id'], $mNombre, $req['nombre'], null, 'nombre'
                 );
             }

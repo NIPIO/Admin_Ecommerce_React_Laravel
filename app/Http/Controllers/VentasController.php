@@ -8,18 +8,19 @@ use App\Models\Productos;
 use App\Models\Ventas;
 use App\Models\VentasDetalle;
 use App\Repositories\IndexRepository;
+use App\Repositories\MovimientosRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 class VentasController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
     private $indexRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
         $this->indexRepository = $indexRepository;    
     }
 
@@ -56,18 +57,17 @@ class VentasController extends Controller
                 $totalPrecioVenta += $ventaDetalleRow['cantidad'] * $ventaDetalleRow['precioUnitario'];
 
                 //pongo en stock en transito las nuevas compras
-                $productoAEditar = Productos::whereId($ventaDetalleRow['producto'])->first()->toArray();
-
-                if ($productoAEditar['stock'] - $productoAEditar['stock_reservado'] - (int) $ventaDetalleRow['cantidad'] < 0 ) {
+                $productoAEditar = Productos::whereId($ventaDetalleRow['producto']);
+                $prod = $productoAEditar->first()->toArray();
+                if ($prod['stock'] - $prod['stock_reservado'] - (int) $ventaDetalleRow['cantidad'] < 0 ) {
                     return response()->json([
                         'error' => true, 
-                        'data' => 'No hay stock suficiente para el ' . $productoAEditar['nombre'] . '. Stock disponible: ' . ($productoAEditar['stock'] - $productoAEditar['stock_reservado'])
+                        'data' => 'No hay stock suficiente para el ' . $prod['nombre'] . '. Stock disponible: ' . ($prod['stock'] - $prod['stock_reservado'])
                     ]); 
                 }
-                $productoAEditar = Productos::whereId($ventaDetalleRow['producto'])->update([
-                        "stock_reservado" => $productoAEditar['stock_reservado'] + $ventaDetalleRow['cantidad']
-                ]);
 
+                Productos::whereId($ventaDetalleRow['producto'])->increment('stock_reservado', $ventaDetalleRow['cantidad']);
+      
                 VentasDetalle::create([
                     'venta_id' => $venta->id,
                     'producto_id' => $ventaDetalleRow['producto'],
@@ -98,8 +98,9 @@ class VentasController extends Controller
         $usuario = $req['usuario'];
         $req = $req['data'];
 
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
+
             //El saldo abonado en la compra.
             $venta = Ventas::whereId($req['id']);
             $cliente = CtaCte::where('proveedor_id', $venta->first()->proveedor_id)->first();
@@ -115,8 +116,6 @@ class VentasController extends Controller
                     CtaCte::where('proveedor_id', $venta->first()->proveedor_id)->update([
                         'saldo' => $saldoProveedor + $req['diferencia']
                     ]);
-    
-                    DB::commit();
                 }
             }
 
@@ -124,7 +123,6 @@ class VentasController extends Controller
                 'precio_abonado' => $req['pago'],
                 'confirmada' => true,
             ]);
-            DB::commit();
 
             //grabo el egreso en la caja
             Caja::create([
@@ -139,19 +137,16 @@ class VentasController extends Controller
 
             foreach ($ventaDetalle as $value) {
                 //Obtengo los productos y actualizo su stock
-                $producto = Productos::whereId($value['producto_id'])->first();
-
-                Productos::whereId($value['producto_id'])->update([
-                    'stock_reservado' => $producto->stock_reservado - $value['cantidad'],
-                    'stock' => $producto->stock - $value['cantidad']
-                ]);
-                
-                DB::commit();
+                $prod = Productos::whereId($value['producto_id']);
+                $prod->decrement('stock_reservado', $value['cantidad']);
+                $prod->decrement('stock', $value['cantidad']);
             }
-            $this->movimientosController->guardarMovimiento(
+            
+            $this->movimientosRepository->guardarMovimiento(
                 'ventas', 'CONFIRMACION', $usuario, $req['id'], null, null, $req['diferencia'], null
             );
 
+            DB::commit();
         } catch (\Throwable $e) {
             Log::error($e->getMessage() . $e->getTraceAsString());
             DB::rollBack();

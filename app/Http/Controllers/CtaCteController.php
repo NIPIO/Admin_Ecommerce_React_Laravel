@@ -6,17 +6,21 @@ use App\Models\Clientes;
 use App\Models\CtaCte;
 use App\Models\Productos;
 use App\Models\Proveedores;
+use App\Repositories\CamposEditadosRepository;
 use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
+use App\Repositories\MovimientosRepository;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CtaCteController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
     private $indexRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
         $this->indexRepository = $indexRepository;    
     }
 
@@ -36,60 +40,65 @@ class CtaCteController extends Controller
         $req = $req['data'];
         
         try {
+            DB::beginTransaction();
+
             //PUede ser proveedor o cliente que necesita abrir una cuenta
             if($this->chequearSiExiste($req['proveedor'],$req['tipoCuenta'])){
                 return response()->json(['error' => true, 'data' => 'Esa persona ya tiene una cuenta']);
             }
 
-            $cuenta = new CtaCte();
-            if ($req['tipoCuenta'] === 'p') {
-                $cuenta->proveedor_id = $req['proveedor'];
-                $cuenta->cliente_id = null;
-            } else {
-                $cuenta->cliente_id = $req['proveedor'];
-                $cuenta->proveedor_id = null;
-            }
+            $cuenta = CtaCte::create([
+                'proveedor_id' => $req['tipoCuenta'] === 'p' ? $req['proveedor'] : null,
+                'cliente_id' => $req['tipoCuenta'] === 'c' ? $req['proveedor'] : null,
+                'saldo' => $req['saldo'],
+                'tipo_cuenta' => $req['tipoCuenta'],
+            ]);
 
-            $cuenta->saldo = $req['saldo'];
-            $cuenta->tipo_cuenta = $req['tipoCuenta'];
-            $cuenta->save();
-
-                        
-            $this->movimientosController->guardarMovimiento(
+            $this->movimientosRepository->guardarMovimiento(
                 'cuentas_corrientes', 'ALTA', $usuario, $cuenta->id, null, null, null
             );
 
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
+            DB::commit();
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
 
         return response()->json(['status' => 200]);
     }
 
-    public function editarCuenta(Request $request) {
+    public function editarCuenta(Request $request, CamposEditadosRepository $camposEditadosRepository) {
         $req = $request->all();
         $usuario = $req['usuario'];
         $req = $req['data'];
         
         try {
-                $cuenta = CtaCte::whereId($req['id']);
-            
-                $cambios = $this->buscarCamposEditados($cuenta, $req);
+            DB::beginTransaction();
 
-                $cuenta->update([
-                    "saldo" => $req['saldo'],
-                    ($req['esCliente'] ? "cliente_id" : "proveedor_id") => $req['proveedor']
-                ]);
-                if ($cambios) { //EDITÓ ALGÚN CAMPO
-                    foreach ($cambios as $cambio) {
-                        $this->movimientosController->guardarMovimiento(
-                            'cuentas_corrientes', 'MODIFICACION', $usuario, $req['id'], $cambio[1], $cambio[2], $cambio[3], $cambio[0] === 'saldo' ? 'saldo' : 'responsable'
-                        );
-                    }
+            $cuenta = CtaCte::whereId($req['id']);
+
+            $cambios = $this->buscarCamposEditados($cuenta, $req);
+
+            $cuenta->update([
+                "saldo" => $req['saldo'],
+                ($req['esCliente'] ? "cliente_id" : "proveedor_id") => $req['proveedor']
+            ]);
+            if ($cambios) { //EDITÓ ALGÚN CAMPO
+                foreach ($cambios as $cambio) {
+                    $this->movimientosRepository->guardarMovimiento(
+                        'cuentas_corrientes', 'MODIFICACION', $usuario, $req['id'], $cambio[1], $cambio[2], $cambio[3], $cambio[0] === 'saldo' ? 'saldo' : 'responsable'
+                    );
                 }
+            }
 
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
+            DB::commit();
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
        
         return response()->json(['error' => false]);

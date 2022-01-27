@@ -3,17 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clientes;
+use App\Repositories\CamposEditadosRepository;
 use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
+use App\Repositories\MovimientosRepository;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ClientesController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
     private $indexRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
         $this->indexRepository = $indexRepository;    
     }
 
@@ -31,33 +35,40 @@ class ClientesController extends Controller
         $req = $req['data'];
         
         try {
-            $cliente = new Clientes();
-            $cliente->nombre = $req['nombre'];
-            $cliente->telefono = isset($req['telefono']) ? $req['telefono'] : null;
-            $cliente->email = isset($req['email']) ? $req['email'] : null;
-            $cliente->save();
+            DB::beginTransaction();
 
-            $this->movimientosController->guardarMovimiento(
+            $cliente = Clientes::create([
+                'nombre' => $req['nombre'],
+                'telefono' => isset($req['telefono']) ? $req['telefono'] : null,
+                'email' => isset($req['email']) ? $req['email'] : null,
+            ]);
+            
+            $this->movimientosRepository->guardarMovimiento(
                 'clientes', 'ALTA', $usuario, $cliente->id, null, null, null
             );
 
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
+            DB::commit();
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
 
         return response()->json(['status' => 200]);
     }
 
 
-    public function editarCliente(Request $request) {
+    public function editarCliente(Request $request, CamposEditadosRepository $camposEditadosRepository) {
         $req = $request->all();
         $usuario = $req['usuario'];
         $req = $req['data'];
         
         try {
+            DB::beginTransaction();
+
             $cliente = Clientes::whereId($req['id']);
             
-            $cambios = $this->buscarCamposEditados($cliente, $req);
+            $cambios = $camposEditadosRepository->buscarCamposEditados($cliente, $req);
             
             $cliente->update([
                 "nombre" => $req['nombre'],
@@ -66,30 +77,21 @@ class ClientesController extends Controller
             ]);
 
             if ($cambios) { //EDITÓ ALGÚN CAMPO
-                $this->movimientosController->guardarMovimiento(
+                $this->movimientosRepository->guardarMovimiento(
                     'clientes', 'MODIFICACION', $usuario, $req['id'], $cambios[1], $req[$cambios[0]], null, $cambios[0]
                 );
             }
         
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
+            DB::commit();
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
         
         
         return response()->json(['error' => false]);
     }
     
-    private function buscarCamposEditados($cliente, $req) {
-        $cliente = $cliente->first();
-
-        if ($cliente->nombre !== $req['nombre']) {
-            return ['nombre', $cliente->nombre];
-        }
-        if ($cliente->email !== $req['email']) {
-            return ['email', $cliente->email];
-        }
-        if ($cliente->telefono !== $req['telefono']) {
-            return ['telefono', $cliente->telefono];
-        }
-    }
 }

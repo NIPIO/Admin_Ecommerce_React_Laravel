@@ -13,15 +13,16 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Repositories\MovimientosRepository;
 
 class ComprasController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
     private $indexRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
         $this->indexRepository = $indexRepository;    
     }
 
@@ -37,8 +38,8 @@ class ComprasController extends Controller
     
     public function nuevaCompra(Request $request) {
         $req = $request->all();
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
 
             $compra = Compras::create([
                 'proveedor_id' => $req['proveedor'],
@@ -48,7 +49,6 @@ class ComprasController extends Controller
                 'fecha_compra' => Carbon::now()->format('Y-m-d'),
             ]);
             
-            DB::commit();
             $totalPrecioCompra = 0;
             foreach ($req['productos'] as $compraDetalleRow) {
 
@@ -63,19 +63,14 @@ class ComprasController extends Controller
                 $totalPrecioCompra += $compraDetalleRow['cantidad'] * $compraDetalleRow['precioUnitario'];
 
                 //pongo en stock en transito las nuevas compras
-                $productoAEditar = Productos::whereId($compraDetalleRow['producto'])->first()->toArray();
-
-                $productoAEditar = Productos::whereId($compraDetalleRow['producto'])->update([
-                        "en_transito" => $productoAEditar['en_transito'] + $compraDetalleRow['cantidad']
-                ]);;
-                
-                DB::commit();
-
+                Productos::whereId($compraDetalleRow['producto'])->increment('en_transito', $compraDetalleRow['cantidad']);
             }
 
             Compras::whereId($compra->id)->update([
                 "precio_total" => $totalPrecioCompra,
             ]);
+
+            DB::commit();
 
         } catch (\Throwable $e) {
             Log::error($e->getMessage() . $e->getTraceAsString());
@@ -86,7 +81,6 @@ class ComprasController extends Controller
         return response()->json(['status' => 200]);
     }
 
-
     public function getCompra (int $id) {
         return response()->json(['error' => false, 'compra' => Compras::whereId($id)->with(['detalleCompra', 'detalleCompra.producto'])->get()->toArray()]);
     }
@@ -96,8 +90,9 @@ class ComprasController extends Controller
         $usuario = $req['usuario'];
         $req = $req['data'];
         
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
+
             //El saldo abonado en la compra.
             $compra = Compras::whereId($req['id']);
             $proveedor = CtaCte::where('proveedor_id', $compra->first()->proveedor_id)->first();
@@ -110,7 +105,6 @@ class ComprasController extends Controller
                 'precio_abonado' => $req['pago'],
                 'confirmada' => true,
             ]);
-            DB::commit();
 
             //Actualizo la cuenta corriente con el proveedor
             $compra = $compra->first();
@@ -120,8 +114,6 @@ class ComprasController extends Controller
             CtaCte::where('proveedor_id', $compra->first()->proveedor_id)->update([
                 'saldo' => $saldoProveedor + $req['diferencia']
             ]);
-
-            DB::commit();
 
             //grabo el ingreso en la caja
             Caja::create([
@@ -136,19 +128,16 @@ class ComprasController extends Controller
 
             foreach ($compraDetalle as $value) {
                 //Obtengo los productos y actualizo su stock
-                $producto = Productos::whereId($value['producto_id'])->first();
-
-                Productos::whereId($value['producto_id'])->update([
-                    'en_transito' => $producto->en_transito - $value['cantidad'],
-                    'stock' => $producto->stock + $value['cantidad']
-                ]);
-                
-                DB::commit();
+                $prod = Productos::whereId($value['producto_id']);
+                $prod->decrement('en_transito', $value['cantidad']);
+                $prod->increment('stock', $value['cantidad']);
             }
 
-            $this->movimientosController->guardarMovimiento(
+            $this->movimientosRepository->guardarMovimiento(
                 'compras', 'CONFIRMACION', $usuario, $compra->id, null, null, $req['diferencia']
             );
+
+            DB::commit();
 
         } catch (\Throwable $e) {
             Log::error($e->getMessage() . $e->getTraceAsString());

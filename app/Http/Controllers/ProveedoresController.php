@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Proveedores;
 use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
+use App\Repositories\MovimientosRepository;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProveedoresController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
     private $indexRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosController $movimientosController)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
         $this->indexRepository = $indexRepository;    
     }
 
@@ -36,21 +39,22 @@ class ProveedoresController extends Controller
                 return response()->json(['error' => true, 'data' => 'Existe un proveedor con ese nombre']);
             }
 
-            $proveedor = new Proveedores();
-            $proveedor->nombre = $req['nombre'];
-            $proveedor->save();
+            DB::beginTransaction();
 
+            $proveedor = Proveedores::create(['nombre' => $req['nombre']]);
                         
-            $this->movimientosController->guardarMovimiento(
+            $this->movimientosRepository->guardarMovimiento(
                 'proveedores', 'ALTA', $usuario, $proveedor->id, null, null, null
             );
 
+            DB::commit();
 
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
         
-
         return response()->json(['status' => 200]);
     }
 
@@ -64,25 +68,28 @@ class ProveedoresController extends Controller
                 return response()->json(['error' => true, 'data' => 'Existe un proveedor con ese nombre']);
             }
     
+            DB::beginTransaction();
+
             $proveedor = Proveedores::whereId($req['id']);
-
             $pNombre = $proveedor->first()->toArray()['nombre'];
-
             $proveedor->update([
                 "nombre" => $req['nombre'],
             ]);
 
             if ($pNombre !== $req['nombre']) { 
-                $this->movimientosController->guardarMovimiento(
+                $this->movimientosRepository->guardarMovimiento(
                     'proveedores', 'MODIFICACION', $usuario, $req['id'], $pNombre, $req['nombre'], null, 'nombre'
                 );
             }
 
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
+            DB::commit();
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
 
-        
         return response()->json(['error' => false]);
     }
 

@@ -11,18 +11,26 @@ use App\Models\Proveedores;
 use App\Models\Vendedores;
 use App\Models\Ventas;
 use App\Repositories\StockRepository;
+use App\Repositories\MovimientosRepository;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ToggleController extends Controller
 {
-    private $movimientosController;
+    private $movimientosRepository;
+    private $stockRepository;
 
-    public function __construct(MovimientosController $movimientosController)
+    public function __construct(MovimientosRepository $movimientosRepository, StockRepository $stockRepository)
     {
-        $this->movimientosController = $movimientosController;    
+        $this->movimientosRepository = $movimientosRepository;    
+        $this->stockRepository = $stockRepository;    
     }
 
-    public function toggleEstado(StockRepository $stockRepository, ComprasController $comprasController) {
+    public function toggleEstado() {
         try {
+
+            DB::beginTransaction();
+
             $req = request()->all();
             $tabla = null; 
             switch ($req['tabla']) {
@@ -54,25 +62,42 @@ class ToggleController extends Controller
                     break;
             };
 
+            //Si es compra o venta: 1- no puede cancelar/activar si está confirmada. 2- tengo que chequear que haya stock cuando reactiva venta
+            if ($req['tabla'] === 'ventas' || $req['tabla'] === 'compras') {
+                $respuesta = $this->administrarSiEsCompraVenta($req, $tabla);
+
+                if ($respuesta === 'Confirmada') return response()->json(['error' => true, 'data' => 'No podes modificar un item confirmado']);
+                if ($respuesta === 'Sin stock') return response()->json(['error' => true, 'data' => 'Ya no hay suficiente stock de algún producto de esta venta para reactivarla']); 
+            }
+
             $tabla->update([
                 'activo' => $req['estado'] === 1 ? 0 : 1
             ]);
 
-            $this->movimientosController->guardarMovimiento(
+            $this->movimientosRepository->guardarMovimiento(
                 $req['tabla'], 'ESTADO', $req['usuario'], $req['id'], $req['estado'] === 1 ? 'activo' : 'inactivo', $req['estado'] === 0 ? 'activo' : 'inactivo'
             );
 
-            if ($req['tabla'] === 'compras') {
-                $stockRepository->actualizarStockCompras($tabla->first(), $req['estado']);
-            } elseif ($req['tabla'] === 'ventas') {
-                $stockRepository->actualizarStockVentas($tabla->first(), $req['estado']);
-            }
+            DB::commit();
 
-        } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
       
         return response()->json(['error' => false]);
+    }
+
+    private function administrarSiEsCompraVenta($req, $tabla) {
+        if ($tabla->first()->confirmada === 1) return 'Confirmada'; 
+
+        if ($req['tabla'] === 'compras') {
+            return $this->stockRepository->actualizarStockCompras($tabla->first(), $req['estado']);
+        } elseif ($req['tabla'] === 'ventas') {
+            return $this->stockRepository->actualizarStockVentas($tabla->first(), $req['estado']);
+        }
+
     }
 
 }
