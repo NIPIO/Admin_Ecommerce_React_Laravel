@@ -25,23 +25,22 @@ class CajaController extends Controller
         $fechas = request()->get('fechas');
 
         $caja = $this->indexRepository->indexCaja($tipoMovimiento, $fechas);
-
         return response()->json(['error' => false, 'allCaja' => Caja::all(), 'cajaFiltro' => $caja->get(), 'datosIniciales' => [
             [
                 'label' => 'Ventas',
-                'value' => '$' . Caja::whereTipoMovimiento('VENTA')->sum('importe')
+                'value' => '$' . number_format(Caja::whereTipoMovimiento('VENTA')->sum('importe'),0,",",".")
             ], 
             [
                 'label' => 'Compras',
-                'value' => '$' . Caja::whereTipoMovimiento('COMPRA')->sum('importe')
+                'value' => '$' . number_format(Caja::whereTipoMovimiento('COMPRA')->sum('importe'),0,",",".")
             ],
             [
                 'label' => 'Gastos',
-                'value' => '$' . Caja::whereTipoMovimiento('EGRESO')->sum('importe')
+                'value' => '$' . number_format(Caja::whereTipoMovimiento('EGRESO')->sum('importe'),0,",",".")
             ],
             [
                 'label' => 'Ingresos',
-                'value' => '$' . Caja::whereTipoMovimiento('INGRESO')->sum('importe')
+                'value' => '$' . number_format(Caja::whereTipoMovimiento('INGRESO')->sum('importe'),0,",",".")
             ],
         ]]);
     }

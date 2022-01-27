@@ -33,7 +33,7 @@ const Caja = () => {
               color: text !== 0 ? (text > 0 ? "lightgreen" : "red") : null
             }
           },
-          children: <div>$ {text}</div>
+          children: <div>$ {text.toLocaleString()}</div>
         };
       },
       sorter: (a, b) => a.importe - b.importe

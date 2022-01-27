@@ -13,12 +13,7 @@ import SmallStats from "./../components/common/SmallStats";
 const chartLabels = [null, null, null, null, null, null, null];
 const datasets = [
   {
-    label: "Today",
-    fill: "start",
     borderWidth: 1.5,
-    backgroundColor1: "rgba(0, 184, 216, 0.1)",
-    backgroundColor2: "rgba(23,198,113,0.1)",
-    backgroundColor3: "rgba(255,180,0,0.1)",
     borderColor: "rgb(0, 184, 216)",
     data: [1, 2, 1, 3, 5, 4, 7]
   }

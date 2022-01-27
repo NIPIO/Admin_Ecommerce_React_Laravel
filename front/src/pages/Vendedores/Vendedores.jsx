@@ -59,7 +59,7 @@ const Vendedores = () => {
           size="middle"
           style={{ visibility: !esAdmin() ? "hidden" : "visible" }}
         >
-          {text}
+          ${text}
         </Space>
       )
     },

@@ -27,7 +27,7 @@ const Compras = () => {
     {
       title: "Total",
       dataIndex: ["precio_total"],
-      render: text => text
+      render: text => `$ ${text.toLocaleString()}`
     },
     {
       title: "Fecha",
