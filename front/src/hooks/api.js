@@ -257,9 +257,15 @@ export const api = {
       })
       .then(res => res.data),
 
-  putVenta: data =>
+  putVenta: (id, filas, cliente, vendedor) =>
     client
-      .put(API_PORT + `/api/venta/${data.id}`, { data, usuario: getUsuario() })
+      .put(API_PORT + `/api/venta/${id}`, {
+        id,
+        filas,
+        cliente,
+        vendedor,
+        usuario: getUsuario()
+      })
       .then(res => res.data),
 
   putVendedor: data =>

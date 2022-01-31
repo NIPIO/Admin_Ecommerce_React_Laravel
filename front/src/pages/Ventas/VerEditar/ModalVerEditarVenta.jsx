@@ -1,27 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container } from "shards-react";
 import { Form, Row, Modal, Col, Alert, Select } from "antd";
-import TablaItemsVenta from "./TablaItemsVenta";
-import { showNotification } from "./../notificacion";
+import VerTablaItemsVenta from "../VerEditar/VerTablaItemsVenta";
+import { showNotification } from "../../notificacion";
 
-import { api } from "../../hooks/api";
+import { api } from "../../../hooks/api";
+import { useQueryClient } from "react-query";
 
 const { Option } = Select;
 
-const ModalNuevaVenta = ({
+const ModalVerEditarVenta = ({
   modal,
   setModal,
-  vendedores,
+  verVenta,
+  setVerVenta,
   clientes,
   productos,
-  queryClient
+  vendedores
 }) => {
+  const [form] = Form.useForm();
+  const queryClient = useQueryClient();
+  const [editarVenta, setEditarVenta] = useState(false);
   const [filas, setFilas] = useState([]);
   const [error, setError] = useState(false);
+  const [mostrarDetalles, setMostrarDetalles] = useState(false);
   const [cliente, setCliente] = useState(false);
   const [vendedor, setVendedor] = useState(false);
 
-  const onCreate = (filas, cliente) => {
+  const onCreate = () => {
     if (filas.length < 1 || !cliente || !vendedor) {
       setError("Falta cliente o productos");
     } else if (
@@ -38,7 +44,7 @@ const ModalNuevaVenta = ({
     } else {
       setError(false);
       api
-        .setNuevaVenta(filas, cliente, vendedor)
+        .putVenta(verVenta.id, filas, cliente, vendedor)
         .then(res => {
           if (res.error) {
             showNotification("error", "Ocurrio un error", res.data);
@@ -58,19 +64,43 @@ const ModalNuevaVenta = ({
     }
   };
 
+  const activarEdicion = () => {
+    if (!editarVenta) {
+      setEditarVenta(true);
+    }
+  };
+
+  useEffect(() => {
+    let venta = api.getVenta(verVenta.id);
+    venta.then(res => {
+      form.setFieldsValue({
+        cliente: res.venta[0].cliente_id,
+        vendedor: res.venta[0].vendedor_id
+      });
+      setMostrarDetalles(true);
+      setCliente(res.venta[0].cliente_id);
+      setVendedor(res.venta[0].vendedor_id);
+      setFilas(res.venta[0].detalle_venta);
+    });
+  }, [verVenta.id]);
+
   return (
     <Container fluid className="main-content-container px-4">
       <Row className="page-header py-4">
         <Modal
           width={800}
           visible={modal}
-          title="Nueva Venta"
-          okText="Crear"
+          title="Ver venta"
+          okText={editarVenta ? "Guardar" : "Editar"}
           cancelText="Cancelar"
-          onCancel={() => setModal(false)}
-          onOk={() => onCreate(filas, cliente)}
+          onCancel={() => {
+            setModal(false);
+            setEditarVenta(false);
+            setVerVenta(false);
+          }}
+          onOk={() => (!editarVenta ? activarEdicion() : onCreate())}
         >
-          <Form layout="vertical" name="form_in_modal">
+          <Form form={form} layout="vertical" name="form_in_modal">
             <Row gutter={24}>
               <Col xs={24} md={12}>
                 <Form.Item name="cliente" label="Cliente">
@@ -94,6 +124,7 @@ const ModalNuevaVenta = ({
                         .toLowerCase()
                         .localeCompare(optionB.children.toLowerCase())
                     }
+                    disabled={!editarVenta}
                   >
                     {clientes.map((cliente, idx) => (
                       <Option key={idx} value={cliente.id}>
@@ -125,6 +156,7 @@ const ModalNuevaVenta = ({
                         .toLowerCase()
                         .localeCompare(optionB.children.toLowerCase())
                     }
+                    disabled={!editarVenta}
                   >
                     {vendedores.map((vendedor, idx) => (
                       <Option key={idx} value={vendedor.id}>
@@ -135,17 +167,17 @@ const ModalNuevaVenta = ({
                 </Form.Item>
               </Col>
             </Row>
-
-            <Row gutter={24}>
-              {cliente && vendedor && (
-                <TablaItemsVenta
+            {mostrarDetalles && (
+              <Row gutter={24}>
+                <VerTablaItemsVenta
                   setError={setError}
                   filas={filas}
                   setFilas={setFilas}
+                  editarVenta={editarVenta}
                   productos={productos}
                 />
-              )}
-            </Row>
+              </Row>
+            )}
           </Form>
           {error && (
             <Alert
@@ -162,4 +194,4 @@ const ModalNuevaVenta = ({
   );
 };
 
-export default ModalNuevaVenta;
+export default ModalVerEditarVenta;

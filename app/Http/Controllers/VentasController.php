@@ -156,6 +156,45 @@ class VentasController extends Controller
         return response()->json(['error' => false]);
     }
 
+    public function editarVenta(Request $request) {
+        $req = $request->all();
+
+        try {
+            DB::beginTransaction();
+            // $req['usuario']
+            
+            $venta = Ventas::whereId($req['id']);
+
+            $totalPrecioVenta = 0;
+            foreach ($req['filas'] as $fila) {
+                dump($fila);
+                $ventaDetalle = VentasDetalle::whereId($fila['id']);
+
+                // La fila puede venir de 2 formas: 1, el producto como array (no fue editado esa fila), 2 el producto como int (fue editado y elegido otro)
+                if (is_array($fila['producto'])) {
+
+                }
+                // $ventaDetalle->update([
+                //     'producto_id' => $fila['producto_id'],
+                //     'precio' => 12,
+                //     'cantidad' => 12
+                // ]);
+            }
+    
+die;
+            $venta->update([
+                'cliente_id' => $req['cliente'],
+                'vendedor_id' => $req['vendedor'],
+            ]);
+
+            DB::commit();
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
+        }
+    }
     public function getVentasConfirmadas() {
         return Ventas::where('confirmada', true)->get()->count();
     }

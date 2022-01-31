@@ -14,7 +14,7 @@ const chartLabels = [null, null, null, null, null, null, null];
 const datasets = [
   {
     borderWidth: 1.5,
-    borderColor: "rgb(0, 184, 216)",
+    borderColor: "#f02719",
     data: [1, 2, 1, 3, 5, 4, 7]
   }
 ];

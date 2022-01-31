@@ -3,44 +3,49 @@ import { Row, Form, Select, Col, Button } from "antd";
 import { Container } from "shards-react";
 const { Option } = Select;
 
-const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
+const VerTablaItemsVenta = ({
+  filas,
+  productos,
+  editarVenta,
+  setFilas,
+  setError
+}) => {
   const handleAddRow = () => {
     setError(false);
+    let filasCopia = [...filas];
     const item = {
-      producto: null,
-      cantidad: null,
-      precioUnitario: null
+      producto: 1,
+      cantidad: 0,
+      precio: 0
     };
-    setFilas([...filas, item]);
+    filasCopia.push(item);
+    setFilas([...filasCopia]);
   };
   const handleRemoveRow = idx => {
-    const rows = [...filas];
-    rows.splice(idx, 1);
-    setFilas([...rows]);
-  };
+    setError(false);
 
-  const setearDato = (val, type, id) => {
-    const filasCopia = [...filas];
-    filasCopia[id][type] = val;
-
-    if (type === "producto") {
-      let precioProd = buscarPrecioProd(val);
-      filasCopia[id]["precioUnitario"] = precioProd.precio;
-    }
-
+    let filasCopia = [...filas];
+    filasCopia.splice(idx, 1);
     setFilas([...filasCopia]);
   };
 
-  const buscarPrecioProd = id => {
-    let prod = productos.filter(prod => prod.id === id);
-    return prod[0];
+  const setearDato = (val, type, id) => {
+    setError(false);
+
+    let filasCopia = [...filas];
+    filasCopia[id][type] = val;
+    setFilas([...filasCopia]);
   };
 
   return (
     <Container fluid className="main-content-container px-4">
       <Row>
         <Col xs={24} span={8}>
-          <Button onClick={() => handleAddRow()} type="primary">
+          <Button
+            onClick={() => handleAddRow()}
+            type="primary"
+            disabled={!editarVenta}
+          >
             Agregar
           </Button>
         </Col>
@@ -62,11 +67,11 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
                   <Form.Item>
                     <Select
                       showSearch
-                      allowClear
                       style={{ marginBottom: "3%", width: "100%" }}
                       placeholder="Elegí el producto"
                       optionFilterProp="children"
-                      initialValue={null}
+                      value={item.producto_id}
+                      disabled={!editarVenta}
                       onChange={val => setearDato(val, "producto", idx)}
                       filterOption={(input, option) =>
                         option.children
@@ -89,7 +94,9 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
                 </td>
                 <td>
                   <input
+                    value={item.cantidad}
                     type="number"
+                    disabled={!editarVenta}
                     onChange={val =>
                       setearDato(val.target.value, "cantidad", idx)
                     }
@@ -98,10 +105,11 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
                 </td>
                 <td>
                   <input
+                    value={item.precio}
+                    disabled={!editarVenta}
                     type="number"
-                    placeholder={filas[idx].precioUnitario}
                     onChange={val =>
-                      setearDato(val.target.value, "precioUnitario", idx)
+                      setearDato(val.target.value, "precio", idx)
                     }
                     className="form-control"
                   />
@@ -110,9 +118,9 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
                   <Button
                     type="success"
                     onClick={() => handleRemoveRow(idx)}
-                    disabled
+                    disabled={!editarVenta}
                   >
-                    Eliminar (En desarrollo)
+                    Eliminar
                   </Button>
                 </td>
               </tr>
@@ -124,4 +132,4 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
   );
 };
 
-export default TablaItemsVenta;
+export default VerTablaItemsVenta;

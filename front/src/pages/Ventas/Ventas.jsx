@@ -9,10 +9,11 @@ import { Container, Card, CardHeader, CardBody } from "shards-react";
 import { Table, Spin, Row, Col, Space, Button, Switch, Popconfirm } from "antd";
 import PageTitle from "../../components/common/PageTitle";
 import { toggleEstado } from "./../notificacion";
-import ModalNuevaVenta from "./ModalNuevaVenta";
-import ModalConfirmarVenta from "./ModalConfirmarVenta";
+import ModalNuevaVenta from "./Nueva/ModalNuevaVenta";
+import ModalConfirmarVenta from "./Nueva/ModalConfirmarVenta";
 import Busqueda from "./Busqueda";
 import { useQueryClient } from "react-query";
+import ModalVerEditarVenta from "./VerEditar/ModalVerEditarVenta";
 
 const Ventas = () => {
   //INFO TABLA:
@@ -84,14 +85,15 @@ const Ventas = () => {
           >
             {row.confirmada ? "Confirmada" : " Confirmar "}
           </Button>
-          <Button onClick={() => edicion(text)} disabled>
-            Editar (En desarrollo)
+          <Button onClick={() => verEditar(text)} disabled>
+            Ver (En desarollo)
           </Button>
         </Space>
       )
     }
   ];
   //FIN INFO TABLA.
+
   const queryClient = useQueryClient();
   const [busqueda, setBusqueda] = useState({
     cliente: null,
@@ -101,15 +103,18 @@ const Ventas = () => {
 
   const [idVentaConfirmada, setIdVentaConfirmada] = useState(null);
   const [modalVentaConfirmada, setModalVentaConfirmada] = useState(false);
+  const [verVenta, setVerVenta] = useState(null);
   const [modal, setModal] = useState(false);
+  const [modalVerEditar, setModalVerEditar] = useState(false);
 
   const allVentas = useVentas(busqueda);
   const allClientes = useClientes({});
   const allVendedores = useVendedores({});
   const allProductos = useProductos({});
 
-  const edicion = () => {
-    setModal(true);
+  const verEditar = idVenta => {
+    setModalVerEditar(true);
+    setVerVenta(idVenta);
   };
 
   if (
@@ -179,6 +184,17 @@ const Ventas = () => {
           vendedores={allVendedores.data.allVendedores}
           queryClient={queryClient}
         />
+        {verVenta && (
+          <ModalVerEditarVenta
+            modal={modalVerEditar}
+            setModal={setModalVerEditar}
+            verVenta={verVenta}
+            setVerVenta={setVerVenta}
+            clientes={allClientes.data.allClientes}
+            productos={allProductos.data.allProductos}
+            vendedores={allVendedores.data.allVendedores}
+          />
+        )}
         {idVentaConfirmada && (
           <ModalConfirmarVenta
             modal={modalVentaConfirmada}
