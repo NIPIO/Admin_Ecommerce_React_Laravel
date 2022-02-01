@@ -34,9 +34,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [ProductosController::class, 'index']);
 
 Route::prefix('')->group(function () {
     Route::get('productos', [ProductosController::class, 'index']);
