@@ -14,7 +14,7 @@ class CreateVendedoresTable extends Migration
     public function up()
     {
         Schema::create('vendedores', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->integer('id', true);
             $table->string('nombre')->unique('nombre');
             $table->string('email')->nullable();
             $table->string('usuario', 50)->unique('usuario');

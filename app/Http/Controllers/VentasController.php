@@ -163,28 +163,57 @@ class VentasController extends Controller
             DB::beginTransaction();
             // $req['usuario']
             
-            $venta = Ventas::whereId($req['id']);
-
             $totalPrecioVenta = 0;
+            $cantidad = 0;
             foreach ($req['filas'] as $fila) {
-                dump($fila);
-                $ventaDetalle = VentasDetalle::whereId($fila['id']);
-
+                $ventaDetalle = null;
+                
                 // La fila puede venir de 2 formas: 1, el producto como array (no fue editado esa fila), 2 el producto como int (fue editado y elegido otro)
-                if (is_array($fila['producto'])) {
-
+                // Formateo entonces los datos para trabajarlos.
+                if (isset($fila['id'])) {
+                    $ventaDetalle = $fila;
+                } else {
+                    $productoDetalle = Productos::whereId($fila['producto'])->first()->toArray();
+                    $fila['producto'] = $productoDetalle;
+                    $ventaDetalle = $fila;
                 }
-                // $ventaDetalle->update([
-                //     'producto_id' => $fila['producto_id'],
-                //     'precio' => 12,
-                //     'cantidad' => 12
-                // ]);
+
+                if (isset($ventaDetalle['venta_id'])) {
+                    //Fila de la compra inicial entonces reemplazo campos quizá editó producto, precio o cantidad
+                    $cargarRow = VentasDetalle::whereId($ventaDetalle['id']);
+
+                    $productoAnterior = $cargarRow->first()->toArray();
+
+                    $cargarRow->update([
+                        'producto_id' => $ventaDetalle['producto_id'],
+                        'precio' => $ventaDetalle['precio'],
+                        'cantidad' => $ventaDetalle['cantidad'],
+                    ]);
+
+                    Productos::whereId($ventaDetalle['producto_id'])->decrement('stock_reservado', $productoAnterior['cantidad']);
+                    Productos::whereId($ventaDetalle['producto_id'])->increment('stock_reservado', $ventaDetalle['cantidad']);
+                
+                } else {
+                    //Es una fila agregada por edición
+
+                    VentasDetalle::create([
+                        'venta_id' => $req['id'],
+                        'producto_id' => $ventaDetalle['producto']['id'],
+                        'precio' => $ventaDetalle['precio'],
+                        'cantidad' => $ventaDetalle['cantidad'],
+                    ]);
+                }
+
+                $totalPrecioVenta += $ventaDetalle['precio'] * $ventaDetalle['cantidad'];
+                $cantidad += $ventaDetalle['cantidad'];
             }
-    
-die;
-            $venta->update([
+
+            Ventas::whereId($req['id'])->update([
                 'cliente_id' => $req['cliente'],
                 'vendedor_id' => $req['vendedor'],
+                'precio_total' => $totalPrecioVenta,
+                'cantidad' => $cantidad,
+                'vendedor_comision' => $totalPrecioVenta * 0.01
             ]);
 
             DB::commit();

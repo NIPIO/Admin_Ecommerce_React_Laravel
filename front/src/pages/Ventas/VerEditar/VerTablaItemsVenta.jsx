@@ -50,6 +50,7 @@ const VerTablaItemsVenta = ({
           </Button>
         </Col>
       </Row>
+      {JSON.stringify(filas)}
       <Row className="page-header py-4">
         <table className="table table-bordered table-hover">
           <thead>

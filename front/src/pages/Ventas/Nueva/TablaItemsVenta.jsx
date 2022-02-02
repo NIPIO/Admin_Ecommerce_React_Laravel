@@ -45,7 +45,6 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
           </Button>
         </Col>
       </Row>
-      {JSON.stringify(filas)}
       <Row className="page-header py-4">
         <table className="table table-bordered table-hover">
           <thead>
@@ -66,7 +65,7 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
                       style={{ marginBottom: "3%", width: "100%" }}
                       placeholder="Elegí el producto"
                       optionFilterProp="children"
-                      initialValue={null}
+                      value={item.producto}
                       onChange={val => setearDato(val, "producto", idx)}
                       filterOption={(input, option) =>
                         option.children
@@ -90,6 +89,7 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
                 <td>
                   <input
                     type="number"
+                    value={item.cantidad}
                     onChange={val =>
                       setearDato(val.target.value, "cantidad", idx)
                     }
@@ -99,6 +99,7 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
                 <td>
                   <input
                     type="number"
+                    value={item.precioUnitario}
                     placeholder={filas[idx].precioUnitario}
                     onChange={val =>
                       setearDato(val.target.value, "precioUnitario", idx)
@@ -107,12 +108,8 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
                   />
                 </td>
                 <td>
-                  <Button
-                    type="success"
-                    onClick={() => handleRemoveRow(idx)}
-                    disabled
-                  >
-                    Eliminar (En desarrollo)
+                  <Button type="success" onClick={() => handleRemoveRow(idx)}>
+                    Eliminar
                   </Button>
                 </td>
               </tr>

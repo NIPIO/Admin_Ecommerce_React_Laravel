@@ -85,9 +85,7 @@ const Ventas = () => {
           >
             {row.confirmada ? "Confirmada" : " Confirmar "}
           </Button>
-          <Button onClick={() => verEditar(text)} disabled>
-            Ver (En desarollo)
-          </Button>
+          <Button onClick={() => verEditar(text)}>Ver</Button>
         </Space>
       )
     }

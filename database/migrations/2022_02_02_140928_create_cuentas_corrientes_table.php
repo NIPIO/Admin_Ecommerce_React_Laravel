@@ -14,7 +14,7 @@ class CreateCuentasCorrientesTable extends Migration
     public function up()
     {
         Schema::create('cuentas_corrientes', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->integer('id', true);
             $table->integer('proveedor_id')->nullable();
             $table->integer('cliente_id')->nullable();
             $table->integer('saldo')->nullable();

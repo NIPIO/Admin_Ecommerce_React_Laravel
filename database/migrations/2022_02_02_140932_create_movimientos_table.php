@@ -14,7 +14,7 @@ class CreateMovimientosTable extends Migration
     public function up()
     {
         Schema::create('movimientos', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->integer('id', true);
             $table->string('tabla', 50);
             $table->string('tipo_movimiento', 50)->nullable();
             $table->integer('item_id');

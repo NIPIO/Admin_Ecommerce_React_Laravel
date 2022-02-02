@@ -89,31 +89,37 @@ class ComprasController extends Controller
         $req = $request->all();
         $usuario = $req['usuario'];
         $req = $req['data'];
-        
         try {
             DB::beginTransaction();
 
             //El saldo abonado en la compra.
             $compra = Compras::whereId($req['id']);
             $proveedor = CtaCte::where('proveedor_id', $compra->first()->proveedor_id)->first();
-            
-            if (is_null($proveedor)) {
-                return response()->json(['error' => true, 'data' => 'Corrobore que el proveedor tenga una cuenta corriente abierta']);
+
+            //Si no abonó exacto y no tiene cta cte no dejo seguir.
+            $compraUp = $compra->first();
+
+            if ($req['diferencia'] <> 0) {
+                if (is_null($proveedor)) {
+                    return response()->json(['error' => true, 'data' => 'Corrobore que el proveedor tenga una cuenta corriente abierta']);
+                } else {
+        
+                    //Actualizo la cuenta corriente con el proveedor
+                    $proveedor = CtaCte::where('proveedor_id', $compraUp->proveedor_id)->first();
+        
+                    $saldoProveedor = $proveedor->saldo;
+                    CtaCte::where('proveedor_id', $compraUp->proveedor_id)->update([
+                        'saldo' => $saldoProveedor + $req['diferencia']
+                    ]);
+                }
             }
 
+            //Actialzo la compra
             $compra->update([
                 'precio_abonado' => $req['pago'],
                 'confirmada' => true,
             ]);
 
-            //Actualizo la cuenta corriente con el proveedor
-            $compra = $compra->first();
-            $proveedor = CtaCte::where('proveedor_id', $compra->proveedor_id)->first();
-
-            $saldoProveedor = $proveedor->saldo;
-            CtaCte::where('proveedor_id', $compra->first()->proveedor_id)->update([
-                'saldo' => $saldoProveedor + $req['diferencia']
-            ]);
 
             //grabo el ingreso en la caja
             Caja::create([
@@ -134,7 +140,7 @@ class ComprasController extends Controller
             }
 
             $this->movimientosRepository->guardarMovimiento(
-                'compras', 'CONFIRMACION', $usuario, $compra->id, null, null, $req['diferencia']
+                'compras', 'CONFIRMACION', $usuario, $compraUp->id, null, null, $req['diferencia']
             );
 
             DB::commit();
