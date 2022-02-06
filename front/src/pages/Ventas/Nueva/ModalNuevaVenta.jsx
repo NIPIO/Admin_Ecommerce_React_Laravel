@@ -28,7 +28,6 @@ const ModalNuevaVenta = ({
       filas.some(prod => {
         return (
           prod.cantidad === "" ||
-          prod.cantidad < 1 ||
           prod.producto === undefined ||
           prod.precioUnitario === ""
         );

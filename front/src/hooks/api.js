@@ -7,6 +7,7 @@ export const client = axios.create({
 });
 
 const API_PORT = "http://localhost:8000";
+// https://zarafah2.herokuapp.com/
 
 export const getStorage = () => {
   let localSto = localStorage.getItem("logueado");
@@ -79,13 +80,14 @@ export const api = {
       })
       .then(res => res.data),
 
-  getVentas: ({ cliente, vendedor, fechas, producto }) =>
+  getVentas: ({ cliente, vendedor, fechas, producto, estado }) =>
     client
       .get(API_PORT + "/api/ventas", {
         params: {
           cliente,
           vendedor,
           fechas,
+          estado,
           producto
         }
       })
@@ -268,6 +270,16 @@ export const api = {
       })
       .then(res => res.data),
 
+  putCompra: (id, filas, proveedor) =>
+    client
+      .put(API_PORT + `/api/compra/${id}`, {
+        id,
+        filas,
+        proveedor,
+        usuario: getUsuario()
+      })
+      .then(res => res.data),
+
   putVendedor: data =>
     client
       .put(API_PORT + `/api/vendedor/${data.id}`, {
@@ -290,6 +302,12 @@ export const api = {
 
   deleteVendedor: id =>
     client.delete(API_PORT + `/api/vendedor/${id}`, id).then(res => res.data),
+
+  deleteVenta: id =>
+    client.delete(API_PORT + `/api/venta/${id}`, id).then(res => res.data),
+
+  deleteCompra: id =>
+    client.delete(API_PORT + `/api/compra/${id}`, id).then(res => res.data),
 
   //PATCHERS
   patchEstado: (tabla, id, estado, usuario) =>

@@ -40,23 +40,24 @@ Route::prefix('')->group(function () {
     Route::get('productos', [ProductosController::class, 'index']);
     Route::post('producto', [ProductosController::class, 'nuevoProducto']);
     Route::put('producto/{id}', [ProductosController::class, 'editarProducto']);
-    Route::delete('producto/{id}', [ProductosController::class, 'borrarProducto']);
 
     Route::get('ventas', [VentasController::class, 'index']);
     Route::get('venta/{id}', [VentasController::class, 'getVenta']);
     Route::post('venta', [VentasController::class, 'nuevaVenta']);
     Route::put('venta/{id}', [VentasController::class, 'editarVenta']);
     Route::post('confirmarVenta', [VentasController::class, 'confirmarVenta']);
+    Route::delete('venta/{id}', [VentasController::class, 'borrarVenta']);
 
     Route::get('compras', [ComprasController::class, 'index']);
     Route::get('compra/{id}', [ComprasController::class, 'getCompra']);
     Route::post('compra', [ComprasController::class, 'nuevaCompra']);
+    Route::put('compra/{id}', [ComprasController::class, 'editarCompra']);
     Route::post('confirmarCompra', [ComprasController::class, 'confirmarCompra']);
+    Route::delete('compra/{id}', [ComprasController::class, 'borrarCompra']);
     
     Route::get('marcas', [MarcasController::class, 'index']);
     Route::post('marca', [MarcasController::class, 'nuevaMarca']);
     Route::put('marca/{id}', [MarcasController::class, 'editarMarca']);
-    Route::delete('marca/{id}', [MarcasController::class, 'borrarMarca']);
     
     Route::get('proveedores', [ProveedoresController::class, 'index']);
     Route::post('proveedor', [ProveedoresController::class, 'nuevoProveedor']);
@@ -77,7 +78,6 @@ Route::prefix('')->group(function () {
     Route::get('roles', [RolesController::class, 'index']);
     Route::get('permisos', [PermisosController::class, 'index']);
     Route::post('roles', [RolesController::class, 'nuevoRol']);
-    //  Route::put('rol/{id}', [RolesController::class, 'editarRol']);
 
     Route::get('caja', [CajaController::class, 'index']);
     Route::post('caja', [CajaController::class, 'nuevaCaja']);

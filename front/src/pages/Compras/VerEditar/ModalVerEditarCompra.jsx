@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container } from "shards-react";
 import { Form, Row, Modal, Col, Alert, Select } from "antd";
-import VerTablaItemsVenta from "../VerEditar/VerTablaItemsVenta";
+import VerTablaItemsCompra from "./VerTablaItemsCompra";
 import { showNotification } from "../../notificacion";
 
 import { api } from "../../../hooks/api";
@@ -9,27 +9,25 @@ import { useQueryClient } from "react-query";
 
 const { Option } = Select;
 
-const ModalVerEditarVenta = ({
+const ModalVerEditarCompra = ({
   modal,
   setModal,
-  verVenta,
-  setVerVenta,
-  clientes,
+  verCompra,
+  setVerCompra,
   productos,
-  vendedores
+  proveedores
 }) => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
-  const [editarVenta, setEditarVenta] = useState(false);
+  const [editarCompra, setEditarCompra] = useState(false);
   const [filas, setFilas] = useState([]);
   const [error, setError] = useState(false);
   const [mostrarDetalles, setMostrarDetalles] = useState(false);
-  const [cliente, setCliente] = useState(false);
-  const [vendedor, setVendedor] = useState(false);
+  const [proveedor, setProveedor] = useState(false);
 
   const onCreate = () => {
-    if (filas.length < 1 || !cliente || !vendedor) {
-      setError("Falta cliente o productos");
+    if (filas.length < 1 || !proveedor) {
+      setError("Falta proveedor o productos");
     } else if (
       filas.some(prod => {
         return (
@@ -43,15 +41,15 @@ const ModalVerEditarVenta = ({
     } else {
       setError(false);
       api
-        .putVenta(verVenta.id, filas, cliente, vendedor)
+        .putCompra(verCompra.id, filas, proveedor)
         .then(res => {
           if (res.error) {
             showNotification("error", "Ocurrio un error", res.data);
           } else {
-            showNotification("success", "Venta modificada", "");
-            queryClient.invalidateQueries("ventas");
+            showNotification("success", "Compra modificada", "");
+            queryClient.invalidateQueries("compras");
             setModal(false);
-            setEditarVenta(false);
+            setEditarCompra(false);
           }
         })
         .catch(err => {
@@ -65,24 +63,22 @@ const ModalVerEditarVenta = ({
   };
 
   const activarEdicion = () => {
-    if (!editarVenta) {
-      setEditarVenta(true);
+    if (!editarCompra) {
+      setEditarCompra(true);
     }
   };
 
   useEffect(() => {
-    let venta = api.getVenta(verVenta.id);
-    venta.then(res => {
+    let compra = api.getCompra(verCompra.id);
+    compra.then(res => {
       form.setFieldsValue({
-        cliente: res.venta[0].cliente_id,
-        vendedor: res.venta[0].vendedor_id
+        proveedor: res.compra[0].proveedor_id
       });
       setMostrarDetalles(true);
-      setCliente(res.venta[0].cliente_id);
-      setVendedor(res.venta[0].vendedor_id);
-      setFilas(res.venta[0].detalle_venta);
+      setProveedor(res.compra[0].proveedor_id);
+      setFilas(res.compra[0].detalle_compra);
     });
-  }, [verVenta.id]);
+  }, [verCompra.id]);
 
   return (
     <Container fluid className="main-content-container px-4">
@@ -90,29 +86,29 @@ const ModalVerEditarVenta = ({
         <Modal
           width={800}
           visible={modal}
-          title="Ver venta"
-          okText={editarVenta ? "Guardar" : "Editar"}
+          title="Ver compra"
+          okText={editarCompra ? "Guardar" : "Editar"}
           cancelText="Cancelar"
           onCancel={() => {
             setModal(false);
-            setEditarVenta(false);
-            setVerVenta(false);
+            setEditarCompra(false);
+            setVerCompra(false);
           }}
-          onOk={() => (!editarVenta ? activarEdicion() : onCreate())}
+          onOk={() => (!editarCompra ? activarEdicion() : onCreate())}
         >
           <Form form={form} layout="vertical" name="form_in_modal">
             <Row gutter={24}>
               <Col xs={24} md={12}>
-                <Form.Item name="cliente" label="Cliente">
+                <Form.Item name="proveedor" label="Proveedor">
                   <Select
                     showSearch
                     allowClear
                     style={{ marginBottom: "3%", width: "100%" }}
                     onChange={e => {
-                      setCliente(e);
+                      setProveedor(e);
                       setError(false);
                     }}
-                    placeholder="Elegí el cliente"
+                    placeholder="Elegí el proveedor"
                     optionFilterProp="children"
                     filterOption={(input, option) =>
                       option.children
@@ -124,43 +120,11 @@ const ModalVerEditarVenta = ({
                         .toLowerCase()
                         .localeCompare(optionB.children.toLowerCase())
                     }
-                    disabled={!editarVenta}
+                    disabled={!editarCompra}
                   >
-                    {clientes.map((cliente, idx) => (
-                      <Option key={idx} value={cliente.id}>
-                        {cliente.nombre}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item name="vendedor" label="Vendedor">
-                  <Select
-                    showSearch
-                    allowClear
-                    style={{ marginBottom: "3%", width: "100%" }}
-                    onChange={e => {
-                      setVendedor(e);
-                      setError(false);
-                    }}
-                    placeholder="Elegí el vendedor"
-                    optionFilterProp="children"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    }
-                    filterSort={(optionA, optionB) =>
-                      optionA.children
-                        .toLowerCase()
-                        .localeCompare(optionB.children.toLowerCase())
-                    }
-                    disabled={!editarVenta}
-                  >
-                    {vendedores.map((vendedor, idx) => (
-                      <Option key={idx} value={vendedor.id}>
-                        {vendedor.nombre}
+                    {proveedores.map((proveedor, idx) => (
+                      <Option key={idx} value={proveedor.id}>
+                        {proveedor.nombre}
                       </Option>
                     ))}
                   </Select>
@@ -169,11 +133,11 @@ const ModalVerEditarVenta = ({
             </Row>
             {mostrarDetalles && (
               <Row gutter={24}>
-                <VerTablaItemsVenta
+                <VerTablaItemsCompra
                   setError={setError}
                   filas={filas}
                   setFilas={setFilas}
-                  editarVenta={editarVenta}
+                  editarCompra={editarCompra}
                   productos={productos}
                 />
               </Row>
@@ -194,4 +158,4 @@ const ModalVerEditarVenta = ({
   );
 };
 
-export default ModalVerEditarVenta;
+export default ModalVerEditarCompra;

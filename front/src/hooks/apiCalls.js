@@ -27,13 +27,15 @@ export function useVentas({
   cliente = undefined,
   vendedor = undefined,
   producto = undefined,
+  estado = undefined,
   fechas = undefined
 }) {
-  return useQuery(["ventas", cliente, producto, vendedor, fechas], () =>
+  return useQuery(["ventas", cliente, producto, estado, vendedor, fechas], () =>
     api.getVentas({
       cliente,
       vendedor,
       producto,
+      estado,
       fechas
     })
   );

@@ -46,7 +46,6 @@ class ComprasController extends Controller
                 'cantidad' => array_sum(array_column($req['productos'], 'cantidad')),
                 'precio_total' => 0,
                 'activo' => 1,
-                'fecha_compra' => Carbon::now()->format('Y-m-d'),
             ]);
             
             $totalPrecioCompra = 0;
@@ -79,10 +78,6 @@ class ComprasController extends Controller
         }
 
         return response()->json(['status' => 200]);
-    }
-
-    public function getCompra (int $id) {
-        return response()->json(['error' => false, 'compra' => Compras::whereId($id)->with(['detalleCompra', 'detalleCompra.producto'])->get()->toArray()]);
     }
 
     public function confirmarCompra (Request $request) {
@@ -118,6 +113,7 @@ class ComprasController extends Controller
             $compra->update([
                 'precio_abonado' => $req['pago'],
                 'confirmada' => true,
+                'fecha_compra' => Carbon::now()->format('Y-m-d'),
             ]);
 
 
@@ -154,5 +150,97 @@ class ComprasController extends Controller
         return response()->json(['error' => false]);
     }
     
+    public function editarCompra(Request $request) {
+        $req = $request->all();
 
+        try {
+            DB::beginTransaction();
+            
+            $totalPrecioCompra = 0;
+            $cantidad = 0;
+            foreach ($req['filas'] as $fila) {
+                $compraDetalle = null;
+                
+                // // La fila puede venir de 2 formas: 1, el producto como array (no fue editado esa fila), 2 el producto como int (fue editado y elegido otro)
+                // // Formateo entonces los datos para trabajarlos.
+                if (isset($fila['id'])) {
+                    $compraDetalle = $fila;
+                } else {
+                    $productoDetalle = Productos::whereId($fila['producto'])->first()->toArray();
+                    $fila['producto'] = $productoDetalle;
+                    $compraDetalle = $fila;
+                }
+
+                if (isset($compraDetalle['compra_id'])) {
+                    //Fila de la compra inicial entonces reemplazo campos quizá editó producto, precio o cantidad
+                    $cargarRow = ComprasDetalle::whereId($compraDetalle['id']);
+
+                    $productoAnterior = $cargarRow->first()->toArray();
+
+                    $cargarRow->update([
+                        'producto_id' => $compraDetalle['producto_id'],
+                        'precio' => $compraDetalle['precio'],
+                        'cantidad' => $compraDetalle['cantidad'],
+                    ]);
+
+                    Productos::whereId($compraDetalle['producto_id'])->decrement('en_transito', $productoAnterior['cantidad']);
+                    Productos::whereId($compraDetalle['producto_id'])->increment('en_transito', $compraDetalle['cantidad']);
+                
+                } else {
+                    // Es una fila agregada por edición
+                    ComprasDetalle::create([
+                        'compra_id' => $req['id'],
+                        'producto_id' => $compraDetalle['producto']['id'],
+                        'precio' => $compraDetalle['precio'],
+                        'cantidad' => $compraDetalle['cantidad'],
+                    ]);
+
+                    Productos::whereId($compraDetalle['producto']['id'])->increment('en_transito', $compraDetalle['cantidad']);
+                }
+
+                $totalPrecioCompra += $compraDetalle['precio'] * $compraDetalle['cantidad'];
+                $cantidad += $compraDetalle['cantidad'];
+            }
+
+            Compras::whereId($req['id'])->update([
+                'proveedor_id' => $req['proveedor'],
+                'precio_total' => $totalPrecioCompra,
+                'cantidad' => $cantidad,
+            ]);
+
+
+            $this->movimientosRepository->guardarMovimiento(
+                'compras', 'MODIFICACION', $req['usuario'], $req['id'], null, null, null, null
+            );
+
+            DB::commit();
+
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
+        }
+    }
+
+    public function borrarCompra(int $id) {
+
+        try {
+            DB::beginTransaction();
+
+            ComprasDetalle::where('compra_id', $id)->delete();
+            Compras::find($id)->delete();
+
+            DB::commit();
+    
+            return response()->json(['error' => false]);
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
+        }
+    }
+
+    public function getCompra (int $id) {
+        return response()->json(['error' => false, 'compra' => Compras::whereId($id)->with(['detalleCompra', 'detalleCompra.producto'])->get()->toArray()]);
+    }
 }

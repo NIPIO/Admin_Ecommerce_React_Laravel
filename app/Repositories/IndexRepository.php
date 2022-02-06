@@ -20,7 +20,7 @@ class IndexRepository implements RepositoryInterface
 {
 
     //DEVUELVE TODAS LOS INDEX FILTRADOS. 
-    public function indexVentas($cliente, $vendedor, $producto, $fechas) {
+    public function indexVentas($cliente, $vendedor, $producto, $fechas, $estado) {
         $ventas = Ventas::orderBy('id', 'DESC')->with(['cliente', 'vendedor']);
 
         if ($cliente) {
@@ -28,6 +28,14 @@ class IndexRepository implements RepositoryInterface
         }
         if ($vendedor) {
             $ventas->whereVendedorId((int) $vendedor);
+        }
+
+        //Si hay filtro busco
+        if (!is_null($estado)) {
+            $ventas->whereActivo((int) $estado);
+        } else {
+        //Por defecto devuelvo las activas.
+            $ventas->whereActivo(1);
         }
         if ($producto) {
             $ventas->whereHas('detalleVenta', function($innerQuery) use ($producto) {

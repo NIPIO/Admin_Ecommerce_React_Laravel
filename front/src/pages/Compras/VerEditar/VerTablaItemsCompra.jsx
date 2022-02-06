@@ -3,44 +3,49 @@ import { Row, Form, Select, Col, Button } from "antd";
 import { Container } from "shards-react";
 const { Option } = Select;
 
-const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
+const VerTablaItemsCompra = ({
+  filas,
+  productos,
+  editarCompra,
+  setFilas,
+  setError
+}) => {
   const handleAddRow = () => {
     setError(false);
+    let filasCopia = [...filas];
     const item = {
-      producto: null,
-      cantidad: null,
-      precioUnitario: null
+      producto: 1,
+      cantidad: 0,
+      precio: 0
     };
-    setFilas([...filas, item]);
-  };
-  const handleRemoveRow = idx => {
-    const rows = [...filas];
-    rows.splice(idx, 1);
-    setFilas([...rows]);
-  };
-
-  const setearDato = (val, type, id) => {
-    const filasCopia = [...filas];
-    filasCopia[id][type] = val;
-
-    if (type === "producto") {
-      let precioProd = buscarPrecioProd(val);
-      filasCopia[id]["precioUnitario"] = precioProd.precio;
-    }
-
+    filasCopia.push(item);
     setFilas([...filasCopia]);
   };
+  // const handleRemoveRow = idx => {
+  //   setError(false);
 
-  const buscarPrecioProd = id => {
-    let prod = productos.filter(prod => prod.id === id);
-    return prod[0];
+  //   let filasCopia = [...filas];
+  //   filasCopia.splice(idx, 1);
+  //   setFilas([...filasCopia]);
+  // };
+
+  const setearDato = (val, type, id) => {
+    setError(false);
+
+    let filasCopia = [...filas];
+    filasCopia[id][type] = val;
+    setFilas([...filasCopia]);
   };
 
   return (
     <Container fluid className="main-content-container px-4">
       <Row>
         <Col xs={24} span={8}>
-          <Button onClick={() => handleAddRow()} type="primary">
+          <Button
+            onClick={() => handleAddRow()}
+            type="primary"
+            disabled={!editarCompra}
+          >
             Agregar
           </Button>
         </Col>
@@ -52,7 +57,7 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
               <th className="text-center"> Producto </th>
               <th className="text-center"> Cantidad </th>
               <th className="text-center"> Precio U. </th>
-              <th className="text-center"> </th>
+              {/* <th className="text-center"> </th> */}
             </tr>
           </thead>
           <tbody>
@@ -62,11 +67,11 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
                   <Form.Item>
                     <Select
                       showSearch
-                      allowClear
                       style={{ marginBottom: "3%", width: "100%" }}
                       placeholder="Elegí el producto"
                       optionFilterProp="children"
-                      initialValue={null}
+                      value={item.producto_id}
+                      disabled={!editarCompra}
                       onChange={val => setearDato(val, "producto", idx)}
                       filterOption={(input, option) =>
                         option.children
@@ -89,7 +94,9 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
                 </td>
                 <td>
                   <input
+                    value={item.cantidad}
                     type="number"
+                    disabled={!editarCompra}
                     onChange={val =>
                       setearDato(val.target.value, "cantidad", idx)
                     }
@@ -98,23 +105,24 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
                 </td>
                 <td>
                   <input
+                    value={item.precio}
+                    disabled={!editarCompra}
                     type="number"
-                    placeholder={filas[idx].precioUnitario}
                     onChange={val =>
-                      setearDato(val.target.value, "precioUnitario", idx)
+                      setearDato(val.target.value, "precio", idx)
                     }
                     className="form-control"
                   />
                 </td>
-                <td>
+                {/* <td>
                   <Button
                     type="success"
                     onClick={() => handleRemoveRow(idx)}
-                    disabled
+                    disabled={!editarCompra}
                   >
-                    Eliminar (En desarrollo)
+                    Eliminar
                   </Button>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
@@ -124,4 +132,4 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
   );
 };
 
-export default TablaItemsCompra;
+export default VerTablaItemsCompra;

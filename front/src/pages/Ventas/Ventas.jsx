@@ -4,11 +4,12 @@ import {
   useVentas,
   useProductos
 } from "../../hooks/apiCalls";
+import { api } from "./../../hooks/api";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
 import { Table, Spin, Row, Col, Space, Button, Switch, Popconfirm } from "antd";
 import PageTitle from "../../components/common/PageTitle";
-import { toggleEstado } from "./../notificacion";
+import { toggleEstado, showNotification } from "./../notificacion";
 import ModalNuevaVenta from "./Nueva/ModalNuevaVenta";
 import ModalConfirmarVenta from "./Nueva/ModalConfirmarVenta";
 import Busqueda from "./Busqueda";
@@ -86,6 +87,26 @@ const Ventas = () => {
             {row.confirmada ? "Confirmada" : " Confirmar "}
           </Button>
           <Button onClick={() => verEditar(text)}>Ver</Button>
+          <Popconfirm
+            title="Eliminamos de forma definitiva esta venta?"
+            onConfirm={() =>
+              api.deleteVenta(row.id).then(res => {
+                if (res.error) {
+                  showNotification("error", "Hubo un error", res.error);
+                } else {
+                  showNotification("success", "Venta eliminada", "");
+                  queryClient.invalidateQueries("ventas");
+                }
+              })
+            }
+            onCancel={() => console.log("ta")}
+            okText="Sí"
+            cancelText="No"
+          >
+            <Button danger style={{ display: !row.activo ? "block" : "none" }}>
+              Eliminar
+            </Button>
+          </Popconfirm>
         </Space>
       )
     }
@@ -96,6 +117,8 @@ const Ventas = () => {
   const [busqueda, setBusqueda] = useState({
     cliente: null,
     vendedor: null,
+    estado: null,
+    producto: null,
     fechas: null
   });
 

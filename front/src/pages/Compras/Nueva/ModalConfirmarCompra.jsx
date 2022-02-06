@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Container } from "shards-react";
 import { Row, Modal, Spin, Form, Col, InputNumber, Typography } from "antd";
-import { api } from "../../hooks/api";
+import { api } from "../../../hooks/api";
 import { useQuery } from "react-query";
-import { showNotification } from "./../notificacion";
+import { showNotification } from "./../../notificacion";
 
 const { Title } = Typography;
 

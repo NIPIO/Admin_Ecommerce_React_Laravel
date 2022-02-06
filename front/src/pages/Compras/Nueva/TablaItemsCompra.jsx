@@ -3,49 +3,44 @@ import { Row, Form, Select, Col, Button } from "antd";
 import { Container } from "shards-react";
 const { Option } = Select;
 
-const VerTablaItemsVenta = ({
-  filas,
-  productos,
-  editarVenta,
-  setFilas,
-  setError
-}) => {
+const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
   const handleAddRow = () => {
     setError(false);
-    let filasCopia = [...filas];
     const item = {
-      producto: 1,
-      cantidad: 0,
-      precio: 0
+      producto: null,
+      cantidad: null,
+      precioUnitario: null
     };
-    filasCopia.push(item);
-    setFilas([...filasCopia]);
+    setFilas([...filas, item]);
   };
-  // const handleRemoveRow = idx => {
-  //   setError(false);
-
-  //   let filasCopia = [...filas];
-  //   filasCopia.splice(idx, 1);
-  //   setFilas([...filasCopia]);
-  // };
+  const handleRemoveRow = idx => {
+    const rows = [...filas];
+    rows.splice(idx, 1);
+    setFilas([...rows]);
+  };
 
   const setearDato = (val, type, id) => {
-    setError(false);
-
-    let filasCopia = [...filas];
+    const filasCopia = [...filas];
     filasCopia[id][type] = val;
+
+    if (type === "producto") {
+      let precioProd = buscarPrecioProd(val);
+      filasCopia[id]["precioUnitario"] = precioProd.precio;
+    }
+
     setFilas([...filasCopia]);
+  };
+
+  const buscarPrecioProd = id => {
+    let prod = productos.filter(prod => prod.id === id);
+    return prod[0];
   };
 
   return (
     <Container fluid className="main-content-container px-4">
       <Row>
         <Col xs={24} span={8}>
-          <Button
-            onClick={() => handleAddRow()}
-            type="primary"
-            disabled={!editarVenta}
-          >
+          <Button onClick={() => handleAddRow()} type="primary">
             Agregar
           </Button>
         </Col>
@@ -57,7 +52,7 @@ const VerTablaItemsVenta = ({
               <th className="text-center"> Producto </th>
               <th className="text-center"> Cantidad </th>
               <th className="text-center"> Precio U. </th>
-              {/* <th className="text-center"> </th> */}
+              <th className="text-center"> </th>
             </tr>
           </thead>
           <tbody>
@@ -67,11 +62,11 @@ const VerTablaItemsVenta = ({
                   <Form.Item>
                     <Select
                       showSearch
+                      allowClear
                       style={{ marginBottom: "3%", width: "100%" }}
                       placeholder="Elegí el producto"
                       optionFilterProp="children"
-                      value={item.producto_id}
-                      disabled={!editarVenta}
+                      value={item.producto}
                       onChange={val => setearDato(val, "producto", idx)}
                       filterOption={(input, option) =>
                         option.children
@@ -94,9 +89,7 @@ const VerTablaItemsVenta = ({
                 </td>
                 <td>
                   <input
-                    value={item.cantidad}
                     type="number"
-                    disabled={!editarVenta}
                     onChange={val =>
                       setearDato(val.target.value, "cantidad", idx)
                     }
@@ -105,24 +98,19 @@ const VerTablaItemsVenta = ({
                 </td>
                 <td>
                   <input
-                    value={item.precio}
-                    disabled={!editarVenta}
                     type="number"
+                    placeholder={filas[idx].precioUnitario}
                     onChange={val =>
-                      setearDato(val.target.value, "precio", idx)
+                      setearDato(val.target.value, "precioUnitario", idx)
                     }
                     className="form-control"
                   />
                 </td>
-                {/* <td>
-                  <Button
-                    type="success"
-                    onClick={() => handleRemoveRow(idx)}
-                    disabled={!editarVenta}
-                  >
+                <td>
+                  <Button type="success" onClick={() => handleRemoveRow(idx)}>
                     Eliminar
                   </Button>
-                </td> */}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -132,4 +120,4 @@ const VerTablaItemsVenta = ({
   );
 };
 
-export default VerTablaItemsVenta;
+export default TablaItemsCompra;

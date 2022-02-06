@@ -29,8 +29,9 @@ class VentasController extends Controller
         $vendedor = request()->get('vendedor');
         $fechas = request()->get('fechas');
         $producto = request()->get('producto');
+        $estado = request()->get('estado');
 
-        $ventas = $this->indexRepository->indexVentas($cliente, $vendedor, $producto, $fechas);
+        $ventas = $this->indexRepository->indexVentas($cliente, $vendedor, $producto, $fechas, $estado);
 
         return response()->json(['error' => false, 'allVentas' => Ventas::all(), 'ventasFiltro' => $ventas->get()]);
     }
@@ -195,13 +196,14 @@ class VentasController extends Controller
                 
                 } else {
                     //Es una fila agregada por edición
-
                     VentasDetalle::create([
                         'venta_id' => $req['id'],
                         'producto_id' => $ventaDetalle['producto']['id'],
                         'precio' => $ventaDetalle['precio'],
                         'cantidad' => $ventaDetalle['cantidad'],
                     ]);
+
+                    Productos::whereId($ventaDetalle['producto']['id'])->increment('stock_reservado', $ventaDetalle['cantidad']);
                 }
 
                 $totalPrecioVenta += $ventaDetalle['precio'] * $ventaDetalle['cantidad'];
@@ -216,6 +218,10 @@ class VentasController extends Controller
                 'vendedor_comision' => $totalPrecioVenta * 0.01
             ]);
 
+            $this->movimientosRepository->guardarMovimiento(
+                'ventas', 'MODIFICACION', $req['usuario'], $req['id'], null, null, null, null
+            );
+
             DB::commit();
 
         } catch (\Throwable $e) {
@@ -224,6 +230,25 @@ class VentasController extends Controller
             return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
     }
+
+    public function borrarVenta(int $id) {
+
+        try {
+            DB::beginTransaction();
+
+            VentasDetalle::where('venta_id', $id)->delete();
+            Ventas::find($id)->delete();
+            
+            DB::commit();
+    
+            return response()->json(['error' => false]);
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage() . $e->getTraceAsString());
+            DB::rollBack();
+            return response()->json(['error' => true, 'data' => $e->getMessage()]);
+        }
+    }
+
     public function getVentasConfirmadas() {
         return Ventas::where('confirmada', true)->get()->count();
     }

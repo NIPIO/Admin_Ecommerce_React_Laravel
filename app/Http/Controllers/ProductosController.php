@@ -81,6 +81,15 @@ class ProductosController extends Controller
 
             $cambios = $camposEditadosRepository->buscarCamposEditados($producto, $req);
 
+            //Se revisa el editar stock de un producto que tenga ventas reservadas para que no se sobrepase.
+            if ($cambios[0] === 'stock') {
+                $productoEnCuestion = $producto->first()->toArray();
+
+                //Si bajó la cantidad de stock me fijo que no se pase de 0 si hay reservas
+                if($req['stock'] < $productoEnCuestion['stock_reservado']) {
+                    return response()->json(['error' => true, 'data' => 'Hay ' . $productoEnCuestion['stock_reservado'] . ' ' . $productoEnCuestion['nombre'] . ' reservados, no podés poner menos cantidad en stock o editá las reservas.']);
+                }
+            }
             $producto->update([
                 "nombre" => $req['nombre'],
                 "marca" => $req['marca'],

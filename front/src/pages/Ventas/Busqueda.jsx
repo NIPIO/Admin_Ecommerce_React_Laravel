@@ -10,6 +10,7 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
   const [producto, setProducto] = useState(null);
   const [cliente, setCliente] = useState(null);
   const [vendedor, setVendedor] = useState(null);
+  const [estado, setEstado] = useState(null);
   const [fechas, setFechas] = useState(null);
 
   const limpiar = () => {
@@ -17,8 +18,21 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
     setFechas(null);
     setVendedor(null);
     setProducto(null);
+    setEstado(null);
     setBusqueda({});
   };
+
+  const estados = [
+    {
+      nombre: "activo",
+      id: 1
+    },
+    {
+      nombre: "inactivo",
+      id: 0
+    }
+  ];
+
   return (
     <Collapse expandIconPosition="right">
       <Collapse.Panel
@@ -32,7 +46,7 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
       >
         <Space direction="vertical" size={30} style={{ width: "100%" }}>
           <Row gutter={24}>
-            <Col md={6}>
+            <Col xs={24} md={5}>
               <Select
                 showSearch
                 allowClear
@@ -57,7 +71,7 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
                 ))}
               </Select>
             </Col>
-            <Col md={6}>
+            <Col xs={24} md={5}>
               <Select
                 showSearch
                 allowClear
@@ -82,7 +96,7 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
                 ))}
               </Select>
             </Col>
-            <Col md={6}>
+            <Col xs={24} md={5}>
               <Select
                 showSearch
                 allowClear
@@ -107,13 +121,39 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
                 ))}
               </Select>
             </Col>
-            <Col md={6}>
+            <Col xs={24} md={5}>
               <RangePicker
                 style={{ marginBottom: "3%", width: "100%" }}
                 locale={locale}
                 allowClear
                 onChange={val => setFechas(val)}
               />
+            </Col>
+            <Col xs={24} md={4}>
+              <Select
+                showSearch
+                allowClear
+                defaultValue={1}
+                style={{ marginBottom: "3%", width: "100%" }}
+                placeholder="Buscá por estado"
+                optionFilterProp="children"
+                onChange={val => setEstado(val)}
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
+                  0
+                }
+                filterSort={(optionA, optionB) =>
+                  optionA.children
+                    .toLowerCase()
+                    .localeCompare(optionB.children.toLowerCase())
+                }
+              >
+                {estados.map((estado, idx) => (
+                  <Option key={idx} value={estado.id}>
+                    {estado.nombre}
+                  </Option>
+                ))}
+              </Select>
             </Col>
           </Row>
         </Space>
@@ -128,7 +168,8 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
                     cliente,
                     vendedor,
                     producto,
-                    fechas
+                    fechas,
+                    estado
                   });
                 }}
               >

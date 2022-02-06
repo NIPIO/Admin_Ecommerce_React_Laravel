@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { Container } from "shards-react";
 import { Form, Row, Modal, Col, Alert, Select } from "antd";
 import TablaItemsCompra from "./TablaItemsCompra";
-import { showNotification } from "./../notificacion";
-
-import { api } from "../../hooks/api";
+import { showNotification } from "./../../notificacion";
+import { api } from "../../../hooks/api";
 
 const { Option } = Select;
 

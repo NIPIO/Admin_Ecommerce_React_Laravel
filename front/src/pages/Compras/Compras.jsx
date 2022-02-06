@@ -3,12 +3,13 @@ import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
 import PageTitle from "../../components/common/PageTitle";
 import { Table, Spin, Row, Col, Space, Button, Switch, Popconfirm } from "antd";
-
-import ModalNuevaCompra from "./ModalNuevaCompra";
-import ModalConfirmarCompra from "./ModalConfirmarCompra";
+import { api } from "./../../hooks/api";
+import ModalNuevaCompra from "./Nueva/ModalNuevaCompra";
+import ModalConfirmarCompra from "./Nueva/ModalConfirmarCompra";
 import Busqueda from "./Busqueda";
 import { useQueryClient } from "react-query";
-import { toggleEstado } from "../notificacion";
+import { toggleEstado, showNotification } from "../notificacion";
+import ModalVerEditarCompra from "./VerEditar/ModalVerEditarCompra";
 
 const Compras = () => {
   //INFO TABLA:
@@ -40,7 +41,7 @@ const Compras = () => {
       render: (text, row) => (
         <Space>
           <Popconfirm
-            title="Si cambia el estado de esta venta modificará el stock de los productos (van a pasar a reservados o disponibles según corresponda). Seguimos?"
+            title="Si cambia el estado de esta compra modificará el stock en transito de los productos. Seguimos?"
             onConfirm={() =>
               toggleEstado(
                 "compras",
@@ -80,9 +81,27 @@ const Compras = () => {
           >
             {row.confirmada ? "Confirmada" : " Confirmar "}
           </Button>
-          <Button onClick={() => edicion(text)} disabled>
-            Editar (En desarrollo)
-          </Button>
+          <Button onClick={() => verEditar(text)}>Ver</Button>
+          <Popconfirm
+            title="Eliminamos de forma definitiva esta compra?"
+            onConfirm={() =>
+              api.deleteCompra(row.id).then(res => {
+                if (res.error) {
+                  showNotification("error", "Hubo un error", res.error);
+                } else {
+                  showNotification("success", "Compra eliminada", "");
+                  queryClient.invalidateQueries("compras");
+                }
+              })
+            }
+            onCancel={() => console.log("ta")}
+            okText="Sí"
+            cancelText="No"
+          >
+            <Button danger style={{ display: !row.activo ? "block" : "none" }}>
+              Eliminar
+            </Button>
+          </Popconfirm>
         </Space>
       )
     }
@@ -90,19 +109,24 @@ const Compras = () => {
   //FIN INFO TABLA.
 
   const [busqueda, setBusqueda] = useState({
-    provedor: null,
+    proveedor: null,
     producto: null
   });
+
   const queryClient = useQueryClient();
   const [idCompraConfirmada, setIdCompraConfirmada] = useState(null);
   const [modalCompraConfirmada, setModalCompraConfirmada] = useState(false);
+  const [modalVerEditar, setModalVerEditar] = useState(false);
   const [modal, setModal] = useState(false);
+  const [verCompra, setVerCompra] = useState(null);
+
   const allProveedores = useProveedores({});
   const allProductos = useProductos({});
   const allCompras = useCompras(busqueda);
 
-  const edicion = () => {
-    setModal(true);
+  const verEditar = idVenta => {
+    setModalVerEditar(true);
+    setVerCompra(idVenta);
   };
 
   if (
@@ -170,6 +194,17 @@ const Compras = () => {
           productos={allProductos.data.allProductos}
           queryClient={queryClient}
         />
+        {verCompra && (
+          <ModalVerEditarCompra
+            modal={modalVerEditar}
+            setModal={setModalVerEditar}
+            verCompra={verCompra}
+            setVerCompra={setVerCompra}
+            productos={allProductos.data.allProductos}
+            proveedores={allProveedores.data.allProveedores}
+          />
+        )}
+
         {idCompraConfirmada && (
           <ModalConfirmarCompra
             modal={modalCompraConfirmada}
