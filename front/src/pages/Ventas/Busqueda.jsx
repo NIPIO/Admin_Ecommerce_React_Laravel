@@ -24,11 +24,11 @@ function Busqueda({ setBusqueda, clientes, vendedores, productos }) {
 
   const estados = [
     {
-      nombre: "activo",
+      nombre: "activa",
       id: 1
     },
     {
-      nombre: "inactivo",
+      nombre: "inactiva",
       id: 0
     }
   ];

@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { HashRouter, Route } from "react-router-dom";
 
 import routes from "./routes";
 
@@ -14,16 +14,16 @@ export default () => {
 
   if (!logueado) {
     return (
-      <Router>
+      <HashRouter>
         <Login />
-      </Router>
+      </HashRouter>
     );
   } else {
     logueado = JSON.parse(logueado);
   }
 
   return (
-    <Router>
+    <HashRouter>
       <div>
         {routes.map((route, index) => {
           return (
@@ -42,6 +42,6 @@ export default () => {
           );
         })}
       </div>
-    </Router>
+    </HashRouter>
   );
 };

@@ -92,11 +92,14 @@ const ModalVerEditarVenta = ({
           visible={modal}
           title="Ver venta"
           okText={editarVenta ? "Guardar" : "Editar"}
-          cancelText="Cancelar"
+          cancelText={editarVenta ? "Cancelar" : "Cerrar"}
           onCancel={() => {
             setModal(false);
             setEditarVenta(false);
             setVerVenta(false);
+          }}
+          okButtonProps={{
+            style: { display: verVenta.confirmada ? "none" : "inline" }
           }}
           onOk={() => (!editarVenta ? activarEdicion() : onCreate())}
         >

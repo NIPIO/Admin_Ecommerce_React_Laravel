@@ -12,6 +12,7 @@ class SidebarMainNavbar extends React.Component {
   }
 
   handleToggleSidebar() {
+    console.log("aca");
     Dispatcher.dispatch({
       actionType: Constants.TOGGLE_SIDEBAR
     });

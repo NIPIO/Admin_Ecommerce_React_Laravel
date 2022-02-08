@@ -88,11 +88,14 @@ const ModalVerEditarCompra = ({
           visible={modal}
           title="Ver compra"
           okText={editarCompra ? "Guardar" : "Editar"}
-          cancelText="Cancelar"
+          cancelText={editarCompra ? "Cancelar" : "Cerrar"}
           onCancel={() => {
             setModal(false);
             setEditarCompra(false);
             setVerCompra(false);
+          }}
+          okButtonProps={{
+            style: { display: verCompra.confirmada ? "none" : "inline" }
           }}
           onOk={() => (!editarCompra ? activarEdicion() : onCreate())}
         >
