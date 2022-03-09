@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja;
+use App\Repositories\CajaRepository;
 use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
 use App\Repositories\MovimientosRepository;
@@ -12,19 +13,19 @@ use Illuminate\Support\Facades\Log;
 class CajaController extends Controller
 {
     private $movimientosRepository;
+    private $cajaRepository;
     private $indexRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository, CajaRepository $cajaRepository)
     {
         $this->movimientosRepository = $movimientosRepository;    
         $this->indexRepository = $indexRepository;    
+        $this->cajaRepository = $cajaRepository;    
     }
     
     public function index() {
-        $tipoMovimiento = request()->get('tipoMovimiento');
-        $fechas = request()->get('fechas');
+        $caja = $this->indexRepository->indexCaja(request()->get('tipoMovimiento'), request()->get('fechas'));
 
-        $caja = $this->indexRepository->indexCaja($tipoMovimiento, $fechas);
         return response()->json(['error' => false, 'allCaja' => Caja::all(), 'cajaFiltro' => $caja->get(), 'datosIniciales' => [
             [
                 'label' => 'Ventas',
@@ -54,16 +55,8 @@ class CajaController extends Controller
         try {
             DB::beginTransaction();
 
-            $caja = Caja::create([
-                'tipo_movimiento' => strtoupper($req['tipoMovimiento']),
-                'importe' => $req['tipoMovimiento'] === 'Egreso' ? - $req['importe'] : $req['importe'],
-                'usuario' => $usuario,
-                'observacion' => $req['observacion'] ?? null,
-            ]);
-                        
-            $this->movimientosRepository->guardarMovimiento(
-                'caja', strtoupper($req['tipoMovimiento']), $usuario, $caja->id, null, null, null
-            );
+            $caja = $this->cajaRepository->nuevaCaja($usuario, $req);
+            $this->movimientosRepository->guardarMovimiento('caja', strtoupper($req['tipoMovimiento']), $usuario, $caja->id, null, null, null);
 
             DB::commit();
 

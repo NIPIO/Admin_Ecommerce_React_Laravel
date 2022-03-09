@@ -9,79 +9,54 @@ use App\Models\Ventas;
 use App\Models\VentasDetalle;
 use App\Repositories\IndexRepository;
 use App\Repositories\MovimientosRepository;
+use App\Repositories\ProductosRepository;
+use App\Repositories\VentasDetalleRepository;
+use App\Repositories\VentasRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 class VentasController extends Controller
 {
+    private $ventasRepository;
+    private $ventasDetalleRepository;
     private $movimientosRepository;
     private $indexRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository, VentasRepository $ventasRepository, VentasDetalleRepository $ventasDetalleRepository)
     {
         $this->movimientosRepository = $movimientosRepository;    
         $this->indexRepository = $indexRepository;    
+        $this->ventasRepository = $ventasRepository;    
+        $this->ventasDetalleRepository = $ventasDetalleRepository;    
     }
 
     public function index() {
-        $cliente = request()->get('cliente');
-        $vendedor = request()->get('vendedor');
-        $fechas = request()->get('fechas');
-        $producto = request()->get('producto');
-        $estado = request()->get('estado');
-
-        $ventas = $this->indexRepository->indexVentas($cliente, $vendedor, $producto, $fechas, $estado);
-
+        $req = request()->all(); 
+        $ventas = $this->indexRepository->indexVentas($req);
         return response()->json(['error' => false, 'allVentas' => Ventas::all(), 'ventasFiltro' => $ventas->get()]);
     }
 
-    public function nuevaVenta(Request $request) {
+    public function nuevaVenta(Request $request, ProductosRepository $productosRepository) {
         $req = $request->all();
 
         try {
             DB::beginTransaction();
 
-            $venta = Ventas::create([
-                'cliente_id' => $req['cliente'],
-                'vendedor_id' => $req['vendedor'],
-                'cantidad' => array_sum(array_column($req['filas'], 'cantidad')),
-                'precio_total' => 0,
-                'activo' => 1,
-                'fecha_venta' => Carbon::now()->format('Y-m-d'),
-            ]);
-            
+            $venta = $this->ventasRepository->setVenta($req);
+
             $totalPrecioVenta = 0;
             foreach ($req['filas'] as $ventaDetalleRow) {
-
-                //el total es para sumar cantidad producto por precio prodcuto. Al final cuando grabo en compra sumo todo de todods. Despues elimino este campo no lo preciso
+                // 1- Incremento el precio final.
                 $totalPrecioVenta += $ventaDetalleRow['cantidad'] * $ventaDetalleRow['precioUnitario'];
-
-                //pongo en stock en transito las nuevas compras
-                $productoAEditar = Productos::whereId($ventaDetalleRow['producto']);
-                $prod = $productoAEditar->first()->toArray();
-                if ($prod['stock'] - $prod['stock_reservado'] - (int) $ventaDetalleRow['cantidad'] < 0 ) {
-                    return response()->json([
-                        'error' => true, 
-                        'data' => 'No hay stock suficiente para el ' . $prod['nombre'] . '. Stock disponible: ' . ($prod['stock'] - $prod['stock_reservado'])
-                    ]); 
-                }
-
-                Productos::whereId($ventaDetalleRow['producto'])->increment('stock_reservado', $ventaDetalleRow['cantidad']);
-      
-                VentasDetalle::create([
-                    'venta_id' => $venta->id,
-                    'producto_id' => $ventaDetalleRow['producto'],
-                    'cantidad' => $ventaDetalleRow['cantidad'],
-                    'precio' => $ventaDetalleRow['precioUnitario']
-                ]);
-
+                // 2-Chequeo disponibilidad.
+                $productosRepository->chequearDisponibilidadStock($ventaDetalleRow);
+                // 3- Incremento el stock reservado.
+                $productosRepository->incrementar($ventaDetalleRow, 'stock_reservado');
+                // 4- Guardo cada row de la venta
+                $this->ventasDetalleRepository->setVentaDetalle($venta, $ventaDetalleRow);
             }
 
-            Ventas::whereId($venta->id)->update([
-                "precio_total" => $totalPrecioVenta,
-                "vendedor_comision" => ($totalPrecioVenta * 0.01)
-            ]);
+            $this->ventasRepository->updatePrecioVenta($venta, $totalPrecioVenta);
 
             DB::commit();
 

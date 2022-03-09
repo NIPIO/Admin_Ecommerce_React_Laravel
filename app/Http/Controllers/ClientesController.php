@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Clientes;
 use App\Repositories\CamposEditadosRepository;
+use App\Repositories\ClientesRepository;
 use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
 use App\Repositories\MovimientosRepository;
@@ -14,21 +15,23 @@ class ClientesController extends Controller
 {
     private $movimientosRepository;
     private $indexRepository;
+    private $clientesRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository, ClientesRepository $clientesRepository)
     {
         $this->movimientosRepository = $movimientosRepository;    
         $this->indexRepository = $indexRepository;    
+        $this->clientesRepository = $clientesRepository;    
     }
 
+    // GET: Devuelve los clientes y los clientes filtrados.
     public function index() {
         $cliente = request()->get('cliente');
-
         $clientes = $this->indexRepository->indexClientes($cliente);
-        
         return response()->json(['error' => false, 'allClientes' => Clientes::all(), 'clientesFiltro' => $clientes->get()]);
     }
 
+    // POST: Carga cliente nuevo y guarda el movimiento.
     public function nuevoCliente(Request $request) {
         $req = $request->all();
         $usuario = $req['usuario'];
@@ -37,15 +40,8 @@ class ClientesController extends Controller
         try {
             DB::beginTransaction();
 
-            $cliente = Clientes::create([
-                'nombre' => $req['nombre'],
-                'telefono' => isset($req['telefono']) ? $req['telefono'] : null,
-                'email' => isset($req['email']) ? $req['email'] : null,
-            ]);
-            
-            $this->movimientosRepository->guardarMovimiento(
-                'clientes', 'ALTA', $usuario, $cliente->id, null, null, null
-            );
+            $cliente = $this->clientesRepository->nuevoCliente($req);
+            $this->movimientosRepository->guardarMovimiento('clientes', 'ALTA', $usuario, $cliente->id, null, null, null);
 
             DB::commit();
         } catch (\Throwable $e) {
@@ -58,6 +54,7 @@ class ClientesController extends Controller
     }
 
 
+    // PUT: edita cliente, se fija qué cambió y guarda el movimiento.
     public function editarCliente(Request $request, CamposEditadosRepository $camposEditadosRepository) {
         $req = $request->all();
         $usuario = $req['usuario'];
@@ -67,29 +64,22 @@ class ClientesController extends Controller
             DB::beginTransaction();
 
             $cliente = Clientes::whereId($req['id']);
-            
             $cambios = $camposEditadosRepository->buscarCamposEditados($cliente, $req);
-            
-            $cliente->update([
-                "nombre" => $req['nombre'],
-                "email" => $req['email'],
-                "telefono" => $req['telefono'],
-            ]);
+            $this->clientesRepository->editarCliente($cliente, $req);
 
-            if ($cambios) { //EDITÓ ALGÚN CAMPO
+            //EDITÓ ALGÚN CAMPO
+            if ($cambios) { 
                 $this->movimientosRepository->guardarMovimiento(
                     'clientes', 'MODIFICACION', $usuario, $req['id'], $cambios[1], $req[$cambios[0]], null, $cambios[0]
                 );
             }
         
             DB::commit();
-
         } catch (\Throwable $e) {
             Log::error($e->getMessage() . $e->getTraceAsString());
             DB::rollBack();
             return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
-        
         
         return response()->json(['error' => false]);
     }

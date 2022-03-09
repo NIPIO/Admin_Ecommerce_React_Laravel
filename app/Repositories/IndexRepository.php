@@ -20,7 +20,14 @@ class IndexRepository implements RepositoryInterface
 {
 
     //DEVUELVE TODAS LOS INDEX FILTRADOS. 
-    public function indexVentas($cliente, $vendedor, $producto, $fechas, $estado) {
+    public function indexVentas($req) {
+        
+        $cliente = isset($req['cliente']) ? $req['cliente'] : null;
+        $vendedor = isset($req['vendedor']) ? $req['vendedor'] : null;
+        $producto = isset($req['producto']) ? $req['producto'] : null;
+        $fechas = isset($req['fechas']) ? $req['fechas'] : null;
+        $estado = isset($req['estado']) ? $req['estado'] : null;
+        
         $ventas = Ventas::orderBy('id', 'DESC')->with(['cliente', 'vendedor']);
 
         if ($cliente) {
@@ -91,7 +98,11 @@ class IndexRepository implements RepositoryInterface
         return $compras;
     }
 
-    public function indexCuentas($proveedor, $cliente) {
+    public function indexCuentas($req) {
+                
+        $cliente = isset($req['cliente']) ? $req['cliente'] : null;
+        $proveedor = isset($req['proveedor']) ? $req['proveedor'] : null;
+
         $cuentas = CtaCte::orderBy('id', 'DESC')->with(['proveedor','cliente']);
 
         if ($proveedor) {

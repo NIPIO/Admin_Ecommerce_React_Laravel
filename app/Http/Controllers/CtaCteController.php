@@ -7,6 +7,7 @@ use App\Models\CtaCte;
 use App\Models\Productos;
 use App\Models\Proveedores;
 use App\Repositories\CamposEditadosRepository;
+use App\Repositories\CuentasRepository;
 use App\Repositories\IndexRepository;
 use Illuminate\Http\Request;
 use App\Repositories\MovimientosRepository;
@@ -16,23 +17,21 @@ use Illuminate\Support\Facades\Log;
 class CtaCteController extends Controller
 {
     private $movimientosRepository;
+    private $cuentasRepository;
     private $indexRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository, CuentasRepository $cuentasRepository)
     {
         $this->movimientosRepository = $movimientosRepository;    
+        $this->cuentasRepository = $cuentasRepository;    
         $this->indexRepository = $indexRepository;    
     }
 
     public function index() {
-        $proveedor = request()->get('proveedor');
-        $cliente = request()->get('cliente');
-
-        $cuentas = $this->indexRepository->indexCuentas($proveedor, $cliente);
-
+        $req = request()->all();
+        $cuentas = $this->indexRepository->indexCuentas($req);
         return response()->json(['error' => false, 'allCuentas' => CtaCte::all(), 'cuentasFiltro' => $cuentas->get()]);
     }
-
 
     public function nuevaCtaCte(Request $request) {
         $req = $request->all();
@@ -42,21 +41,13 @@ class CtaCteController extends Controller
         try {
             DB::beginTransaction();
 
-            //PUede ser proveedor o cliente que necesita abrir una cuenta
-            if($this->chequearSiExiste($req['proveedor'],$req['tipoCuenta'])){
+            //Puede ser proveedor o cliente que necesita abrir una cuenta
+            if($this->chequearSiExiste($req['proveedor'], $req['tipoCuenta'])){
                 return response()->json(['error' => true, 'data' => 'Esa persona ya tiene una cuenta']);
             }
 
-            $cuenta = CtaCte::create([
-                'proveedor_id' => $req['tipoCuenta'] === 'p' ? $req['proveedor'] : null,
-                'cliente_id' => $req['tipoCuenta'] === 'c' ? $req['proveedor'] : null,
-                'saldo' => $req['saldo'],
-                'tipo_cuenta' => $req['tipoCuenta'],
-            ]);
-
-            $this->movimientosRepository->guardarMovimiento(
-                'cuentas_corrientes', 'ALTA', $usuario, $cuenta->id, null, null, null
-            );
+            $cuenta = $this->cuentasRepository->setCuenta($req);
+            $this->movimientosRepository->guardarMovimiento('cuentas_corrientes', 'ALTA', $usuario, $cuenta->id, null, null, null);
 
             DB::commit();
 
@@ -77,15 +68,13 @@ class CtaCteController extends Controller
         try {
             DB::beginTransaction();
 
+            // 1- Actualizo los datos
             $cuenta = CtaCte::whereId($req['id']);
-
+            $this->cuentasRepository->updateCuenta($cuenta, $req);
+           
+            // 2- Busco los cambios y grabo el movimiento
             $cambios = $this->buscarCamposEditados($cuenta, $req);
-
-            $cuenta->update([
-                "saldo" => $req['saldo'],
-                ($req['esCliente'] ? "cliente_id" : "proveedor_id") => $req['proveedor']
-            ]);
-            if ($cambios) { //EDITÓ ALGÚN CAMPO
+            if ($cambios) {
                 foreach ($cambios as $cambio) {
                     $this->movimientosRepository->guardarMovimiento(
                         'cuentas_corrientes', 'MODIFICACION', $usuario, $req['id'], $cambio[1], $cambio[2], $cambio[3], $cambio[0] === 'saldo' ? 'saldo' : 'responsable'
@@ -105,17 +94,7 @@ class CtaCteController extends Controller
     }
 
     public function chequearSiExiste($id, $tipoCuenta) {
-        if ($tipoCuenta === 'p') {
-            return count(CtaCte::where([
-                'proveedor_id' => $id,
-                'tipo_cuenta' => $tipoCuenta,
-            ])->get()->toArray()) > 0;
-        } else {
-            return count(CtaCte::where([
-                'cliente_id' => $id,
-                'tipo_cuenta' => $tipoCuenta,
-            ])->get()->toArray()) > 0;
-        }
+        return $this->cuentasRepository->existeCuenta($id, $tipoCuenta);
     }
                 
     private function buscarCamposEditados($cuenta, $req) {

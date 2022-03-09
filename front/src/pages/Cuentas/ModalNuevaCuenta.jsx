@@ -171,6 +171,7 @@ const ModalNuevaCuenta = ({
                           .toLowerCase()
                           .localeCompare(optionB.children.toLowerCase())
                       }
+                      disabled={cuentaEdicion}
                     >
                       {(tipoCuenta === "c" ? clientes : proveedores).map(
                         (persona, idx) => (

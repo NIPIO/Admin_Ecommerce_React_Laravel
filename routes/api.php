@@ -49,7 +49,7 @@ Route::prefix('')->group(function () {
     Route::delete('venta/{id}', [VentasController::class, 'borrarVenta']);
 
     Route::get('compras', [ComprasController::class, 'index']);
-    Route::get('compra/{id}', [ComprasController::class, 'getCompra']);
+    Route::get('compra/{id}', [ComprasController::class, 'verCompra']);
     Route::post('compra', [ComprasController::class, 'nuevaCompra']);
     Route::put('compra/{id}', [ComprasController::class, 'editarCompra']);
     Route::post('confirmarCompra', [ComprasController::class, 'confirmarCompra']);
