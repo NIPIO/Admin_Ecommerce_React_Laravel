@@ -3,24 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vendedores;
+use App\Repositories\LoginRepository;
 use Illuminate\Http\Request;
 use App\Repositories\MovimientosRepository;
+use App\Repositories\VendedoresRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
     private $movimientosRepository;
+    private $vendedoresRepository;
+    private $loginRepository;
 
-    public function __construct(MovimientosRepository $movimientosRepository)
+    public function __construct(MovimientosRepository $movimientosRepository, VendedoresRepository $vendedoresRepository, LoginRepository $loginRepository)
     {
         $this->movimientosRepository = $movimientosRepository;    
+        $this->loginRepository = $loginRepository;    
+        $this->vendedoresRepository = $vendedoresRepository;    
     }
     
     public function login(Request $request) {
-        $datos = $request->all();
+        $req = $request->all();
         try {
-            $usuario = Vendedores::where('usuario', $datos['usuario'])->where('password', $datos['password'])->firstOrFail();
+            $usuario = $this->loginRepository->setLogin($req);
         } catch (\Throwable $th) {
             return response()->json(['error' => true, 'data' => 'No existe el usuario o la contraseña es otra']);
         }
@@ -31,22 +37,15 @@ class LoginController extends Controller
 
     public function registro(Request $request) {
 
-        $datos = $request->all();
+        $req = $request->all();
         try {
             DB::beginTransaction();
 
-            $usuario = Vendedores::where('usuario', $datos['usuario'])->get();
-
-            if (count($usuario)) {
-                return response()->json(['status' => 400, 'data' => 'Ya existe ese usuario']);
+            if ($this->loginRepository->checkUsuarioExistente($req)) {
+                return response()->json(['error' => true, 'data' => 'Ya existe ese usuario']);
             }
 
-            $nuevoUsuario = Vendedores::create([
-                'usuario' => $datos['usuario'],
-                'password' => $datos['password'],
-                'nombre' => $datos['nombre'],
-                'rol_id' => 2,
-            ]);
+            $nuevoUsuario = $this->vendedoresRepository->setVendedor($req);
 
             $this->movimientosRepository->guardarMovimiento(
                 'vendedores', 'ALTA', null, $nuevoUsuario->id, null, null, null
@@ -61,6 +60,5 @@ class LoginController extends Controller
         }
 
         return response()->json(['error' => false, 'data' => $nuevoUsuario]);
-
     }
 }

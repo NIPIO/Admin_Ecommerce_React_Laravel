@@ -6,14 +6,13 @@ use App\Interfaces\RepositoryInterface;
 use App\Models\Caja;
 use App\Models\Clientes;
 use App\Models\Compras;
-use App\Models\ComprasDetalle;
 use App\Models\CtaCte;
+use App\Models\Marcas;
 use App\Models\Movimientos;
 use App\Models\Productos;
 use App\Models\Proveedores;
 use App\Models\Vendedores;
 use App\Models\Ventas;
-use App\Models\VentasDetalle;
 use Carbon\Carbon;
 
 class IndexRepository implements RepositoryInterface 
@@ -114,7 +113,12 @@ class IndexRepository implements RepositoryInterface
         return $cuentas;
     }
 
-    public function indexMovimientos($usuario, $tipoMovimiento, $fechas, $seccion) {
+    public function indexMovimientos($req) {
+        $usuario = isset($req['usuario']) ? $req['usuario'] : null;
+        $tipoMovimiento = isset($req['tipoMovimiento']) ? $req['tipoMovimiento'] : null;
+        $fechas = isset($req['fechas']) ? $req['fechas'] : null;
+        $seccion = isset($req['seccion']) ? $req['seccion'] : null;
+
         $movimientos = Movimientos::orderBy('id', 'DESC')->with('usuario');
 
         if ($usuario) {
@@ -168,5 +172,15 @@ class IndexRepository implements RepositoryInterface
         }
 
         return $vendedores;
+    }
+
+    public function indexMarcas($marca) {
+        $marcas = Marcas::orderBy('id', 'ASC');
+
+        if ($marca) {
+            $marcas->whereId((int) $marca);
+        }
+
+        return $marcas->get();
     }
 }

@@ -15,6 +15,10 @@ class ProductosRepository implements RepositoryInterface
         return Productos::whereId($id)->first();
     }
 
+    public function getStockTotal() {
+        return [Productos::sum('stock'), Productos::sum('stock_reservado'), Productos::sum('en_transito'), Productos::sum('en_transito_reservado')];
+    }
+
     public function incrementar($compraDetalleRow, $tipo) {
         Productos::whereId($compraDetalleRow['producto'])->increment($tipo, $compraDetalleRow['cantidad']);
     }

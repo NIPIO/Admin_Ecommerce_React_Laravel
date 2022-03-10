@@ -2,58 +2,56 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Clientes;
-use App\Models\Movimientos;
+use App\Repositories\ClientesRepository;
 use App\Repositories\IndexRepository;
-use Carbon\Carbon;
+use App\Repositories\ProductosRepository;
+use App\Repositories\VentasRepository;
 
 class MovimientosController extends Controller
 {
 
     private $indexRepository;
+    private $clientesRepository;
+    private $ventasRepository;
+    private $productosRepository;
 
-    public function __construct(IndexRepository $indexRepository)
+    public function __construct(IndexRepository $indexRepository, ClientesRepository $clientesRepository, ProductosRepository $productosRepository, VentasRepository $ventasRepository)
     {
         $this->indexRepository = $indexRepository;    
+        $this->clientesRepository = $clientesRepository;    
+        $this->ventasRepository = $ventasRepository;    
+        $this->productosRepository = $productosRepository;    
     }
 
-    public function index(ProductosController $productos, VentasController $ventas) {
+    public function index() {
 
-        $usuario = request()->get('usuario');
-        $tipoMovi = request()->get('tipoMovimiento');
-        $fechas = request()->get('fechas');
-        $seccion = request()->get('seccion');
+        $req = request()->all();
         
-        $movimientos = $this->indexRepository->indexMovimientos($usuario, $tipoMovi, $fechas, $seccion);
-
-        $clientes = Clientes::orderBy('id', 'DESC')->first();
-        $ventas = $ventas->getVentasConfirmadas();
-        $productos = $productos->getStock();
-
+        $movimientos = $this->indexRepository->indexMovimientos($req);
         return response()->json(['error' => false, 'movimientosFiltro' => $movimientos->get(), 'datosIniciales' => [
             [
                 'label' => 'Ventas confirmadas',
-                'value' => $ventas
+                'value' => count($this->ventasRepository->getVentasConfirmadas())
             ], 
             [
                 'label' => 'Clientes',
-                'value' => $clientes ? $clientes->id : 0
+                'value' => count($this->clientesRepository->getClientes())
             ],
             [
                 'label' => 'Stock',
-                'value' => $productos ? $productos[0] : 0
+                'value' => $this->productosRepository->getStockTotal()[0]
             ],
             [
                 'label' => 'Stock reservado',
-                'value' => $productos ? $productos[1] : 0
+                'value' => $this->productosRepository->getStockTotal()[1]
             ],
             [
                 'label' => 'En transito',
-                'value' => $productos ? $productos[2] : 0
+                'value' => $this->productosRepository->getStockTotal()[2]
             ],
             [
                 'label' => 'En transito reservado',
-                'value' => $productos ? $productos[3] : 0
+                'value' => $this->productosRepository->getStockTotal()[3]
             ],
         ]]);
    }

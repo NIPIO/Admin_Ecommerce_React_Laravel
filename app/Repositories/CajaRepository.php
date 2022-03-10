@@ -11,7 +11,7 @@ class CajaRepository implements RepositoryInterface
    
     public function __construct() {}
 
-    public function nuevaCaja($usuario, $req) {
+    public function setCaja($usuario, $req) {
         return Caja::create([
             'tipo_movimiento' => strtoupper($req['tipoMovimiento']),
             'importe' => $req['tipoMovimiento'] === 'Egreso' ? - $req['importe'] : $req['importe'],

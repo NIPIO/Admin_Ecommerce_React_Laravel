@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Marcas;
-use App\Models\Productos;
+use App\Repositories\ComunRepository;
+use App\Repositories\IndexRepository;
+use App\Repositories\MarcasRepository;
 use Illuminate\Http\Request;
 use App\Repositories\MovimientosRepository;
 use Illuminate\Support\Facades\DB;
@@ -13,28 +15,30 @@ class MarcasController extends Controller
 {
     public $marcas;
     private $movimientosRepository;
+    private $marcasRepository;
+    private $indexRepository;
+    private $comunRepository;
 
-    public function __construct(MovimientosRepository $movimientosRepository)
+    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository, MarcasRepository $marcasRepository, ComunRepository $comunRepository)
     {
         $this->movimientosRepository = $movimientosRepository;    
+        $this->marcasRepository = $marcasRepository;    
+        $this->indexRepository = $indexRepository;    
+        $this->comunRepository = $comunRepository;    
     }
 
     public function index() {
         $marca = request()->get('marca');
-        $this->marcas = Marcas::orderBy('id', 'ASC');
 
-        if ($marca) {
-            $this->marcas->whereId((int) $marca);
+        $this->marcas = $this->indexRepository->indexMarcas($marca);
+
+        foreach (['stock', 'en_transito'] as $tipo) {
+            $this->marcas = $this->marcasRepository->getStockPorMarca($this->marcas, $tipo, $marca);
         }
-        
-        $this->marcas = $this->marcas->get();
-        $this->getStock('stock', !is_null($marca));
-        $this->getStock('en_transito', !is_null($marca));
         
         return response()->json(['error' => false, 'allMarcas' => Marcas::all(), 'marcasFiltro' => $this->marcas]);
     }
 
-    
     public function nuevaMarca(Request $request) {
 
         $req = $request->all();
@@ -42,13 +46,13 @@ class MarcasController extends Controller
         $req = $req['data'];
 
         try {
-            if($this->chequearSiExiste($req['nombre'])){
+            if($this->comunRepository->chequearSiExiste('marca', $req['nombre'])){
                 return response()->json(['error' => true, 'data' => 'Existe una marca con ese nombre']);
             }
 
             DB::beginTransaction();
             
-            $marca = Marcas::create(['nombre' => $req['nombre']]);
+            $marca = $this->marcasRepository->setMarca($req);
 
             $this->movimientosRepository->guardarMovimiento(
                 'marcas', 'ALTA', $usuario, $marca->id, null, null, null
@@ -62,30 +66,7 @@ class MarcasController extends Controller
             return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
 
-        return response()->json(['status' => 200]);
-    }
-
-    public function getStock($tipo, $esFiltro) {
-        try {
-
-            foreach ($this->marcas as $marca) {
-                $productosDeEsaMarca = Productos::where('marca', '=', $marca->id)->get();
-    
-                $cantidad = 0;
-                foreach ($productosDeEsaMarca as $producto) {
-                   $cantidad += $producto->$tipo;
-                }
-
-                if ($esFiltro) {
-                    $this->marcas[0]->$tipo = $cantidad;
-
-                } else {
-                    $this->marcas[$marca->id - 1]->$tipo = $cantidad;
-                }
-            }
-       } catch (\Exception $th) {
-            throw new \Exception($th->getMessage());;
-        }
+        return response()->json(['error' => false]);
     }
 
     public function editarMarca(Request $request) {
@@ -94,21 +75,15 @@ class MarcasController extends Controller
         $req = $req['data'];
 
         try {
-            if($this->chequearSiExiste($req['nombre'])){
+            if($this->comunRepository->chequearSiExiste('marca', $req['nombre'])){
                 return response()->json(['error' => true, 'data' => 'Existe una marca con ese nombre']);
             }
-    
-            $marca = Marcas::whereId($req['id']);
+            
+            $marca = $this->marcasRepository->updateMarca($req);
 
-            $mNombre = $marca->first()->toArray()['nombre'];
-
-            $marca->update([
-                "nombre" => $req['nombre'],
-            ]);
-
-            if ($mNombre !== $req['nombre']) { 
+            if ($marca['nombreAnterior'] !== $req['nombre']) { 
                 $this->movimientosRepository->guardarMovimiento(
-                    'marcas', 'MODIFICACION', $usuario, $req['id'], $mNombre, $req['nombre'], null, 'nombre'
+                    'marcas', 'MODIFICACION', $usuario, $req['id'], $marca['nombreAnterior'], $req['nombre'], null, 'nombre'
                 );
             }
 
@@ -118,9 +93,4 @@ class MarcasController extends Controller
 
         return response()->json(['error' => false]);
     }
-
-    public function chequearSiExiste($nombre) {
-        return count(Marcas::where('nombre', $nombre)->get()->toArray()) > 0;
-    }
-
 }

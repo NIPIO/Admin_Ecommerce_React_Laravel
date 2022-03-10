@@ -35,6 +35,10 @@ class VentasRepository implements RepositoryInterface
         ]);
     }
 
+    public function getVentasConfirmadas() {
+        return Ventas::where('confirmada', true)->get();
+    }
+
 }
 
 

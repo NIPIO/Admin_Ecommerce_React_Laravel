@@ -40,7 +40,7 @@ class ClientesController extends Controller
         try {
             DB::beginTransaction();
 
-            $cliente = $this->clientesRepository->nuevoCliente($req);
+            $cliente = $this->clientesRepository->setCliente($req);
             $this->movimientosRepository->guardarMovimiento('clientes', 'ALTA', $usuario, $cliente->id, null, null, null);
 
             DB::commit();
@@ -50,7 +50,7 @@ class ClientesController extends Controller
             return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
 
-        return response()->json(['status' => 200]);
+        return response()->json(['error' => false]);
     }
 
 
@@ -65,7 +65,7 @@ class ClientesController extends Controller
 
             $cliente = Clientes::whereId($req['id']);
             $cambios = $camposEditadosRepository->buscarCamposEditados($cliente, $req);
-            $this->clientesRepository->editarCliente($cliente, $req);
+            $this->clientesRepository->updateCliente($cliente, $req);
 
             //EDITÓ ALGÚN CAMPO
             if ($cambios) { 

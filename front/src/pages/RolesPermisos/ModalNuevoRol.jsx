@@ -82,7 +82,7 @@ const ModalNuevoRol = ({
                 </Form.Item>
               </Col>
               <Col xs={24}>
-                <Form.Item name="descripcion" label="Descripcion">
+                <Form.Item name="descripcion" label="Descripcion" rules={rules}>
                   <Input />
                 </Form.Item>
               </Col>

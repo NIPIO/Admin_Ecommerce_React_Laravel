@@ -11,7 +11,11 @@ class ClientesRepository implements RepositoryInterface
    
     public function __construct() {}
 
-    public function nuevoCliente($req) {
+    public function getClientes() {
+        return Clientes::all();
+    }
+
+    public function setCliente($req) {
         return Clientes::create([
             'nombre' => $req['nombre'],
             'telefono' => isset($req['telefono']) ? $req['telefono'] : null,
@@ -19,7 +23,7 @@ class ClientesRepository implements RepositoryInterface
         ]);
     }
 
-    public function editarCliente($cliente, $req) {
+    public function updateCliente($cliente, $req) {
         return $cliente->update([
             "nombre" => $req['nombre'],
             "email" => $req['email'],

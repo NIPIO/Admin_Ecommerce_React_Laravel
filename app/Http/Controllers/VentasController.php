@@ -66,7 +66,7 @@ class VentasController extends Controller
             return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
 
-        return response()->json(['status' => 200]);
+        return response()->json(['error' => false]);
     }
 
     public function confirmarVenta (Request $request) {
@@ -224,9 +224,7 @@ class VentasController extends Controller
         }
     }
 
-    public function getVentasConfirmadas() {
-        return Ventas::where('confirmada', true)->get()->count();
-    }
+
 
     public function getVenta (int $id) {
         return response()->json(['error' => false, 'venta' => Ventas::whereId($id)->with(['detalleVenta', 'detalleVenta.producto'])->get()->toArray()]);

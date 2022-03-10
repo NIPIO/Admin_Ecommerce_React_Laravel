@@ -42,7 +42,7 @@ class CtaCteController extends Controller
             DB::beginTransaction();
 
             //Puede ser proveedor o cliente que necesita abrir una cuenta
-            if($this->chequearSiExiste($req['proveedor'], $req['tipoCuenta'])){
+            if($this->cuentasRepository->existeCuenta($req['proveedor'], $req['tipoCuenta'])){
                 return response()->json(['error' => true, 'data' => 'Esa persona ya tiene una cuenta']);
             }
 
@@ -57,7 +57,7 @@ class CtaCteController extends Controller
             return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
 
-        return response()->json(['status' => 200]);
+        return response()->json(['error' => false]);
     }
 
     public function editarCuenta(Request $request, CamposEditadosRepository $camposEditadosRepository) {
@@ -91,10 +91,6 @@ class CtaCteController extends Controller
         }
        
         return response()->json(['error' => false]);
-    }
-
-    public function chequearSiExiste($id, $tipoCuenta) {
-        return $this->cuentasRepository->existeCuenta($id, $tipoCuenta);
     }
                 
     private function buscarCamposEditados($cuenta, $req) {

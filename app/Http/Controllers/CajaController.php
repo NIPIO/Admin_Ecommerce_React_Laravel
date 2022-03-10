@@ -55,7 +55,7 @@ class CajaController extends Controller
         try {
             DB::beginTransaction();
 
-            $caja = $this->cajaRepository->nuevaCaja($usuario, $req);
+            $caja = $this->cajaRepository->setCaja($usuario, $req);
             $this->movimientosRepository->guardarMovimiento('caja', strtoupper($req['tipoMovimiento']), $usuario, $caja->id, null, null, null);
 
             DB::commit();
@@ -66,7 +66,7 @@ class CajaController extends Controller
             return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
 
-        return response()->json(['status' => 200]);
+        return response()->json(['error' => false]);
     }
 
 }

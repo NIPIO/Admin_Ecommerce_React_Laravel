@@ -63,7 +63,7 @@ class ComprasController extends Controller
             return response()->json(['error' => true, 'data' => $e->getMessage()]);
         }
 
-        return response()->json(['status' => 200]);
+        return response()->json(['error' => false]);
     }
 
     public function confirmarCompra(Request $request, CuentasRepository $cuentasRepository, CajaRepository $cajaRepository) {

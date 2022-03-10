@@ -113,7 +113,5 @@ class ProductosController extends Controller
         return response()->json(['error' => false]);
     }
             
-    public function getStock() {
-        return [Productos::sum('stock'), Productos::sum('stock_reservado'), Productos::sum('en_transito'), Productos::sum('en_transito_reservado')];
-    }
+ 
 }
