@@ -48,7 +48,7 @@ class ComprasController extends Controller
                 // 1- Cargo cada row de la compra (uno o varios productos).
                 $this->comprasDetalleRepository->setCompraDetalle($compra, $compraDetalleRow);
                 // 2- Incremento el precio final.
-                $totalPrecioCompra += $compraDetalleRow['cantidad'] * $compraDetalleRow['precioUnitario'];
+                $totalPrecioCompra += $compraDetalleRow['cantidad'] * $compraDetalleRow['costo'];
                 // 3- Incremento el transito de cada producto.
                 $productosRepository->incrementar($compraDetalleRow, 'en_transito');
             }
@@ -84,7 +84,7 @@ class ComprasController extends Controller
                     return response()->json(['error' => true, 'data' => 'Corrobore que el proveedor tenga una cuenta corriente abierta']);
                 } else {
                     //Actualizo la cuenta corriente con el proveedor
-                    $cuentasRepository->updateSaldoCuenta($cuenta, $req['diferencia']);
+                    $cuentasRepository->updateSaldoCuenta($cuenta, $req['diferencia'], 'increment');
                 }
             }
 
@@ -92,7 +92,7 @@ class ComprasController extends Controller
             $this->comprasRepository->confirmarCompra($compra,  $req['pago']);
             
             //2- Grabo el movimiento en la caja
-            $cajaRepository->nuevaCaja($usuario, [
+            $cajaRepository->setCaja($usuario, [
                 'tipoMovimiento' => 'COMPRA', 
                 'importe' => - $req['pago'],
                 'item_id' => $req['id'],
@@ -146,7 +146,7 @@ class ComprasController extends Controller
 
                     $cargarRow->update([
                         'producto_id' => $compraDetalle['producto_id'],
-                        'precio' => $compraDetalle['precio'],
+                        'costo' => $compraDetalle['costo'],
                         'cantidad' => $compraDetalle['cantidad'],
                     ]);
 
@@ -158,20 +158,20 @@ class ComprasController extends Controller
                     ComprasDetalle::create([
                         'compra_id' => $req['id'],
                         'producto_id' => $compraDetalle['producto']['id'],
-                        'precio' => $compraDetalle['precio'],
+                        'costo' => $compraDetalle['costo'],
                         'cantidad' => $compraDetalle['cantidad'],
                     ]);
 
                     Productos::whereId($compraDetalle['producto']['id'])->increment('en_transito', $compraDetalle['cantidad']);
                 }
 
-                $totalPrecioCompra += $compraDetalle['precio'] * $compraDetalle['cantidad'];
+                $totalPrecioCompra += $compraDetalle['costo'] * $compraDetalle['cantidad'];
                 $cantidad += $compraDetalle['cantidad'];
             }
 
             Compras::whereId($req['id'])->update([
                 'proveedor_id' => $req['proveedor'],
-                'precio_total' => $totalPrecioCompra,
+                'costo' => $totalPrecioCompra,
                 'cantidad' => $cantidad,
             ]);
 

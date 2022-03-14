@@ -82,9 +82,8 @@ const ModalNuevoProducto = ({
     form.setFieldsValue({
       nombre: productoEdicion.nombre,
       marca: productoEdicion.marca,
-      stock: productoEdicion.stock,
-      precio: productoEdicion.precio,
-      costo: productoEdicion.costo
+      stock: productoEdicion ? productoEdicion.stock : 0,
+      costo: productoEdicion ? productoEdicion.costo : 0
     });
   }, [productoEdicion]);
 
@@ -144,23 +143,12 @@ const ModalNuevoProducto = ({
               </Col>
             </Row>
             <Row gutter={24}>
-              <Col xs={24} md={8}>
+              <Col xs={24} md={12}>
                 <Form.Item name="stock" label="Stock" rules={rules}>
                   <InputNumber style={{ width: "100%" }} />
                 </Form.Item>
               </Col>
-              <Col xs={24} md={8}>
-                <Form.Item name="precio" label="Precio" rules={rules}>
-                  <InputNumber
-                    formatter={value =>
-                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                    }
-                    parser={value => value.replace(/\$\s?|(,*)/g, "")}
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={8}>
+              <Col xs={24} md={12}>
                 <Form.Item name="costo" label="Costo" rules={rules}>
                   <InputNumber
                     formatter={value =>

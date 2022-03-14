@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Caja;
 use App\Models\CtaCte;
 use App\Models\Productos;
+use App\Models\Vendedores;
 use App\Models\Ventas;
 use App\Models\VentasDetalle;
 use App\Repositories\IndexRepository;
@@ -45,9 +46,11 @@ class VentasController extends Controller
             $venta = $this->ventasRepository->setVenta($req);
 
             $totalPrecioVenta = 0;
+            $totalCosto = 0;
             foreach ($req['filas'] as $ventaDetalleRow) {
                 // 1- Incremento el precio final.
                 $totalPrecioVenta += $ventaDetalleRow['cantidad'] * $ventaDetalleRow['precioUnitario'];
+                $totalCosto += $ventaDetalleRow['cantidad'] * $productosRepository->getProducto($ventaDetalleRow)['costo'];
                 // 2-Chequeo disponibilidad.
                 $productosRepository->chequearDisponibilidadStock($ventaDetalleRow);
                 // 3- Incremento el stock reservado.
@@ -56,7 +59,7 @@ class VentasController extends Controller
                 $this->ventasDetalleRepository->setVentaDetalle($venta, $ventaDetalleRow);
             }
 
-            $this->ventasRepository->updatePrecioVenta($venta, $totalPrecioVenta);
+            $this->ventasRepository->updatePrecioVenta($venta, $totalPrecioVenta, $totalCosto);
 
             DB::commit();
 
@@ -96,7 +99,7 @@ class VentasController extends Controller
             }
 
             $venta->update([
-                'precio_abonado' => $req['pago'],
+                'costo' => $req['pago'],
                 'confirmada' => true,
             ]);
 
@@ -117,6 +120,9 @@ class VentasController extends Controller
                 $prod->decrement('stock_reservado', $value['cantidad']);
                 $prod->decrement('stock', $value['cantidad']);
             }
+            
+            //Grabo la comision del vendedor
+            Vendedores::whereId($venta->first()->vendedor_id)->increment('comision', $venta->first()->toArray()['vendedor_comision']);
             
             $this->movimientosRepository->guardarMovimiento(
                 'ventas', 'CONFIRMACION', $usuario, $req['id'], null, null, $req['diferencia'], null

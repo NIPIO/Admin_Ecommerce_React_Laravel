@@ -12,24 +12,29 @@ use Carbon\Carbon;
 class ComprasRepository implements RepositoryInterface
 {
    
-    public function __construct() {}
+    private $productosRepository;
+
+    public function __construct(ProductosRepository $productosRepository)
+    {
+        $this->productosRepository = $productosRepository;    
+    }
 
     public function getCompra($id) {
-        return Compras::whereId($id)->first();
+        return Compras::whereId($id)->with(['detalleCompra'])->first();
     }
 
     public function setCompra($req) {
         return Compras::create([
             'proveedor_id' => $req['proveedor'],
             'cantidad' => array_sum(array_column($req['productos'], 'cantidad')),
-            'precio_total' => 0,
+            'costo' => 0,
             'activo' => 1,
         ]);
     }
 
     public function updatePrecioCompra($compra, $totalPrecioCompra) {
         Compras::whereId($compra->id)->update([
-            "precio_total" => $totalPrecioCompra,
+            "costo" => $totalPrecioCompra,
         ]);
     }
 
@@ -40,10 +45,21 @@ class ComprasRepository implements RepositoryInterface
 
     public function confirmarCompra($compra, $pago) {
         $compra->update([
-            'precio_abonado' => $pago,
+            'costo' => $pago,
             'confirmada' => true,
             'fecha_compra' => Carbon::now()->format('Y-m-d'),
         ]);
+
+        // // Updateo el costo del producto
+        foreach ($compra->detalleCompra->toArray() as $producto) {
+            $prod = $this->productosRepository->getProducto($producto['producto_id']);
+            if ((int) $prod['costo'] === 0) {
+                //PRIMERA COMPRA DEL PRODUCTO (tiene costo 0)
+                $this->productosRepository->updateProducto($prod['id'], 'costo',  $producto['costo']);
+            } else {
+                $this->productosRepository->updateProducto($prod['id'], 'costo', ($prod['costo'] + $producto['costo']) / 2);
+            }
+        }
     }
 
 }
@@ -59,7 +75,7 @@ class ComprasDetalleRepository implements RepositoryInterface
             'compra_id' => $compra->id,
             'producto_id' => $compraDetalleRow['producto'],
             'cantidad' => $compraDetalleRow['cantidad'],
-            'precio' => $compraDetalleRow['precioUnitario']
+            'costo' => $compraDetalleRow['costo']
         ]);
     }
 

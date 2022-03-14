@@ -13,10 +13,10 @@ const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
 
   const confirmarCompra = () => {
     form.validateFields().then(res => {
-      if (res.precioFinal !== detallesCompra.data.compra[0].precio_total) {
+      if (res.precioFinal !== detallesCompra.data.compra[0].costo) {
         setModalAlerta({
           pago: res.precioFinal,
-          deberiaPagar: detallesCompra.data.compra[0].precio_total
+          deberiaPagar: detallesCompra.data.compra[0].costo
         });
       } else {
         confirmaAlerta(res.precioFinal, 0);
@@ -42,14 +42,14 @@ const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
       );
   };
 
-  const detallesCompra = useQuery(["compraId", id], () => {
+  const detallesCompra = useQuery(["compraId", id, modal], () => {
     if (id !== null) return api.getCompra(id);
   });
 
   useEffect(() => {
     if (detallesCompra.data !== undefined) {
       form.setFieldsValue({
-        precioFinal: detallesCompra.data.compra[0].precio_total
+        precioFinal: detallesCompra.data.compra[0].costo
       });
     }
   }, [id, detallesCompra.data]);
@@ -86,6 +86,7 @@ const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
                 <tr>
                   <th className="text-center"> Producto </th>
                   <th className="text-center"> Cantidad </th>
+                  <th className="text-center"> Costo Producto </th>
                   <th className="text-center"> </th>
                 </tr>
               </thead>
@@ -105,6 +106,14 @@ const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
                         <input
                           type="number"
                           value={item.cantidad}
+                          className="form-control"
+                          disabled
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={item.cantidad * item.costo}
                           className="form-control"
                           disabled
                         />
@@ -130,7 +139,7 @@ const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
                   }}
                 >
                   El precio final a abonar era $
-                  {detallesCompra.data.compra[0].precio_total}. Confirme en el
+                  {detallesCompra.data.compra[0].costo}. Confirme en el
                   siguiente campo si se abonó el total o cuánto se abonó.
                 </Title>
                 <Col xs={24} md={12} style={{ margin: "auto" }}>

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Ventas extends Model
+class CtaCteMovimientos extends Model
 {
     use HasFactory;
     /**
@@ -13,7 +13,7 @@ class Ventas extends Model
      *
      * @var string
      */
-    protected $table = 'ventas';
+    protected $table = 'cuentas_corrientes_movimientos';
 
     /**
      * The primary key for the model.
@@ -25,14 +25,13 @@ class Ventas extends Model
     /**
      * @var array
      */
-    protected $fillable = ['cliente_id', 'vendedor_id', 'precio_total', 'costo', 'vendedor_comision', 'cantidad', 'fecha_venta', 'created_at', 'updated_at', 'confirmada', 'activo'];
+    protected $fillable = ['cuenta_corriente', 'tipo_movimiento', 'saldo_movimiento', 'created_at', 'updated_at'];
 
+    
     protected $casts = [
         'created_at'  => 'datetime:d-m-Y',
         'updated_at'  => 'datetime:d-m-Y',
-        'fecha_compra'  => 'datetime:d-m-Y',
     ];
-
     /**
      * Indicates if the model should be timestamped.
      *
@@ -43,20 +42,8 @@ class Ventas extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
-    public function cliente()
+    public function cuenta()
     {
-        return $this->belongsTo(Clientes::class, 'cliente_id', 'id');
+        return $this->belongsTo(CtaCte::class, 'cuenta_corriente', 'id');
     }
-
-    public function vendedor()
-    {
-        return $this->belongsTo(Vendedores::class, 'vendedor_id', 'id');
-    }
-
-    public function detalleVenta()
-    {
-        return $this->hasMany(VentasDetalle::class, 'venta_id', 'id');
-    }
-
 }
-

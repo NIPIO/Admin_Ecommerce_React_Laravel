@@ -9,7 +9,6 @@ import Chart from "../../utils/chart";
 class SmallStats extends React.Component {
   constructor(props) {
     super(props);
-
     this.canvasRef = React.createRef();
   }
 
@@ -80,7 +79,7 @@ class SmallStats extends React.Component {
   }
 
   render() {
-    const { variation, label, value } = this.props;
+    const { variation, label, value, mostrarColores } = this.props;
 
     const cardClasses = classNames(
       "stats-small",
@@ -131,7 +130,28 @@ class SmallStats extends React.Component {
           <div className={innerWrapperClasses}>
             <div className={dataFieldClasses}>
               <span className={labelClasses}>{label}</span>
-              <h6 className={valueClasses}>{value}</h6>
+              <h6
+                style={
+                  mostrarColores
+                    ? {
+                        color:
+                          Number(
+                            value.replaceAll(".", "").replaceAll("$", "")
+                          ) > 0
+                            ? "green"
+                            : Number(
+                                value.replaceAll(".", "").replaceAll("$", "")
+                              ) < 0
+                            ? "red"
+                            : "black"
+                      }
+                    : {}
+                }
+                className={valueClasses}
+              >
+                {value}
+                {/* {mostrarColores ? "a" : "b"} */}
+              </h6>
             </div>
             <div className={innerDataFieldClasses}>
               {/* <span className={percentageClasses}>{percentage}</span> */}

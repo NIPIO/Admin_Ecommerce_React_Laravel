@@ -42,7 +42,7 @@ const ModalNuevaVenta = ({ modal, setModal, id, queryClient }) => {
       );
   };
 
-  const detallesVenta = useQuery(["ventaId", id], () => {
+  const detallesVenta = useQuery(["ventaId", id, modal], () => {
     if (id !== null) return api.getVenta(id);
   });
 

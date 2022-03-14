@@ -28,21 +28,18 @@ class CajaController extends Controller
 
         return response()->json(['error' => false, 'allCaja' => Caja::all(), 'cajaFiltro' => $caja->get(), 'datosIniciales' => [
             [
-                'label' => 'Ventas',
+                'label' => 'Efectivo',
                 'value' => '$' . number_format(Caja::whereTipoMovimiento('VENTA')->sum('importe'),0,",",".")
             ], 
             [
-                'label' => 'Compras',
-                'value' => '$' . number_format(Caja::whereTipoMovimiento('COMPRA')->sum('importe'),0,",",".")
+                'label' => 'Ingresos',
+                'value' => '$' . number_format(Caja::whereTipoMovimiento('INGRESO')->sum('importe'),0,",",".")
             ],
             [
                 'label' => 'Gastos',
                 'value' => '$' . number_format(Caja::whereTipoMovimiento('EGRESO')->sum('importe'),0,",",".")
             ],
-            [
-                'label' => 'Ingresos',
-                'value' => '$' . number_format(Caja::whereTipoMovimiento('INGRESO')->sum('importe'),0,",",".")
-            ],
+           
         ]]);
     }
 

@@ -30,11 +30,15 @@ const VerTablaItemsVenta = ({
   // };
 
   const setearDato = (val, type, id) => {
-    setError(false);
+    if (val < 0) {
+      return alert("Este valor no puede ser negativo.");
+    } else {
+      setError(false);
 
-    let filasCopia = [...filas];
-    filasCopia[id][type] = val;
-    setFilas([...filasCopia]);
+      let filasCopia = [...filas];
+      filasCopia[id][type] = val;
+      setFilas([...filasCopia]);
+    }
   };
 
   return (
@@ -56,7 +60,7 @@ const VerTablaItemsVenta = ({
             <tr>
               <th className="text-center"> Producto </th>
               <th className="text-center"> Cantidad </th>
-              <th className="text-center"> Precio U. </th>
+              <th className="text-center"> Precio </th>
               {/* <th className="text-center"> </th> */}
             </tr>
           </thead>

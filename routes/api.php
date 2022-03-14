@@ -74,6 +74,7 @@ Route::prefix('')->group(function () {
     Route::get('cuentas-corrientes', [CtaCteController::class, 'index']);
     Route::post('cuentas-corrientes', [CtaCteController::class, 'nuevaCtaCte']);
     Route::put('cuentas-corrientes/{id}', [CtaCteController::class, 'editarCuenta']);
+    Route::get('cuentas-corrientes/{id}', [CtaCteController::class, 'verDetalleCuenta']);
 
     Route::get('roles', [RolesController::class, 'index']);
     Route::get('permisos', [PermisosController::class, 'index']);

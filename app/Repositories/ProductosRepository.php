@@ -15,6 +15,31 @@ class ProductosRepository implements RepositoryInterface
         return Productos::whereId($id)->first();
     }
 
+    public function setProducto($req) {
+        return Productos::create([
+            'nombre' => $req['nombre'],
+            'marca' => $req['marca'],
+            'costo' => $req['costo'],
+            'stock' => $req['stock'],
+            'stock_reservado' => 0,
+            'en_transito_reservado' => 0,
+        ]);
+    }
+    
+    public function updateGeneralProducto($producto, $req) {
+        return $producto->update([
+            "nombre" => $req['nombre'],
+            "marca" => $req['marca'],
+            "stock" => $req['stock'],
+            "costo" => $req['costo'],
+        ]);
+    }
+    public function updateProducto($id, $campo, $valor) {
+        Productos::whereId($id)->update([
+            $campo => $valor,
+        ]);
+    }
+    
     public function getStockTotal() {
         return [Productos::sum('stock'), Productos::sum('stock_reservado'), Productos::sum('en_transito'), Productos::sum('en_transito_reservado')];
     }

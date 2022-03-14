@@ -16,7 +16,7 @@ const VerTablaItemsCompra = ({
     const item = {
       producto: 1,
       cantidad: 0,
-      precio: 0
+      costo: 0
     };
     filasCopia.push(item);
     setFilas([...filasCopia]);
@@ -56,7 +56,7 @@ const VerTablaItemsCompra = ({
             <tr>
               <th className="text-center"> Producto </th>
               <th className="text-center"> Cantidad </th>
-              <th className="text-center"> Precio U. </th>
+              <th className="text-center"> Costo U. </th>
               {/* <th className="text-center"> </th> */}
             </tr>
           </thead>
@@ -105,12 +105,10 @@ const VerTablaItemsCompra = ({
                 </td>
                 <td>
                   <input
-                    value={item.precio}
+                    value={item.costo}
                     disabled={!editarCompra}
                     type="number"
-                    onChange={val =>
-                      setearDato(val.target.value, "precio", idx)
-                    }
+                    onChange={val => setearDato(val.target.value, "costo", idx)}
                     className="form-control"
                   />
                 </td>

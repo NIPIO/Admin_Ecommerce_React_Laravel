@@ -61,7 +61,7 @@ const Caja = () => {
   ];
 
   //FIN INFO TABLA.
-  const tipoMovimientoObj = ["Ingreso", "Egreso", "Venta", "Compra"];
+  const tipoMovimientoObj = ["Ingresos", "Gasto", "Venta"];
   const [busqueda, setBusqueda] = useState({
     tipoMovimiento: null,
     fechas: null
@@ -93,7 +93,10 @@ const Caja = () => {
           </Col>
         </Space>
       </Row>
-      <BlogOverview datosIniciales={allCaja.data.datosIniciales} />
+      <BlogOverview
+        datosIniciales={allCaja.data.datosIniciales}
+        mostrarColores={true}
+      />
       <Row>
         <Col>
           <Card small className="mb-4">

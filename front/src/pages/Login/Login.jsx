@@ -84,19 +84,6 @@ const Login = () => {
                 <Form.Item label="Nombre" name="nombre" rules={rules}>
                   <Input />
                 </Form.Item>
-                <Form.Item
-                  label="Email"
-                  name="email"
-                  rules={[
-                    ...rules,
-                    {
-                      type: "email",
-                      message: "Esto no es un mail"
-                    }
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
               </>
             )}
 

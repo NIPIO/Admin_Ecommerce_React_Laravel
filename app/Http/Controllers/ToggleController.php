@@ -62,12 +62,20 @@ class ToggleController extends Controller
                     break;
             };
 
-            //Si es compra o venta: 1- no puede cancelar/activar si está confirmada. 2- tengo que chequear que haya stock cuando reactiva venta
-            if ($req['tabla'] === 'ventas' || $req['tabla'] === 'compras') {
-                $respuesta = $this->administrarSiEsCompraVenta($req, $tabla);
-
-                if ($respuesta === 'Confirmada') return response()->json(['error' => true, 'data' => 'No podes modificar un item confirmado']);
-                if ($respuesta === 'Sin stock') return response()->json(['error' => true, 'data' => 'Ya no hay suficiente stock de algún producto de esta venta para reactivarla']); 
+            $validacion = $this->validarCambioEstado($req, $tabla);
+            
+            // Capturo la validación y devuelvo el mensaje al front.
+            if ($validacion['error']) {
+                switch ($validacion['tipo']) {
+                    case 'Stock':
+                        return response()->json(['error' => true, 'data' => 'No podes modificar un producto/marca que tenga stock disponible']);
+                    case 'Reserva':
+                        return response()->json(['error' => true, 'data' => 'No podes modificar un producto/marca que tenga alguna reserva activa']);
+                    case 'Confirmada':
+                        return response()->json(['error' => true, 'data' => 'No podes modificar un item confirmado']);
+                    default:
+                        break;
+                }
             }
 
             $tabla->update([
@@ -89,8 +97,43 @@ class ToggleController extends Controller
         return response()->json(['error' => false]);
     }
 
+    private function validarCambioEstado($req, $tabla) {
+        $respuesta = ['error' => false, 'tipo' => null];
+
+        //Si es compra o venta: 1- no puede cancelar/activar si está confirmada. 2- tengo que chequear que haya stock cuando reactiva venta
+        if ($req['tabla'] === 'ventas' || $req['tabla'] === 'compras') {
+            $respuesta = $this->administrarSiEsCompraVenta($req, $tabla);
+        }
+        //Si desactiva una marca o un producto, tiene que tener sí o sí 0 en stock, 0 reservado, 0 en transito
+        if ($req['tabla'] === 'productos' || $req['tabla'] === 'marcas') {
+            // Solamente necesito validar si quiere desactivar, si quiere activar debería estar todo en 0.
+            if($req['estado'] === 1) {
+                $respuesta = $this->validarSiProductoMarcaTieneStock($req);
+            }
+        }
+
+        return $respuesta;
+    }
+
+    private function validarSiProductoMarcaTieneStock($req) {
+            $productosDeEsaMarca = Productos::where($req['tabla'] === 'productos' ? 'id' : 'marca', '=', $req['id'])->get()->toArray();
+
+            // Verifico que haya productos de esa marca (puede estar creada la marca pero sin producto)
+            if (count($productosDeEsaMarca)) {
+                if (array_sum(array_column($productosDeEsaMarca, 'stock'))) {
+                    return ['error' => true, 'tipo' => 'Stock'];
+                } 
+                if (array_sum(array_column($productosDeEsaMarca, 'stock_reservado')) + 
+                array_sum(array_column($productosDeEsaMarca, 'en_transito')) + 
+                array_sum(array_column($productosDeEsaMarca, 'en_transito_reservado')) > 0) {
+                    return ['error' => true, 'tipo' => 'Reserva'];
+                }
+            }   
+            return ['error' => false, 'tipo' => null];
+    }
+
     private function administrarSiEsCompraVenta($req, $tabla) {
-        if ($tabla->first()->confirmada === 1) return 'Confirmada'; 
+        if ($tabla->first()->confirmada === 1) return ['error' => true, 'tipo' => 'Confirmada'];
 
         if ($req['tabla'] === 'compras') {
             return $this->stockRepository->actualizarStockCompras($tabla->first(), $req['estado']);
@@ -99,6 +142,7 @@ class ToggleController extends Controller
         }
 
     }
+
 
 }
 

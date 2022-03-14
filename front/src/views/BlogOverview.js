@@ -19,7 +19,7 @@ const datasets = [
   }
 ];
 
-const BlogOverview = ({ datosIniciales }) => (
+const BlogOverview = ({ datosIniciales, mostrarColores }) => (
   <Container fluid className="main-content-container px-4">
     {/* <Row noGutters className="page-header py-4">
       <PageTitle
@@ -36,6 +36,7 @@ const BlogOverview = ({ datosIniciales }) => (
           <SmallStats
             // id={`small-stats-${idx}`}
             variation="1"
+            mostrarColores={mostrarColores}
             // chartData={stats.datasets}
             chartData={datasets}
             // chartLabels={stats.chartLabels}

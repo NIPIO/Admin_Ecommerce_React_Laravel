@@ -88,7 +88,10 @@ const General = () => {
           </Col>
         </Space>
       </Row>
-      <BlogOverview datosIniciales={allMovimientos.data.datosIniciales} />
+      <BlogOverview
+        datosIniciales={allMovimientos.data.datosIniciales}
+        mostrarColores={false}
+      />
       <Row>
         <Col>
           <Card small className="mb-4">

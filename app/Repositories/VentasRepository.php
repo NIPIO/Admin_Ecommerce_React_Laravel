@@ -11,7 +11,11 @@ use Carbon\Carbon;
 class VentasRepository implements RepositoryInterface
 {
    
-    public function __construct() {}
+    private $productosRepository;
+
+    public function __construct(ProductosRepository $productosRepository) {
+        $this->productosRepository = $productosRepository;
+    }
 
     public function getVenta($id) {
         return Ventas::whereId($id)->first();
@@ -23,14 +27,17 @@ class VentasRepository implements RepositoryInterface
             'vendedor_id' => $req['vendedor'],
             'cantidad' => array_sum(array_column($req['filas'], 'cantidad')),
             'precio_total' => 0,
+            'costo' => 0,
             'activo' => 1,
             'fecha_venta' => Carbon::now()->format('Y-m-d'),
         ]);
     }
 
-    public function updatePrecioVenta($venta, $totalPrecioVenta) {
+    public function updatePrecioVenta($venta, $totalPrecioVenta, $costo) {
         Ventas::whereId($venta->id)->update([
             "precio_total" => $totalPrecioVenta,
+            "costo" => $costo,
+            "utilidad" => $totalPrecioVenta - $costo,
             "vendedor_comision" => ($totalPrecioVenta * 0.01)
         ]);
     }

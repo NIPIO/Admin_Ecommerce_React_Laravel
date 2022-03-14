@@ -30,7 +30,17 @@ class CtaCteController extends Controller
     public function index() {
         $req = request()->all();
         $cuentas = $this->indexRepository->indexCuentas($req);
-        return response()->json(['error' => false, 'allCuentas' => CtaCte::all(), 'cuentasFiltro' => $cuentas->get()]);
+
+        return response()->json(['error' => false, 'allCuentas' => CtaCte::all(), 'cuentasFiltro' => $cuentas->get(), 'datosIniciales' => [
+            [
+                'label' => 'Sdo. Proveedores',
+                'value' => '$' . number_format(CtaCte::whereTipoCuenta('p')->sum('saldo'),0,",",".")
+            ], 
+            [
+                'label' => 'Sdo. Clientes',
+                'value' => '$' . number_format(CtaCte::whereTipoCuenta('c')->sum('saldo'),0,",",".")
+            ],
+        ]]);
     }
 
     public function nuevaCtaCte(Request $request) {
@@ -60,27 +70,23 @@ class CtaCteController extends Controller
         return response()->json(['error' => false]);
     }
 
+    //Metodo que impacta pagos o cobros sobre una cuenta corriente
     public function editarCuenta(Request $request, CamposEditadosRepository $camposEditadosRepository) {
         $req = $request->all();
         $usuario = $req['usuario'];
         $req = $req['data'];
-        
+
         try {
             DB::beginTransaction();
 
             // 1- Actualizo los datos
             $cuenta = CtaCte::whereId($req['id']);
-            $this->cuentasRepository->updateCuenta($cuenta, $req);
+            $this->cuentasRepository->updateSaldoCuenta($cuenta, $req['cantidad'], $req['tipoMovimiento'] === 'pago' ? 'increment' : 'decrement');
            
-            // 2- Busco los cambios y grabo el movimiento
-            $cambios = $this->buscarCamposEditados($cuenta, $req);
-            if ($cambios) {
-                foreach ($cambios as $cambio) {
-                    $this->movimientosRepository->guardarMovimiento(
-                        'cuentas_corrientes', 'MODIFICACION', $usuario, $req['id'], $cambio[1], $cambio[2], $cambio[3], $cambio[0] === 'saldo' ? 'saldo' : 'responsable'
-                    );
-                }
-            }
+            // 2- Grabo movimiento
+            $this->movimientosRepository->guardarMovimiento(
+                'cuentas_corrientes', strtoupper($req['tipoMovimiento']), $usuario, $req['id'], null, null, $req['cantidad'], null
+            );
 
             DB::commit();
 
@@ -92,19 +98,8 @@ class CtaCteController extends Controller
        
         return response()->json(['error' => false]);
     }
-                
-    private function buscarCamposEditados($cuenta, $req) {
-        $cuenta = $cuenta->first();
-        $campos = [];
-        if ($req['esCliente'] ? $cuenta->cliente_id : $cuenta->proveedor_id !== $req['proveedor']) {
-            //tabla, dato anterior, dato posterior, diferencia
-            array_push($campos, ['proveedor', $req['esCliente'] ? $cuenta->cliente_id : $cuenta->proveedor_id, $req['proveedor'] , null]);
-        }
-        if ($cuenta->saldo !== $req['saldo']) {
-            //tabla, dato anterior, dato posterior, diferencia
-            array_push($campos, ['saldo', $cuenta->saldo, $req['saldo'], $req['saldo'] - $cuenta->saldo]);
-        }
-        return $campos;
-    }
 
+    public function verDetalleCuenta($id) {
+        return $this->cuentasRepository->getHistorial($id);
+    }
 }

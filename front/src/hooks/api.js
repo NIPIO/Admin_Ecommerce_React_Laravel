@@ -141,6 +141,11 @@ export const api = {
   getPermisos: () =>
     client.get(API_PORT + "/api/permisos").then(res => res.data),
 
+  getHistorialCuentaCorriente: id =>
+    client
+      .get(API_PORT + `/api/cuentas-corrientes/${id}`, id)
+      .then(res => res.data),
+
   ///SETTERS
   setNuevoProducto: data =>
     client

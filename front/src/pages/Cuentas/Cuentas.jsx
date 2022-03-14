@@ -1,4 +1,9 @@
-import { useCuentas, useProveedores, useClientes } from "../../hooks/apiCalls";
+import {
+  useCuentas,
+  useProveedores,
+  useClientes,
+  useHistorialCuentaCorriente
+} from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
 import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";
@@ -7,6 +12,8 @@ import Busqueda from "./Busqueda";
 import ModalNuevaCuenta from "./ModalNuevaCuenta";
 import { showNotification, toggleEstado } from "./../notificacion";
 import { useQueryClient } from "react-query";
+import BlogOverview from "../../views/BlogOverview";
+import ModalHistorialCuenta from "./ModalHistorialCuenta";
 
 const Cuentas = () => {
   //INFO TABLA:
@@ -70,7 +77,30 @@ const Cuentas = () => {
 
       render: (text, record) => (
         <Space size="middle">
-          <Button onClick={() => edicion(text)}>Editar</Button>
+          <Button
+            onClick={() => {
+              text.mov = "cobro";
+              edicion(text);
+            }}
+          >
+            Cobro
+          </Button>
+          <Button
+            onClick={() => {
+              text.mov = "pago";
+              edicion(text);
+            }}
+          >
+            Pago
+          </Button>
+          <Button
+            onClick={() => {
+              verCuenta(text);
+            }}
+            type="primary"
+          >
+            Ver
+          </Button>
         </Space>
       )
     }
@@ -83,14 +113,20 @@ const Cuentas = () => {
   });
   const queryClient = useQueryClient();
   const [modal, setModal] = useState(false);
+  const [modalHistorial, setModalHistorial] = useState(false);
   const [cuentaEdicion, setCuentaEdicion] = useState(false);
   const allCuentas = useCuentas(busqueda);
   const allProveedores = useProveedores({});
   const allClientes = useClientes({});
 
-  const edicion = marca => {
-    setCuentaEdicion(marca);
+  const edicion = row => {
+    setCuentaEdicion(row);
     setModal(true);
+  };
+
+  const verCuenta = cuenta => {
+    setCuentaEdicion(cuenta.id);
+    setModalHistorial(true);
   };
 
   if (
@@ -125,6 +161,10 @@ const Cuentas = () => {
           </Col>
         </Space>
       </Row>
+      <BlogOverview
+        datosIniciales={allCuentas.data.datosIniciales}
+        mostrarColores={true}
+      />
       <Row>
         <Col>
           <Card small className="mb-4">
@@ -160,6 +200,13 @@ const Cuentas = () => {
           setCuentaEdicion={setCuentaEdicion}
           queryClient={queryClient}
         />
+        {modalHistorial && (
+          <ModalHistorialCuenta
+            modalHistorial={modalHistorial}
+            setModalHistorial={setModalHistorial}
+            cuenta={cuentaEdicion}
+          />
+        )}
       </Row>
     </Container>
   );

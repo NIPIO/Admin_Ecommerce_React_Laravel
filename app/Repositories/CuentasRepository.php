@@ -5,6 +5,7 @@ namespace App\Repositories;
 
 use App\Interfaces\RepositoryInterface;
 use App\Models\CtaCte;
+use App\Models\Movimientos;
 
 class CuentasRepository implements RepositoryInterface
 {
@@ -24,17 +25,9 @@ class CuentasRepository implements RepositoryInterface
         ]);
     }
 
-    public function updateCuenta($cuenta, $req) {
-        $cuenta->update([
-            "saldo" => $req['saldo'],
-            ($req['esCliente'] ? "cliente_id" : "proveedor_id") => $req['proveedor']
-        ]);
+    public function updateSaldoCuenta($cuenta, $diferencia, $movimiento) {
+        $cuenta->$movimiento('saldo', $diferencia);
     }
-
-    public function updateSaldoCuenta($cuenta, $diferencia) {
-        $cuenta->increment('saldo', $diferencia);
-    }
-
   
     public function existeCuenta($id, $tipoCuenta) {
         if ($tipoCuenta === 'p') {
@@ -48,5 +41,12 @@ class CuentasRepository implements RepositoryInterface
                 'tipo_cuenta' => $tipoCuenta,
             ])->get()->toArray()) > 0;
         }
+    }
+
+    public function getHistorial($id) {
+        return Movimientos::where([
+            'tabla' => 'cuentas_corrientes',
+            'item_id' => (int) $id,
+        ])->whereIn('tipo_movimiento', ['ALTA', 'PAGO', 'COBRO'])->orderBy('id', 'DESC')->with('usuario')->get()->toArray();
     }
 }

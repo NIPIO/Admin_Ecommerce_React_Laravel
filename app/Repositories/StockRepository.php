@@ -17,13 +17,13 @@ class StockRepository implements RepositoryInterface
             $producto = Productos::whereId($productoVenta['producto_id']);
             //Si reactiva la venta, chequeo que haya stock disponible para reactivarla.
             if (!$quiereInactivar && $producto->first()->stock - $producto->first()->stock_reservado - $productoVenta['cantidad'] < 0) {
-                return 'Sin stock';
+                return ['error' => true, 'tipo' => 'Stock'];
             }
 
             $quiereInactivar ? $producto->decrement('stock_reservado', $productoVenta['cantidad']) : $producto->increment('stock_reservado', $productoVenta['cantidad']);
         }
 
-        return true;
+        return ['error' => false, 'tipo' => null];
     }
 
     public function actualizarStockCompras($compra, $quiereInactivar) {
@@ -34,6 +34,8 @@ class StockRepository implements RepositoryInterface
             $producto = Productos::whereId($productoCompra['producto_id']);
             $quiereInactivar ? $producto->decrement('en_transito', $productoCompra['cantidad']) : $producto->increment('en_transito', $productoCompra['cantidad']);
         }
+
+        return ['error' => false, 'tipo' => null];
     }
 
 }

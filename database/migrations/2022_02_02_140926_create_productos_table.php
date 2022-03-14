@@ -17,7 +17,6 @@ class CreateProductosTable extends Migration
             $table->integer('id', true);
             $table->string('nombre');
             $table->integer('marca')->default(0);
-            $table->double('precio');
             $table->double('costo');
             $table->integer('stock');
             $table->integer('stock_reservado')->default(0);

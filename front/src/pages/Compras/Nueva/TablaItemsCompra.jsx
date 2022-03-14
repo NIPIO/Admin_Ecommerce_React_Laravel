@@ -9,7 +9,7 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
     const item = {
       producto: null,
       cantidad: null,
-      precioUnitario: null
+      costo: null
     };
     setFilas([...filas, item]);
   };
@@ -25,7 +25,7 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
 
     if (type === "producto") {
       let precioProd = buscarPrecioProd(val);
-      filasCopia[id]["precioUnitario"] = precioProd.precio;
+      filasCopia[id]["costo"] = precioProd.costo;
     }
 
     setFilas([...filasCopia]);
@@ -51,7 +51,7 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
             <tr>
               <th className="text-center"> Producto </th>
               <th className="text-center"> Cantidad </th>
-              <th className="text-center"> Precio U. </th>
+              <th className="text-center"> Costo U. </th>
               <th className="text-center"> </th>
             </tr>
           </thead>
@@ -99,10 +99,8 @@ const TablaItemsCompra = ({ productos, filas, setFilas, setError }) => {
                 <td>
                   <input
                     type="number"
-                    placeholder={filas[idx].precioUnitario}
-                    onChange={val =>
-                      setearDato(val.target.value, "precioUnitario", idx)
-                    }
+                    placeholder={filas[idx].costo}
+                    onChange={val => setearDato(val.target.value, "costo", idx)}
                     className="form-control"
                   />
                 </td>

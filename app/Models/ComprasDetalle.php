@@ -25,7 +25,7 @@ class ComprasDetalle extends Model
     /**
      * @var array
      */
-    protected $fillable = ['compra_id', 'producto_id', 'precio', 'cantidad', 'created_at', 'updated_at'];
+    protected $fillable = ['compra_id', 'producto_id', 'costo', 'cantidad', 'created_at', 'updated_at'];
 
     protected $casts = [
         'created_at'  => 'datetime:d-m-Y',

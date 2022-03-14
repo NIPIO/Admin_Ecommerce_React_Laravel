@@ -42,6 +42,18 @@ const Ventas = () => {
       sorter: (a, b) => a.precio_total - b.precio_total
     },
     {
+      title: "Costo",
+      dataIndex: ["costo"],
+      render: text => `$ ${text.toLocaleString()}`,
+      sorter: (a, b) => a.costo - b.costo
+    },
+    {
+      title: "Utilidad",
+      dataIndex: ["utilidad"],
+      render: text => `$ ${text.toLocaleString()}`,
+      sorter: (a, b) => a.utilidad - b.utilidad
+    },
+    {
       title: "Fecha",
       dataIndex: ["fecha_venta"],
       render: text => text
@@ -149,6 +161,7 @@ const Ventas = () => {
     );
   }
 
+  console.log(allVentas);
   return (
     <Container fluid className="main-content-container px-4">
       <Row className="page-header py-4">

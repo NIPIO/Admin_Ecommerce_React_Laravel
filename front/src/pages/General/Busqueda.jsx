@@ -19,7 +19,9 @@ function Busqueda({ setBusqueda, allVendedores }) {
     "ALTA",
     "BAJA",
     "INGRESO",
-    "EGRESO"
+    "EGRESO",
+    "PAGO",
+    "COBRO"
   ];
 
   const secciones = [

@@ -28,12 +28,6 @@ const Productos = () => {
       render: text => text
     },
     {
-      title: "Precio",
-      dataIndex: ["precio"],
-      render: text => `$ ${text.toLocaleString()}`,
-      sorter: (a, b) => a.precio - b.precio
-    },
-    {
       title: "Costo",
       dataIndex: ["costo"],
       render: text => `$ ${text.toLocaleString()}`,

@@ -29,7 +29,7 @@ const ModalNuevaCompra = ({
           prod.cantidad === "" ||
           prod.cantidad < 1 ||
           prod.producto === undefined ||
-          prod.precioUnitario === ""
+          prod.costo === ""
         );
       })
     ) {

@@ -17,7 +17,7 @@ class CreateComprasDetalleTable extends Migration
             $table->integer('id', true);
             $table->integer('compra_id');
             $table->integer('producto_id');
-            $table->double('precio')->nullable();
+            $table->double('costo')->nullable();
             $table->integer('cantidad')->nullable();
             $table->timestamps();
             

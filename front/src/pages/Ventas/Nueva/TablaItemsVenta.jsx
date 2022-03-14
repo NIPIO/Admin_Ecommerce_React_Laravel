@@ -25,7 +25,7 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
 
     if (type === "producto") {
       let precioProd = buscarPrecioProd(val);
-      filasCopia[id]["precioUnitario"] = precioProd.precio;
+      filasCopia[id]["precioUnitario"] = precioProd.costo;
     }
 
     setFilas([...filasCopia]);

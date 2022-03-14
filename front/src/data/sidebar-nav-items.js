@@ -26,7 +26,7 @@ export default function() {
         to: "/vendedores"
       },
       {
-        title: "Productos",
+        title: "Stock",
         htmlBefore: '<i class="material-icons">phone_iphone</i>',
         to: "/productos"
       },

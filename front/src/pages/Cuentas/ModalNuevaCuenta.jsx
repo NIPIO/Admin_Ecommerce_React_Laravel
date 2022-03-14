@@ -18,7 +18,6 @@ const ModalNuevaCuenta = ({
   const [form] = Form.useForm();
   const [tipoCuenta, setTipoCuenta] = useState();
 
-  console.log(cuentaEdicion);
   let rules = [
     {
       required: true,
@@ -36,7 +35,7 @@ const ModalNuevaCuenta = ({
   const onCreate = values => {
     if (cuentaEdicion) {
       values.id = cuentaEdicion.id;
-      values.esCliente = !!cuentaEdicion.cliente_id;
+      values.tipoMovimiento = cuentaEdicion.mov;
 
       api
         .putCuenta(values)
@@ -44,7 +43,11 @@ const ModalNuevaCuenta = ({
           if (res.error) {
             showNotification("error", "Ocurrio un error", res.data);
           } else {
-            showNotification("success", "Cuenta modificada correctamente", "");
+            showNotification(
+              "success",
+              `${cuentaEdicion.mov} generado correctamente`,
+              ""
+            );
             queryClient.invalidateQueries("cuentas");
             onReset();
           }
@@ -95,8 +98,12 @@ const ModalNuevaCuenta = ({
       <Row className="page-header py-4">
         <Modal
           visible={modal}
-          title={(cuentaEdicion ? "Editar" : "Nueva") + " Cuenta"}
-          okText={cuentaEdicion ? "Editar" : "Crear"}
+          title={
+            cuentaEdicion ? `Generar ${cuentaEdicion.mov}` : "Nueva Cuenta"
+          }
+          okText={
+            cuentaEdicion ? `Generar ${cuentaEdicion.mov}` : "Crear Cuenta"
+          }
           cancelText="Cancelar"
           onCancel={() => onReset()}
           onOk={() => {
@@ -110,97 +117,122 @@ const ModalNuevaCuenta = ({
               });
           }}
         >
-          <Form
-            form={form}
-            layout="vertical"
-            name="form_in_modal"
-            initialValues={{
-              modifier: "public"
-            }}
-          >
-            <Row gutter={24}>
-              <Col xs={24}>
-                <Form.Item rules={rules}>
-                  <Radio.Group
-                    onChange={val => setTipoCuenta(val.target.value)}
-                    label="Tipo de cuenta"
-                    defaultValue={
-                      cuentaEdicion ? cuentaEdicion.tipo_cuenta : null
+          {/* GENERA PAGO O COBRO */}
+          {cuentaEdicion.mov ? (
+            <Form
+              form={form}
+              layout="vertical"
+              name="form_in_modal"
+              initialValues={{
+                modifier: "public"
+              }}
+            >
+              <Col xs={24} md={24}>
+                <Form.Item name="cantidad" label="Cantidad" rules={rules}>
+                  <InputNumber
+                    formatter={value =>
+                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                     }
-                  >
-                    <Radio.Button
-                      disabled={cuentaEdicion.tipo_cuenta === "p"}
-                      value={"c"}
-                    >
-                      Cliente
-                    </Radio.Button>
-                    <Radio.Button
-                      disabled={cuentaEdicion.tipo_cuenta === "c"}
-                      value={"p"}
-                    >
-                      Proveedor
-                    </Radio.Button>
-                  </Radio.Group>
+                    parser={value => value.replace(/\$\s?|(,*)/g, "")}
+                    style={{ width: "100%" }}
+                  />
                 </Form.Item>
               </Col>
-            </Row>
-            {tipoCuenta && (
+            </Form>
+          ) : (
+            /* NUEVA CUENTA */
+            <Form
+              form={form}
+              layout="vertical"
+              name="form_in_modal"
+              initialValues={{
+                modifier: "public"
+              }}
+            >
               <Row gutter={24}>
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    name="proveedor"
-                    label={tipoCuenta === "c" ? "Cliente" : "Proveedor"}
-                    rules={rules}
-                  >
-                    <Select
-                      showSearch
-                      allowClear
-                      style={{ marginBottom: "3%", width: "100%" }}
-                      placeholder={
-                        "Elegí el " +
-                        (tipoCuenta === "c" ? "cliente" : "proveedor")
+                <Col xs={24}>
+                  <Form.Item rules={rules}>
+                    <Radio.Group
+                      onChange={val => setTipoCuenta(val.target.value)}
+                      label="Tipo de cuenta"
+                      defaultValue={
+                        cuentaEdicion ? cuentaEdicion.tipo_cuenta : null
                       }
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      }
-                      filterSort={(optionA, optionB) =>
-                        optionA.children
-                          .toLowerCase()
-                          .localeCompare(optionB.children.toLowerCase())
-                      }
-                      disabled={cuentaEdicion}
                     >
-                      {(tipoCuenta === "c" ? clientes : proveedores).map(
-                        (persona, idx) => (
-                          <Option key={idx} value={persona.id}>
-                            {persona.nombre}
-                          </Option>
-                        )
-                      )}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    name="saldo"
-                    label={cuentaEdicion ? "Saldo" : "Saldo Inicial"}
-                    rules={rules}
-                  >
-                    <InputNumber
-                      formatter={value =>
-                        `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                      }
-                      parser={value => value.replace(/\$\s?|(,*)/g, "")}
-                      style={{ width: "100%" }}
-                    />
+                      <Radio.Button
+                        disabled={cuentaEdicion.tipo_cuenta === "p"}
+                        value={"c"}
+                      >
+                        Cliente
+                      </Radio.Button>
+                      <Radio.Button
+                        disabled={cuentaEdicion.tipo_cuenta === "c"}
+                        value={"p"}
+                      >
+                        Proveedor
+                      </Radio.Button>
+                    </Radio.Group>
                   </Form.Item>
                 </Col>
               </Row>
-            )}
-          </Form>
+              {tipoCuenta && (
+                <Row gutter={24}>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      name="proveedor"
+                      label={tipoCuenta === "c" ? "Cliente" : "Proveedor"}
+                      rules={rules}
+                    >
+                      <Select
+                        showSearch
+                        allowClear
+                        style={{ marginBottom: "3%", width: "100%" }}
+                        placeholder={
+                          "Elegí el " +
+                          (tipoCuenta === "c" ? "cliente" : "proveedor")
+                        }
+                        optionFilterProp="children"
+                        filterOption={(input, option) =>
+                          option.children
+                            .toLowerCase()
+                            .indexOf(input.toLowerCase()) >= 0
+                        }
+                        filterSort={(optionA, optionB) =>
+                          optionA.children
+                            .toLowerCase()
+                            .localeCompare(optionB.children.toLowerCase())
+                        }
+                        disabled={cuentaEdicion}
+                      >
+                        {(tipoCuenta === "c" ? clientes : proveedores).map(
+                          (persona, idx) => (
+                            <Option key={idx} value={persona.id}>
+                              {persona.nombre}
+                            </Option>
+                          )
+                        )}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      name="saldo"
+                      label={cuentaEdicion ? "Saldo" : "Saldo Inicial"}
+                      rules={rules}
+                    >
+                      <InputNumber
+                        formatter={value =>
+                          `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                        parser={value => value.replace(/\$\s?|(,*)/g, "")}
+                        style={{ width: "100%" }}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              )}
+            </Form>
+          )}
         </Modal>
       </Row>
     </Container>

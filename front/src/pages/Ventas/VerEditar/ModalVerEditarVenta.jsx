@@ -82,7 +82,7 @@ const ModalVerEditarVenta = ({
       setVendedor(res.venta[0].vendedor_id);
       setFilas(res.venta[0].detalle_venta);
     });
-  }, [verVenta.id]);
+  }, [modal]);
 
   return (
     <Container fluid className="main-content-container px-4">

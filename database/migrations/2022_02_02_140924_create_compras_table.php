@@ -17,8 +17,7 @@ class CreateComprasTable extends Migration
             $table->integer('id', true);
             $table->integer('proveedor_id');
             $table->integer('cantidad')->nullable();
-            $table->double('precio_total');
-            $table->double('precio_abonado')->default(0);
+            $table->double('costo')->default(0);
             $table->date('fecha_compra')->nullable();
             $table->boolean('activo')->default(1);
             $table->boolean('confirmada')->default(0);

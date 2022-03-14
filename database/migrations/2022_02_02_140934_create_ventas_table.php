@@ -18,7 +18,8 @@ class CreateVentasTable extends Migration
             $table->integer('cliente_id');
             $table->integer('vendedor_id');
             $table->double('precio_total')->nullable();
-            $table->double('precio_abonado')->default(0);
+            $table->double('costo')->default(0);
+            $table->double('utilidad')->default(0);
             $table->double('vendedor_comision')->nullable();
             $table->integer('cantidad');
             $table->date('fecha_venta')->nullable();
