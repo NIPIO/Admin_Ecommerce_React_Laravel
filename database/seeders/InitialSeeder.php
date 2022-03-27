@@ -2,8 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Clientes;
 use App\Models\FormatoDato;
 use App\Models\FormatoPlantilla;
+use App\Models\Marcas;
+use App\Models\Productos;
+use App\Models\Proveedores;
 use App\Models\Roles;
 use App\Models\SeparadorPlantilla;
 use App\Models\Vendedores;
@@ -54,5 +58,35 @@ class InitialSeeder extends Seeder
             'activo' => 1
         ]);
 
+        Marcas::create([
+            'id' => 1,
+            'nombre' => 'Samsung',
+            'activo' => 1,
+        ]);
+
+        Productos::create([
+            'id' => 1,
+            'nombre' => 'J7',
+            'marca' => 1,
+            'costo' => 0,
+            'stock' => 0,
+            'stock_reservado' => 0,
+            'en_transito' => 0,
+            'en_transito_reservado' => 0,
+            'activo' => 1
+        ]);
+
+        Proveedores::create([
+            'id' => 1,
+            'nombre' => 'Proveedor 1',
+            'activo' => 1,
+        ]);
+
+
+        Clientes::create([
+            'id' => 1,
+            'nombre' => 'Clientes 1',
+            'activo' => 1,
+        ]);
     }
 }

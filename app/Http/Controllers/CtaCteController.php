@@ -55,7 +55,7 @@ class CtaCteController extends Controller
             if($this->cuentasRepository->existeCuenta($req['proveedor'], $req['tipoCuenta'])){
                 return response()->json(['error' => true, 'data' => 'Esa persona ya tiene una cuenta']);
             }
-
+            
             $cuenta = $this->cuentasRepository->setCuenta($req);
             $this->movimientosRepository->guardarMovimiento('cuentas_corrientes', 'ALTA', $usuario, $cuenta->id, null, null, null);
 
@@ -99,7 +99,7 @@ class CtaCteController extends Controller
         return response()->json(['error' => false]);
     }
 
-    public function verDetalleCuenta($id) {
-        return $this->cuentasRepository->getHistorial($id);
+    public function verDetalleCuenta($idCuenta) {
+        return $this->cuentasRepository->getHistorial($idCuenta);
     }
 }

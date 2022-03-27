@@ -33,11 +33,11 @@ class CajaController extends Controller
             ], 
             [
                 'label' => 'Ingresos',
-                'value' => '$' . number_format(Caja::whereTipoMovimiento('INGRESO')->sum('importe'),0,",",".")
+                'value' => '$' . number_format(Caja::whereTipoMovimiento('INGRESOS')->sum('importe'),0,",",".")
             ],
             [
                 'label' => 'Gastos',
-                'value' => '$' . number_format(Caja::whereTipoMovimiento('EGRESO')->sum('importe'),0,",",".")
+                'value' => '$' . number_format(Caja::whereTipoMovimiento('GASTO')->sum('importe'),0,",",".")
             ],
            
         ]]);

@@ -88,7 +88,7 @@ const ModalNuevaCuenta = ({
       proveedor: cuentaEdicion.proveedor_id
         ? cuentaEdicion.proveedor_id
         : cuentaEdicion.cliente_id,
-      saldo: cuentaEdicion.saldo
+      saldo: cuentaEdicion.saldo ? cuentaEdicion.saldo : 0
     });
     setTipoCuenta(cuentaEdicion.tipo_cuenta);
   }, [cuentaEdicion]);

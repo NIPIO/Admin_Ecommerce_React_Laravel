@@ -17,29 +17,18 @@ const ModalHistorialCuenta = ({
 
   const columnas = [
     {
-      title: "Nro Cuenta",
-      dataIndex: ["id"],
-      width: "15%",
-      render: text => text
-    },
-    {
       title: "Movimiento",
       dataIndex: ["tipo_movimiento"],
-      render: text => (text ? text : "-")
+      render: text => (text === "CONFIRMACION" ? "COMPRA" : text)
     },
     {
       title: "Cantidad",
       dataIndex: ["diferencia"],
-      render: text => (text ? text : "-")
+      render: text => `$ ${text}`
     },
     {
-      title: "Ultimo Mov.",
+      title: "Fecha",
       dataIndex: ["updated_at"],
-      render: text => (text ? text : "-")
-    },
-    {
-      title: "Autor",
-      dataIndex: ["usuario", "usuario"],
       render: text => (text ? text : "-")
     }
   ];
