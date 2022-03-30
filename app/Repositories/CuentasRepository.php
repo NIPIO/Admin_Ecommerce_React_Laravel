@@ -5,9 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\RepositoryInterface;
 use App\Models\Compras;
 use App\Models\CtaCte;
-use App\Models\CtaCteMovimientos;
 use App\Models\Movimientos;
-use App\Models\Ventas;
 
 class CuentasRepository implements RepositoryInterface
 {

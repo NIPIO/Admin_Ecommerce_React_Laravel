@@ -38,4 +38,8 @@ class VendedoresRepository implements RepositoryInterface
         return $vendedor;
     }
 
+    static function agregarComision($vendedor, $comision) {
+        Vendedores::whereId($vendedor)->increment('comision', $comision);
+    }
+
 }

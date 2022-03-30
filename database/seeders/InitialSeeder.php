@@ -64,23 +64,44 @@ class InitialSeeder extends Seeder
             'activo' => 1,
         ]);
 
-        Productos::create([
-            'id' => 1,
-            'nombre' => 'J7',
-            'marca' => 1,
-            'costo' => 0,
-            'stock' => 0,
-            'stock_reservado' => 0,
-            'en_transito' => 0,
-            'en_transito_reservado' => 0,
-            'activo' => 1
-        ]);
+
+        $items = [
+            [
+                'id' => 1,
+                'nombre' => 'J7',
+                'marca' => 1,
+                'costo' => 200,
+                'stock' => 10,
+                'stock_reservado' => 0,
+                'en_transito' => 0,
+                'en_transito_reservado' => 0,
+                'activo' => 1
+            ],
+            [
+                'id' => 2,
+                'nombre' => 'J8',
+                'marca' => 1,
+                'costo' => 150,
+                'stock' => 10,
+                'stock_reservado' => 0,
+                'en_transito' => 0,
+                'en_transito_reservado' => 0,
+                'activo' => 1
+            ]
+
+        ];
+
+        foreach ($items as $item) {
+            Productos::create($item);
+        }
 
         Proveedores::create([
             'id' => 1,
             'nombre' => 'Proveedor 1',
             'activo' => 1,
         ]);
+
+ 
 
 
         Clientes::create([

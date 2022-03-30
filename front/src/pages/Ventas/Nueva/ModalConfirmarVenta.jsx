@@ -181,7 +181,7 @@ const ModalNuevaVenta = ({ modal, setModal, id, queryClient }) => {
                   {modalAlerta.deberiaPagar > modalAlerta.pago
                     ? "Se registrará una deuda de "
                     : "Se registrará un saldo positivo de "}
-                  ${modalAlerta.pago - modalAlerta.deberiaPagar} con el cliente.
+                  ${modalAlerta.pago - modalAlerta.deberiaPagar} del cliente.
                 </span>
               </>
             )}

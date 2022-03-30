@@ -30,7 +30,7 @@ const Caja = () => {
         return {
           props: {
             style: {
-              color: text !== 0 ? (text > 0 ? "lightgreen" : "red") : null
+              color: record.tipo_movimiento === "GASTO" ? "red" : "lightgreen"
             }
           },
           children: <div>$ {text.toLocaleString()}</div>

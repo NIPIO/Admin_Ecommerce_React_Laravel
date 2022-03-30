@@ -54,10 +54,7 @@ class ProductosRepository implements RepositoryInterface
 
         //Me fijo que no nos sobrepasemos de stock con la nueva venta.
         if ($prod['stock'] - $prod['stock_reservado'] - (int) $ventaDetalleRow['cantidad'] < 0 ) {
-            return response()->json([
-                'error' => true, 
-                'data' => 'No hay stock suficiente para el ' . $prod['nombre'] . '. Stock disponible: ' . ($prod['stock'] - $prod['stock_reservado'])
-            ]); 
+            throw new \Exception('No hay stock suficiente para el ' . $prod['nombre'] . '. Stock disponible: ' . ($prod['stock'] - $prod['stock_reservado']));
         }
     }
 }

@@ -226,6 +226,7 @@ const ModalNuevaCuenta = ({
                         }
                         parser={value => value.replace(/\$\s?|(,*)/g, "")}
                         style={{ width: "100%" }}
+                        value={0}
                       />
                     </Form.Item>
                   </Col>

@@ -16,7 +16,7 @@ class CajaRepository implements RepositoryInterface
             'tipo_movimiento' => strtoupper($req['tipoMovimiento']),
             'importe' => $req['tipoMovimiento'] === 'Egreso' ? - $req['importe'] : $req['importe'],
             'usuario' => $usuario,
-            'observacion' => $req['observacion'] ?? null,
+            'observacion' => isset($req['observacion']) ? $req['observacion'] : null,
             'item_id' => isset($req['item_id']) ? $req['item_id'] : null,
         ]);
     }

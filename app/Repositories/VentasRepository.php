@@ -46,6 +46,11 @@ class VentasRepository implements RepositoryInterface
         return Ventas::where('confirmada', true)->get();
     }
 
+    public function confirmarVenta($venta) {
+        $venta->update([
+            'confirmada' => true
+        ]);
+    }
 }
 
 
@@ -61,6 +66,10 @@ class VentasDetalleRepository implements RepositoryInterface
             'cantidad' => $ventaDetalleRow['cantidad'],
             'precio' => $ventaDetalleRow['precioUnitario']
         ]);
+    }
+
+    public function getVentaDetalleByVentaId($id) {
+        return VentasDetalle::whereVentaId($id)->get()->toArray();
     }
 
 }
