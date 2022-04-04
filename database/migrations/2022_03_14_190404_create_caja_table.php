@@ -16,6 +16,7 @@ class CreateCajaTable extends Migration
         Schema::create('caja', function (Blueprint $table) {
             $table->integer('id', true);
             $table->string('tipo_movimiento', 50);
+            $table->string('tipo_caja', 10);
             $table->integer('item_id')->nullable();
             $table->double('importe')->default(0);
             $table->integer('usuario')->nullable();

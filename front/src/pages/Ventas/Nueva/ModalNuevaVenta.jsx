@@ -20,6 +20,7 @@ const ModalNuevaVenta = ({
   const [error, setError] = useState(false);
   const [cliente, setCliente] = useState(false);
   const [vendedor, setVendedor] = useState(false);
+  const [tipoVenta, setTipoVenta] = useState(false);
 
   const onCreate = (filas, cliente) => {
     if (filas.length < 1 || !cliente || !vendedor) {
@@ -37,7 +38,7 @@ const ModalNuevaVenta = ({
     } else {
       setError(false);
       api
-        .setNuevaVenta(filas, cliente, vendedor)
+        .setNuevaVenta(filas, cliente, vendedor, tipoVenta)
         .then(res => {
           if (res.error) {
             showNotification("error", "Ocurrio un error", res.data);
@@ -71,7 +72,7 @@ const ModalNuevaVenta = ({
         >
           <Form layout="vertical" name="form_in_modal">
             <Row gutter={24}>
-              <Col xs={24} md={12}>
+              <Col xs={24} md={8}>
                 <Form.Item name="cliente" label="Cliente">
                   <Select
                     showSearch
@@ -102,7 +103,7 @@ const ModalNuevaVenta = ({
                   </Select>
                 </Form.Item>
               </Col>
-              <Col xs={24} md={12}>
+              <Col xs={24} md={8}>
                 <Form.Item name="vendedor" label="Vendedor">
                   <Select
                     showSearch
@@ -133,10 +134,29 @@ const ModalNuevaVenta = ({
                   </Select>
                 </Form.Item>
               </Col>
-            </Row>
 
+              <Col xs={24} md={8}>
+                <Form.Item name="tipoVenta" label="Tipo Venta">
+                  <Select
+                    style={{ marginBottom: "3%", width: "100%" }}
+                    onChange={e => {
+                      setTipoVenta(e);
+                      setError(false);
+                    }}
+                    placeholder="Elegí el tipo de venta"
+                    optionFilterProp="children"
+                  >
+                    {["Minorista", "Mayorista"].map((tv, idx) => (
+                      <Option key={idx} value={tv}>
+                        {tv}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
             <Row gutter={24}>
-              {cliente && vendedor && (
+              {cliente && vendedor && tipoVenta && (
                 <TablaItemsVenta
                   setError={setError}
                   filas={filas}

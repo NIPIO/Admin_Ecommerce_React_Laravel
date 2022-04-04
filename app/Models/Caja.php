@@ -25,11 +25,11 @@ class Caja extends Model
     /**
      * @var array
      */
-    protected $fillable = ['tipo_movimiento', 'importe', 'item_id', 'usuario', 'observacion', 'created_at', 'updated_at',];
+    protected $fillable = ['tipo_movimiento', 'tipo_caja', 'importe', 'item_id', 'usuario', 'observacion', 'created_at', 'updated_at',];
 
     protected $casts = [
-        'created_at'  => 'datetime:d-m-Y',
-        'updated_at'  => 'datetime:d-m-Y',
+        'created_at'  => 'datetime:d-m-Y H:i',
+        'updated_at'  => 'datetime:d-m-Y H:i',
     ];
 
     /**

@@ -99,8 +99,9 @@ const TablaItemsVenta = ({ productos, filas, setFilas, setError }) => {
                 <td>
                   <input
                     type="number"
-                    value={item.precioUnitario}
-                    placeholder={filas[idx].precioUnitario}
+                    // value={item.precioUnitario}
+                    initialValue={0}
+                    // placeholder={filas[idx].precioUnitario}
                     onChange={val =>
                       setearDato(val.target.value, "precioUnitario", idx)
                     }

@@ -17,6 +17,8 @@ import { useQueryClient } from "react-query";
 import ModalVerEditarVenta from "./VerEditar/ModalVerEditarVenta";
 
 const Ventas = () => {
+  let isAdmin = JSON.parse(localStorage.getItem("logueado")).rol_id === 1;
+
   //INFO TABLA:
   const columnas = [
     {
@@ -47,12 +49,7 @@ const Ventas = () => {
       render: text => `$ ${text.toLocaleString()}`,
       sorter: (a, b) => a.costo - b.costo
     },
-    {
-      title: "Utilidad",
-      dataIndex: ["utilidad"],
-      render: text => `$ ${text.toLocaleString()}`,
-      sorter: (a, b) => a.utilidad - b.utilidad
-    },
+
     {
       title: "Fecha",
       dataIndex: ["fecha_venta"],
@@ -123,6 +120,17 @@ const Ventas = () => {
       )
     }
   ];
+
+  // Muestro la utilidad si es admin.
+  if (isAdmin) {
+    columnas.splice(5, 0, {
+      title: "Utilidad",
+      dataIndex: ["utilidad"],
+      render: text => `$ ${text.toLocaleString()}`,
+      sorter: (a, b) => a.utilidad - b.utilidad
+    });
+  }
+
   //FIN INFO TABLA.
 
   const queryClient = useQueryClient();
@@ -161,7 +169,6 @@ const Ventas = () => {
     );
   }
 
-  console.log(allVentas);
   return (
     <Container fluid className="main-content-container px-4">
       <Row className="page-header py-4">

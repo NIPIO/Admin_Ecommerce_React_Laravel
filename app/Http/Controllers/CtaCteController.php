@@ -6,6 +6,7 @@ use App\Models\Clientes;
 use App\Models\CtaCte;
 use App\Models\Productos;
 use App\Models\Proveedores;
+use App\Repositories\CajaRepository;
 use App\Repositories\CamposEditadosRepository;
 use App\Repositories\CuentasRepository;
 use App\Repositories\IndexRepository;
@@ -19,12 +20,14 @@ class CtaCteController extends Controller
     private $movimientosRepository;
     private $cuentasRepository;
     private $indexRepository;
+    private $cajaRepository;
 
-    public function __construct(IndexRepository $indexRepository, MovimientosRepository $movimientosRepository, CuentasRepository $cuentasRepository)
+    public function __construct(IndexRepository $indexRepository, CajaRepository $cajaRepository, MovimientosRepository $movimientosRepository, CuentasRepository $cuentasRepository)
     {
         $this->movimientosRepository = $movimientosRepository;    
         $this->cuentasRepository = $cuentasRepository;    
         $this->indexRepository = $indexRepository;    
+        $this->cajaRepository = $cajaRepository;    
     }
 
     public function index() {
@@ -82,7 +85,14 @@ class CtaCteController extends Controller
             // 1- Actualizo los datos
             $cuenta = CtaCte::whereId($req['id']);
             $this->cuentasRepository->updateSaldoCuenta($cuenta, $req['cantidad'], $req['tipoMovimiento'] === 'pago' ? 'increment' : 'decrement');
-           
+            $this->cajaRepository->setCaja($usuario, [
+                'tipoMovimiento' => $req['tipoMovimiento'],
+                'tipoCaja' => $req['tipoCaja'],
+                'importe' => $req['cantidad'],
+                'usuario' => $usuario,
+                'item_id' => $req['id']
+            ]);
+
             // 2- Grabo movimiento
             $this->movimientosRepository->guardarMovimiento(
                 'cuentas_corrientes', strtoupper($req['tipoMovimiento']), $usuario, $req['id'], null, null, $req['cantidad'], null

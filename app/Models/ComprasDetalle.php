@@ -28,8 +28,8 @@ class ComprasDetalle extends Model
     protected $fillable = ['compra_id', 'producto_id', 'costo', 'cantidad', 'created_at', 'updated_at'];
 
     protected $casts = [
-        'created_at'  => 'datetime:d-m-Y',
-        'updated_at'  => 'datetime:d-m-Y',
+        'created_at'  => 'datetime:d-m-Y H:i',
+        'updated_at'  => 'datetime:d-m-Y H:i',
     ];
     /**
      * Indicates if the model should be timestamped.

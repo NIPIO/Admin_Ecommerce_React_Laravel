@@ -17,6 +17,7 @@ const ModalNuevaCuenta = ({
 }) => {
   const [form] = Form.useForm();
   const [tipoCuenta, setTipoCuenta] = useState();
+  const [tipoCaja, setTipoCaja] = useState();
 
   let rules = [
     {
@@ -36,6 +37,7 @@ const ModalNuevaCuenta = ({
     if (cuentaEdicion) {
       values.id = cuentaEdicion.id;
       values.tipoMovimiento = cuentaEdicion.mov;
+      values.tipoCaja = tipoCaja;
 
       api
         .putCuenta(values)
@@ -127,17 +129,35 @@ const ModalNuevaCuenta = ({
                 modifier: "public"
               }}
             >
-              <Col xs={24} md={24}>
-                <Form.Item name="cantidad" label="Cantidad" rules={rules}>
-                  <InputNumber
-                    formatter={value =>
-                      `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                    }
-                    parser={value => value.replace(/\$\s?|(,*)/g, "")}
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
+              <Row gutter={24}>
+                <Col xs={24} md={12}>
+                  <Form.Item name="cantidad" label="Cantidad" rules={rules}>
+                    <InputNumber
+                      formatter={value =>
+                        `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      }
+                      parser={value => value.replace(/\$\s?|(,*)/g, "")}
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item name="tipoCaja" label="Tipo Caja" rules={rules}>
+                    <Select
+                      allowClear
+                      style={{ marginBottom: "3%", width: "100%" }}
+                      onChange={e => setTipoCaja(e)}
+                      placeholder="Elegí la caja"
+                    >
+                      {["Bille", "Pesos"].map((caja, idx) => (
+                        <Option key={idx} value={caja}>
+                          {caja}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
             </Form>
           ) : (
             /* NUEVA CUENTA */

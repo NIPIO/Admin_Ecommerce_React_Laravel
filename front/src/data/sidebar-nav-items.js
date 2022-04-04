@@ -68,9 +68,14 @@ export default function() {
           to: "/compras"
         },
         {
-          title: "Caja",
+          title: "Caja Pesos",
           htmlBefore: '<i class="material-icons">paid</i>',
-          to: "/caja"
+          to: "/caja-pesos"
+        },
+        {
+          title: "Caja Bille",
+          htmlBefore: '<i class="material-icons">paid</i>',
+          to: "/caja-bille"
         },
         {
           title: "Roles y permisos",

@@ -27,6 +27,7 @@ class VentasRepository implements RepositoryInterface
             'vendedor_id' => $req['vendedor'],
             'cantidad' => array_sum(array_column($req['filas'], 'cantidad')),
             'precio_total' => 0,
+            'tipo_venta' => $req['tipoVenta'],
             'costo' => 0,
             'activo' => 1,
             'fecha_venta' => Carbon::now()->format('Y-m-d'),
@@ -38,7 +39,7 @@ class VentasRepository implements RepositoryInterface
             "precio_total" => $totalPrecioVenta,
             "costo" => $costo,
             "utilidad" => $totalPrecioVenta - $costo,
-            "vendedor_comision" => ($totalPrecioVenta * 0.01)
+            "vendedor_comision" => $venta['tipo_venta'] === 'Minorista' ? $totalPrecioVenta * 0.01 : ($totalPrecioVenta - $costo) * 0.1
         ]);
     }
 

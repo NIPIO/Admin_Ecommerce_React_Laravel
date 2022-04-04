@@ -11,7 +11,8 @@ import Clientes from "./pages/Clientes/Clientes";
 import Vendedores from "./pages/Vendedores/Vendedores";
 import Proveedores from "./pages/Proveedores/Proveedores";
 import Cuentas from "./pages/Cuentas/Cuentas";
-import Caja from "./pages/Caja/Caja";
+import CajaPesos from "./pages/CajaPesos/CajaPesos";
+import CajaBille from "./pages/CajaBille/CajaBille";
 import General from "./pages/General/General";
 import Ventas from "./pages/Ventas/Ventas";
 import Compras from "./pages/Compras/Compras";
@@ -66,9 +67,14 @@ export default [
     component: Cuentas
   },
   {
-    path: "/caja",
+    path: "/caja-pesos",
     layout: DefaultLayout,
-    component: Caja
+    component: CajaPesos
+  },
+  {
+    path: "/caja-bille",
+    layout: DefaultLayout,
+    component: CajaBille
   },
   {
     path: "/general",

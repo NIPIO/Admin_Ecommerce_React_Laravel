@@ -26,6 +26,7 @@ const ModalVerEditarVenta = ({
   const [mostrarDetalles, setMostrarDetalles] = useState(false);
   const [cliente, setCliente] = useState(false);
   const [vendedor, setVendedor] = useState(false);
+  const [tipoVenta, setTipoVenta] = useState(false);
 
   const onCreate = () => {
     if (filas.length < 1 || !cliente || !vendedor) {
@@ -43,7 +44,7 @@ const ModalVerEditarVenta = ({
     } else {
       setError(false);
       api
-        .putVenta(verVenta.id, filas, cliente, vendedor)
+        .putVenta(verVenta.id, filas, cliente, vendedor, tipoVenta)
         .then(res => {
           if (res.error) {
             showNotification("error", "Ocurrio un error", res.data);
@@ -52,6 +53,7 @@ const ModalVerEditarVenta = ({
             queryClient.invalidateQueries("ventas");
             setModal(false);
             setEditarVenta(false);
+            form.resetFields();
           }
         })
         .catch(err => {
@@ -75,11 +77,13 @@ const ModalVerEditarVenta = ({
     venta.then(res => {
       form.setFieldsValue({
         cliente: res.venta[0].cliente_id,
-        vendedor: res.venta[0].vendedor_id
+        vendedor: res.venta[0].vendedor_id,
+        tipoVenta: res.venta[0].tipo_venta
       });
       setMostrarDetalles(true);
       setCliente(res.venta[0].cliente_id);
       setVendedor(res.venta[0].vendedor_id);
+      setTipoVenta(res.venta[0].tipo_venta);
       setFilas(res.venta[0].detalle_venta);
     });
   }, [modal]);
@@ -97,6 +101,7 @@ const ModalVerEditarVenta = ({
             setModal(false);
             setEditarVenta(false);
             setVerVenta(false);
+            form.resetFields();
           }}
           okButtonProps={{
             style: { display: verVenta.confirmada ? "none" : "inline" }
@@ -105,7 +110,7 @@ const ModalVerEditarVenta = ({
         >
           <Form form={form} layout="vertical" name="form_in_modal">
             <Row gutter={24}>
-              <Col xs={24} md={12}>
+              <Col xs={24} md={8}>
                 <Form.Item name="cliente" label="Cliente">
                   <Select
                     showSearch
@@ -137,7 +142,7 @@ const ModalVerEditarVenta = ({
                   </Select>
                 </Form.Item>
               </Col>
-              <Col xs={24} md={12}>
+              <Col xs={24} md={8}>
                 <Form.Item name="vendedor" label="Vendedor">
                   <Select
                     showSearch
@@ -164,6 +169,26 @@ const ModalVerEditarVenta = ({
                     {vendedores.map((vendedor, idx) => (
                       <Option key={idx} value={vendedor.id}>
                         {vendedor.nombre}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={8}>
+                <Form.Item name="tipoVenta" label="Tipo Venta">
+                  <Select
+                    style={{ marginBottom: "3%", width: "100%" }}
+                    onChange={e => {
+                      setTipoVenta(e);
+                      setError(false);
+                    }}
+                    placeholder="Elegí el tipo de venta"
+                    optionFilterProp="children"
+                    disabled={!editarVenta}
+                  >
+                    {["Minorista", "Mayorista"].map((tv, idx) => (
+                      <Option key={idx} value={tv}>
+                        {tv}
                       </Option>
                     ))}
                   </Select>

@@ -63,7 +63,7 @@ class VentasController extends Controller
                 $totalPrecioVenta += $ventaDetalleRow['cantidad'] * $ventaDetalleRow['precioUnitario'];
                 $totalCosto += $ventaDetalleRow['cantidad'] * $this->productosRepository->getProducto($ventaDetalleRow)['costo'];
                 // 2-Chequeo disponibilidad.
-                $this->productosRepository->chequearDisponibilidadStock($ventaDetalleRow);
+                $this->productosRepository->chequearDisponibilidadStock($ventaDetalleRow, false);
                 // 3- Incremento el stock reservado.
                 $this->productosRepository->incrementar($ventaDetalleRow, 'stock_reservado');
                 // 4- Guardo cada row de la reserva
@@ -107,12 +107,15 @@ class VentasController extends Controller
                     $this->cuentaRepository->updateSaldoCuenta($compradorCtaCte, $req['diferencia'], $req['diferencia'] < 0 ? 'increment' : 'decrement' );
                 }
             }
-
             $this->ventasRepository->confirmarVenta($venta);
+
+            //Grabo la comision del vendedor
+            VendedoresRepository::agregarComision($venta->toArray());
 
             //grabo el ingreso en la caja
             $this->cajaRepository->setCaja($usuario, [
                 'tipoMovimiento' => 'VENTA',
+                'tipoCaja' => $req['tipoCaja'],
                 'item_id' => $req['id'],
                 'importe' => $req['pago'],
             ]);
@@ -125,9 +128,7 @@ class VentasController extends Controller
                 $prod->decrement('stock_reservado', $value['cantidad']);
                 $prod->decrement('stock', $value['cantidad']);
             }
-            
-            //Grabo la comision del vendedor
-            VendedoresRepository::agregarComision($venta->first()->vendedor_id, $venta->first()->toArray()['vendedor_comision']);
+
             
             $this->movimientosRepository->guardarMovimiento(
                 'ventas', 'CONFIRMACION', $usuario, $req['id'], null, null, $req['diferencia'], null
@@ -148,10 +149,11 @@ class VentasController extends Controller
 
         try {
             DB::beginTransaction();
-            // $req['usuario']
             
             $totalPrecioVenta = 0;
             $cantidad = 0;
+            $totalCosto = 0;
+
             foreach ($req['filas'] as $fila) {
                 $ventaDetalle = null;
                 // La fila puede venir de 2 formas: 1, el producto como array (no fue editado esa fila), 2 el producto como int (fue editado y elegido otro)
@@ -163,9 +165,8 @@ class VentasController extends Controller
                     $fila['producto'] = $productoDetalle;
                     $ventaDetalle = $fila;
                 }
-
                 // Chequeo disponibilidad stock
-                $this->productosRepository->chequearDisponibilidadStock($ventaDetalle);
+                $this->productosRepository->chequearDisponibilidadStock($ventaDetalle, true);
 
                 if (isset($ventaDetalle['venta_id'])) {
                     //Fila de la compra inicial entonces reemplazo campos quizá editó producto, precio o cantidad
@@ -174,13 +175,13 @@ class VentasController extends Controller
                     $productoAnterior = $cargarRow->first()->toArray();
 
                     $cargarRow->update([
-                        'producto_id' => $ventaDetalle['producto_id'],
+                        'producto_id' => $ventaDetalle['producto']['id'],
                         'precio' => $ventaDetalle['precio'],
                         'cantidad' => $ventaDetalle['cantidad'],
                     ]);
 
-                    Productos::whereId($ventaDetalle['producto_id'])->decrement('stock_reservado', $productoAnterior['cantidad']);
-                    Productos::whereId($ventaDetalle['producto_id'])->increment('stock_reservado', $ventaDetalle['cantidad']);
+                    Productos::whereId($ventaDetalle['producto']['id'])->decrement('stock_reservado', $productoAnterior['cantidad']);
+                    Productos::whereId($ventaDetalle['producto']['id'])->increment('stock_reservado', $ventaDetalle['cantidad']);
                 
                 } else {
                     //Es una fila agregada por edición
@@ -195,6 +196,7 @@ class VentasController extends Controller
                 }
 
                 $totalPrecioVenta += $ventaDetalle['precio'] * $ventaDetalle['cantidad'];
+                $totalCosto += $ventaDetalle['cantidad'] * $this->productosRepository->getProducto($ventaDetalle['producto']['id'])['costo'];
                 $cantidad += $ventaDetalle['cantidad'];
             }
 
@@ -202,8 +204,11 @@ class VentasController extends Controller
                 'cliente_id' => $req['cliente'],
                 'vendedor_id' => $req['vendedor'],
                 'precio_total' => $totalPrecioVenta,
+                'tipo_venta' => $req['tipoVenta'],
                 'cantidad' => $cantidad,
-                'vendedor_comision' => $totalPrecioVenta * 0.01
+                'costo' => $totalCosto,
+                'utilidad' => $totalPrecioVenta - $totalCosto,
+                'vendedor_comision' => $req['tipoVenta'] === 'Minorista' ? $totalPrecioVenta * 0.01 : ($totalPrecioVenta - $totalCosto) * 0.1
             ]);
 
             $this->movimientosRepository->guardarMovimiento(

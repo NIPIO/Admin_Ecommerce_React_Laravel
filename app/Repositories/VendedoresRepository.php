@@ -38,8 +38,9 @@ class VendedoresRepository implements RepositoryInterface
         return $vendedor;
     }
 
-    static function agregarComision($vendedor, $comision) {
-        Vendedores::whereId($vendedor)->increment('comision', $comision);
+    static function agregarComision($venta) {
+        $comision = $venta['tipo_venta'] === 'Minorista' ? $venta['precio_total'] * 0.01 : ($venta['precio_total'] - $venta['costo']) * 0.1;
+        Vendedores::whereId($venta['vendedor_id'])->increment('comision', $comision);
     }
 
 }

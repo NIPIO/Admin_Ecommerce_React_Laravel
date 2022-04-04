@@ -59,14 +59,21 @@ class CuentasRepository implements RepositoryInterface
         $movimientos = Movimientos::where([
             'tabla' => 'cuentas_corrientes',
             'item_id' => (int) $cuentaId,
-        ])->whereIn('tipo_movimiento', ['PAGO', 'COBRO'])->orderBy('updated_at', 'DESC')->get(['diferencia', 'tipo_movimiento', 'tabla', 'updated_at'])->toArray();
+        ])->whereIn('tipo_movimiento', ['PAGO', 'COBRO'])->get(['id', 'diferencia', 'tipo_movimiento', 'tabla', 'updated_at'])->toArray();
 
         $movimientos2 = Movimientos::where([
             'tabla' => 'compras',
             'tipo_movimiento' => 'CONFIRMACION',
         ])
-        ->whereIn('item_id', $comprasIds)->orderBy('updated_at', 'DESC')->get(['diferencia', 'tipo_movimiento', 'tabla', 'updated_at'])->toArray();
+        ->whereIn('item_id', $comprasIds)->get(['id', 'diferencia', 'tipo_movimiento', 'tabla', 'updated_at'])->toArray();
+
+        $sum = array_merge($movimientos, $movimientos2);
         
-        return array_merge($movimientos, $movimientos2);
+        // Sort the array 
+        usort($sum, function ($element1, $element2) {
+            return $element1['id'] - $element2['id'];
+        } );
+
+        return $sum;
     }
 }

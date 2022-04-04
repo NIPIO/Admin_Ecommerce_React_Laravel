@@ -5,6 +5,7 @@ namespace App\Repositories;
 
 use App\Interfaces\RepositoryInterface;
 use App\Models\Productos;
+use App\Models\Ventas;
 
 class ProductosRepository implements RepositoryInterface
 {
@@ -28,7 +29,6 @@ class ProductosRepository implements RepositoryInterface
     
     public function updateGeneralProducto($producto, $req) {
         return $producto->update([
-            "nombre" => $req['nombre'],
             "marca" => $req['marca'],
             "stock" => $req['stock'],
             "costo" => $req['costo'],
@@ -48,13 +48,26 @@ class ProductosRepository implements RepositoryInterface
         Productos::whereId($compraDetalleRow['producto'])->increment($tipo, $compraDetalleRow['cantidad']);
     }
 
-    public function chequearDisponibilidadStock($ventaDetalleRow) {
+    public function chequearDisponibilidadStock($ventaDetalleRow, $esEdicion) {
         // Obtengo el producto.
         $prod = $this->getProducto($ventaDetalleRow['producto'])->toArray();
 
-        //Me fijo que no nos sobrepasemos de stock con la nueva venta.
-        if ($prod['stock'] - $prod['stock_reservado'] - (int) $ventaDetalleRow['cantidad'] < 0 ) {
-            throw new \Exception('No hay stock suficiente para el ' . $prod['nombre'] . '. Stock disponible: ' . ($prod['stock'] - $prod['stock_reservado']));
+        if ($esEdicion) {
+            //Me fijo los que ya tenía reservados esa reserva:
+            $ventaReserva = Ventas::whereId($ventaDetalleRow['venta_id'])->first()->toArray();
+
+            // Saco la diferencia entre lo reservado y lo nuevo. Si esa diferencia es mayor a lo que hay disponible, lanzo error.
+            $diferenciaReservadoYNuevo = $ventaDetalleRow['cantidad'] - $ventaReserva['cantidad'];
+            $stockDisponibleDelProducto = $prod['stock'] - $prod['stock_reservado'];
+            
+            if ($diferenciaReservadoYNuevo > $stockDisponibleDelProducto) {
+                throw new \Exception('No hay stock suficiente para el ' . $prod['nombre'] . '. Stock disponible: ' . ($prod['stock'] - $prod['stock_reservado']));
+            }
+        } else {
+            //Me fijo que no nos sobrepasemos de stock con la nueva venta.
+            if ($prod['stock'] - $prod['stock_reservado'] - (int) $ventaDetalleRow['cantidad'] < 0 ) {
+                throw new \Exception('No hay stock suficiente para el ' . $prod['nombre'] . '. Stock disponible: ' . ($prod['stock'] - $prod['stock_reservado']));
+            }
         }
     }
 }

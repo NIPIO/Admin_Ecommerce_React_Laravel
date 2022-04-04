@@ -20,6 +20,7 @@ class CreateVentasTable extends Migration
             $table->double('precio_total')->nullable();
             $table->double('costo')->default(0);
             $table->double('utilidad')->default(0);
+            $table->tinyText('tipo_venta');
             $table->double('vendedor_comision')->nullable();
             $table->integer('cantidad');
             $table->date('fecha_venta')->nullable();

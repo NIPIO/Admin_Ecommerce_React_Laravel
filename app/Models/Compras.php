@@ -28,8 +28,8 @@ class Compras extends Model
     protected $fillable = ['proveedor_id', 'cantidad', 'costo', 'fecha_compra', 'created_at', 'updated_at', 'confirmada', 'activo'];
 
     protected $casts = [
-        'created_at'  => 'datetime:d-m-Y',
-        'updated_at'  => 'datetime:d-m-Y',
+        'created_at'  => 'datetime:d-m-Y H:i',
+        'updated_at'  => 'datetime:d-m-Y H:i',
     ];
 
     /**

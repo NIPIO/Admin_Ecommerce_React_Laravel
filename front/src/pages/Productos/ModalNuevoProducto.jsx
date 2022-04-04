@@ -156,7 +156,6 @@ const ModalNuevoProducto = ({
                     }
                     parser={value => value.replace(/\$\s?|(,*)/g, "")}
                     style={{ width: "100%" }}
-                    disabled={productoEdicion}
                   />
                 </Form.Item>
               </Col>

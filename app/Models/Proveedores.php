@@ -29,8 +29,8 @@ class Proveedores extends Model
 
     
     protected $casts = [
-        'created_at'  => 'datetime:d-m-Y',
-        'updated_at'  => 'datetime:d-m-Y',
+        'created_at'  => 'datetime:d-m-Y H:i',
+        'updated_at'  => 'datetime:d-m-Y H:i',
     ];
     /**
      * Indicates if the model should be timestamped.

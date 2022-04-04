@@ -108,6 +108,21 @@ const ModalNuevaCaja = ({
                   />
                 </Form.Item>
               </Col>
+              <Col xs={24} md={24}>
+                <Form.Item name="tipoCaja" label="Tipo Caja" rules={rules}>
+                  <Select
+                    allowClear
+                    style={{ marginBottom: "3%", width: "100%" }}
+                    placeholder="Elegí la caja"
+                  >
+                    {["Pesos", "Bille"].map((caja, idx) => (
+                      <Option key={idx} value={caja}>
+                        {caja}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
               <Col xs={24}>
                 <Form.Item name="observacion" label={"Observaciones"}>
                   <TextArea rows={4} />

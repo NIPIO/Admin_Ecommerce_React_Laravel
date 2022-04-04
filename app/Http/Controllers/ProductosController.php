@@ -72,28 +72,17 @@ class ProductosController extends Controller
         try {
             $producto = Productos::whereId($req['id']);
 
-            $cambios = $camposEditadosRepository->buscarCamposEditados($producto, $req);
-            //Se revisa el editar stock de un producto que tenga ventas reservadas para que no se sobrepase.
-            if ($cambios) {
-                if ($cambios[0] === 'stock') {
-                    $productoEnCuestion = $producto->first()->toArray();
-    
-                    //Si bajó la cantidad de stock me fijo que no se pase de 0 si hay reservas
-                    if($req['stock'] < $productoEnCuestion['stock_reservado']) {
-                        return response()->json(['error' => true, 'data' => 'Hay ' . $productoEnCuestion['stock_reservado'] . ' ' . $productoEnCuestion['nombre'] . ' reservados, no podés poner menos cantidad en stock o editá las reservas.']);
-                    }
+            // Chequeo si cambió el stock y me fijo que no sea menor que el reservado
+            if ($req['stock'] <> $producto->first()->toArray()['stock']) {
+                if($req['stock'] < $producto->first()->toArray()['stock_reservado']) {
+                    return response()->json(['error' => true, 'data' => 'Hay ' . $producto->first()->toArray()['stock_reservado'] . ' ' . $producto->first()->toArray()['nombre'] . ' reservados, no podés poner menos cantidad en stock o editá las reservas.']);
                 }
-    
-                $this->productosRepository->updateGeneralProducto($producto, $req);
-    
-                if ($cambios) { //EDITÓ ALGÚN CAMPO
-                    $this->movimientosRepository->guardarMovimiento(
-                        'productos', 'MODIFICACION', $usuario, $req['id'], $cambios[1], $req[$cambios[0]], null, $cambios[0]
-                    );
-                }
-    
-                DB::commit();
             }
+
+            $this->guardarMovimiento($req, $producto->first()->toArray(), $usuario);
+            $this->productosRepository->updateGeneralProducto($producto, $req);
+    
+            DB::commit();
             
         } catch (\Throwable $e) {
             Log::error($e->getMessage() . $e->getTraceAsString());
@@ -105,4 +94,21 @@ class ProductosController extends Controller
     }
             
  
+    private function guardarMovimiento($req, $prod, $usuario) {
+        if($req['marca'] !== $prod['marca']) {
+            $this->movimientosRepository->guardarMovimiento(
+                'productos', 'MODIFICACION', $usuario, $req['id'], $prod['marca'], $req['marca'], null, 'marca'
+            );
+        }
+        if($req['stock'] !== $prod['stock']) {
+            $this->movimientosRepository->guardarMovimiento(
+                'productos', 'MODIFICACION', $usuario, $req['id'], $prod['stock'], $req['stock'], null, 'stock'
+            );
+        }
+        if($req['costo'] !== $prod['costo']) {
+            $this->movimientosRepository->guardarMovimiento(
+                'productos', 'MODIFICACION', $usuario, $req['id'], $prod['costo'], $req['costo'], null, 'costo'
+            );
+        }
+    }
 }

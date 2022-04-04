@@ -28,8 +28,8 @@ class VentasDetalle extends Model
     protected $fillable = ['venta_id', 'producto_id', 'precio', 'cantidad', 'created_at', 'updated_at'];
 
     protected $casts = [
-        'created_at'  => 'datetime:d-m-Y',
-        'updated_at'  => 'datetime:d-m-Y',
+        'created_at'  => 'datetime:d-m-Y H:i',
+        'updated_at'  => 'datetime:d-m-Y H:i',
     ];
 
     /**

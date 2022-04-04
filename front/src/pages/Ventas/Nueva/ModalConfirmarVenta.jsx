@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Container } from "shards-react";
-import { Row, Modal, Spin, Form, Col, InputNumber, Typography } from "antd";
+import {
+  Row,
+  Modal,
+  Spin,
+  Form,
+  Col,
+  InputNumber,
+  Typography,
+  Select
+} from "antd";
 import { api } from "../../../hooks/api";
 import { useQuery } from "react-query";
 import { showNotification } from "./../../notificacion";
 
+const { Option } = Select;
 const { Title } = Typography;
 
 const ModalNuevaVenta = ({ modal, setModal, id, queryClient }) => {
   const [modalAlerta, setModalAlerta] = useState(false);
+  const [tipoCaja, setTipoCaja] = useState(false);
   const [form] = Form.useForm();
 
   const confirmarVenta = () => {
@@ -26,7 +37,7 @@ const ModalNuevaVenta = ({ modal, setModal, id, queryClient }) => {
 
   const confirmaAlerta = (pago, diferencia) => {
     api
-      .confirmarVenta({ pago, id, diferencia })
+      .confirmarVenta({ pago, id, diferencia, tipoCaja })
       .then(res => {
         if (res.error) {
           showNotification("error", "Ocurrio un error", res.data);
@@ -128,24 +139,41 @@ const ModalNuevaVenta = ({ modal, setModal, id, queryClient }) => {
                   {detallesVenta.data.venta[0].precio_total}. Confirme en el
                   siguiente campo si se abonó el total o cuánto se abonó.
                 </Title>
-                <Col xs={24} md={12} style={{ margin: "auto" }}>
-                  <Form.Item
-                    name="precioFinal"
-                    style={{
-                      width: "40%",
-                      textAlign: "center",
-                      margin: "auto"
-                    }}
-                  >
-                    <InputNumber
-                      formatter={value =>
-                        `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                      }
-                      parser={value => value.replace(/\$\s?|(,*)/g, "")}
-                      style={{ width: "100%" }}
-                    />
-                  </Form.Item>
-                </Col>
+
+                <Row gutter={24}>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      name="precioFinal"
+                      style={{
+                        width: "40%",
+                        textAlign: "center",
+                        margin: "auto"
+                      }}
+                    >
+                      <InputNumber
+                        formatter={value =>
+                          `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                        parser={value => value.replace(/\$\s?|(,*)/g, "")}
+                        style={{ width: "100%" }}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <Select
+                      allowClear
+                      style={{ marginBottom: "3%", width: "100%" }}
+                      onChange={e => setTipoCaja(e)}
+                      placeholder="Elegí la caja"
+                    >
+                      {["Bille", "Pesos"].map((caja, idx) => (
+                        <Option key={idx} value={caja}>
+                          {caja}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Col>
+                </Row>
               </Form>
             </Row>
           </Row>

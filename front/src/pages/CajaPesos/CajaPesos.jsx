@@ -9,7 +9,7 @@ import { showNotification } from "../notificacion";
 import { useQueryClient } from "react-query";
 import BlogOverview from "../../views/BlogOverview";
 
-const Caja = () => {
+const CajaPesos = () => {
   //INFO TABLA:
   const columnas = [
     {
@@ -30,7 +30,11 @@ const Caja = () => {
         return {
           props: {
             style: {
-              color: record.tipo_movimiento === "GASTO" ? "red" : "lightgreen"
+              color: ["COMPRA", "PAGO", "GASTO"].includes(
+                record.tipo_movimiento
+              )
+                ? "red"
+                : "lightgreen"
             }
           },
           children: <div>$ {text.toLocaleString()}</div>
@@ -61,7 +65,8 @@ const Caja = () => {
   ];
 
   //FIN INFO TABLA.
-  const tipoMovimientoObj = ["Ingresos", "Gasto", "Venta"];
+  const tipoMovimientoObj = ["Ingresos", "Gasto"];
+
   const [busqueda, setBusqueda] = useState({
     tipoMovimiento: null,
     fechas: null
@@ -133,4 +138,4 @@ const Caja = () => {
   );
 };
 
-export default Caja;
+export default CajaPesos;

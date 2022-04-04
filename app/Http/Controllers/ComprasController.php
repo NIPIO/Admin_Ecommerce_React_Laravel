@@ -94,6 +94,7 @@ class ComprasController extends Controller
             //2- Grabo el movimiento en la caja
             $cajaRepository->setCaja($usuario, [
                 'tipoMovimiento' => 'COMPRA', 
+                'tipoCaja' => $req['tipoCaja'], 
                 'importe' => - $req['pago'],
                 'item_id' => $req['id'],
             ]);
