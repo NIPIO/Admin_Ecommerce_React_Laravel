@@ -19,6 +19,7 @@ class CreateComprasTable extends Migration
             $table->integer('cantidad')->nullable();
             $table->double('costo')->default(0);
             $table->date('fecha_compra')->nullable();
+            $table->tinyText('tipo_caja');
             $table->boolean('activo')->default(1);
             $table->boolean('confirmada')->default(0);
             $table->timestamps();

@@ -89,7 +89,7 @@ class ComprasController extends Controller
             }
 
             //1- Actualizo la compra
-            $this->comprasRepository->confirmarCompra($compra,  $req['pago']);
+            $this->comprasRepository->confirmarCompra($compra,  $req);
             
             //2- Grabo el movimiento en la caja
             $cajaRepository->setCaja($usuario, [

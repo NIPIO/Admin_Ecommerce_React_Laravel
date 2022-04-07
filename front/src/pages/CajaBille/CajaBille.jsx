@@ -65,7 +65,7 @@ const CajaBille = () => {
   ];
 
   //FIN INFO TABLA.
-  const tipoMovimientoObj = ["Ingresos", "Gasto"];
+  const tipoMovimientoObj = ["Ingresos", "Gasto", "Pago", "Cobro"];
 
   const [busqueda, setBusqueda] = useState({
     tipoMovimiento: null,
@@ -73,9 +73,10 @@ const CajaBille = () => {
   });
   const queryClient = useQueryClient();
   const [modal, setModal] = useState(false);
-  const allCaja = useCaja(busqueda);
 
-  if (allCaja.isLoading) {
+  const allCajaBille = useCaja(busqueda, "Bille");
+
+  if (allCajaBille.isLoading) {
     return (
       <Spin tip="Cargando" style={{ width: "100%", margin: "10% auto" }}></Spin>
     );
@@ -89,7 +90,12 @@ const CajaBille = () => {
           style={{ width: "100%", justifyContent: "space-between" }}
         >
           <Col span={8}>
-            <PageTitle sm="4" title="Caja" className="text-sm-left" />
+            <PageTitle
+              sm="4"
+              title="Bille"
+              subtitle="Caja"
+              className="text-sm-left"
+            />
           </Col>
           <Col span={8}>
             <Button onClick={() => setModal(true)} type="primary">
@@ -99,7 +105,7 @@ const CajaBille = () => {
         </Space>
       </Row>
       <BlogOverview
-        datosIniciales={allCaja.data.datosIniciales}
+        datosIniciales={allCajaBille.data.datosIniciales}
         mostrarColores={true}
       />
       <Row>
@@ -116,7 +122,7 @@ const CajaBille = () => {
                 rowKey="imiID"
                 columns={columnas}
                 scroll={{ x: 900, y: 450 }}
-                dataSource={allCaja.data.cajaFiltro}
+                dataSource={allCajaBille.data.cajaFiltro}
                 pagination={{
                   defaultPageSize: 10,
                   showSizeChanger: true,

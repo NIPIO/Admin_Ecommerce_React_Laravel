@@ -27,6 +27,7 @@ class ComprasRepository implements RepositoryInterface
         return Compras::create([
             'proveedor_id' => $req['proveedor'],
             'cantidad' => array_sum(array_column($req['productos'], 'cantidad')),
+            'tipo_caja' => 'Bille',
             'costo' => 0,
             'activo' => 1,
         ]);
@@ -43,9 +44,10 @@ class ComprasRepository implements RepositoryInterface
         Compras::find($id)->delete();
     }
 
-    public function confirmarCompra($compra, $pago) {
+    public function confirmarCompra($compra, $req) {
         $compra->update([
-            'costo' => $pago,
+            'costo' => $req['pago'],
+            'tipo_caja' => $req['tipoCaja'],
             'confirmada' => true,
             'fecha_compra' => Carbon::now()->format('Y-m-d'),
         ]);

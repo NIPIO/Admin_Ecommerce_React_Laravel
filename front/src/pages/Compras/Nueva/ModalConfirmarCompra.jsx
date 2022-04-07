@@ -19,7 +19,7 @@ const { Title } = Typography;
 
 const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
   const [modalAlerta, setModalAlerta] = useState(false);
-  const [tipoCaja, setTipoCaja] = useState(false);
+  const [tipoCaja, setTipoCaja] = useState("Bille");
   const [form] = Form.useForm();
 
   const confirmarCompra = () => {
@@ -178,6 +178,7 @@ const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
                       style={{ marginBottom: "3%", width: "100%" }}
                       onChange={e => setTipoCaja(e)}
                       placeholder="Elegí la caja"
+                      defaultValue={"Bille"}
                     >
                       {["Bille", "Pesos"].map((caja, idx) => (
                         <Option key={idx} value={caja}>

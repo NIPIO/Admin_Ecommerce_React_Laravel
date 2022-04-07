@@ -137,7 +137,7 @@ class SmallStats extends React.Component {
                         color:
                           Number(
                             value.replaceAll(".", "").replaceAll("$", "")
-                          ) < 0 || label == "Gastos"
+                          ) < 0 || label === "Gastos"
                             ? "red"
                             : Number(
                                 value.replaceAll(".", "").replaceAll("$", "")

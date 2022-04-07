@@ -119,12 +119,13 @@ export const api = {
       })
       .then(res => res.data),
 
-  getCaja: ({ tipoMovimiento, fechas }) =>
+  getCaja: ({ tipoMovimiento, fechas, tipo }) =>
     client
       .get(API_PORT + "/api/caja", {
         params: {
           tipoMovimiento,
-          fechas
+          fechas,
+          tipo
         }
       })
       .then(res => res.data),
@@ -144,6 +145,15 @@ export const api = {
   getHistorialCuentaCorriente: id =>
     client
       .get(API_PORT + `/api/cuentas-corrientes/${id}`, id)
+      .then(res => res.data),
+
+  getUtilidades: ({ fechas }) =>
+    client
+      .get(API_PORT + "/api/ventas/utilidades", {
+        params: {
+          fechas
+        }
+      })
       .then(res => res.data),
 
   ///SETTERS

@@ -25,7 +25,7 @@ class Ventas extends Model
     /**
      * @var array
      */
-    protected $fillable = ['cliente_id', 'vendedor_id', 'precio_total', 'costo', 'utlidad', 'tipo_venta', 'vendedor_comision', 'cantidad', 'fecha_venta', 'created_at', 'updated_at', 'confirmada', 'activo'];
+    protected $fillable = ['cliente_id', 'vendedor_id', 'precio_total', 'costo', 'utlidad', 'tipo_venta', 'tipo_caja', 'vendedor_comision', 'cantidad', 'fecha_venta', 'created_at', 'updated_at', 'confirmada', 'activo'];
 
     protected $casts = [
         'created_at'  => 'datetime:d-m-Y H:i',

@@ -84,11 +84,15 @@ export function useCuentas({ proveedor = undefined, cliente = undefined }) {
   );
 }
 
-export function useCaja({ tipoMovimiento = undefined, fechas = undefined }) {
-  return useQuery(["caja", tipoMovimiento, fechas], () =>
+export function useCaja(
+  { tipoMovimiento = undefined, fechas = undefined },
+  tipo
+) {
+  return useQuery(["caja", tipoMovimiento, fechas, tipo], () =>
     api.getCaja({
       tipoMovimiento,
-      fechas
+      fechas,
+      tipo
     })
   );
 }
@@ -123,4 +127,12 @@ export function usePermisos() {
 
 export function useCambiarEstado(tabla, id, estado, usuario) {
   return api.patchEstado(tabla, id, estado, usuario).then(res => res);
+}
+
+export function useUtilidades({ fechas = undefined }) {
+  return useQuery(["utilidades", fechas], () =>
+    api.getUtilidades({
+      fechas
+    })
+  );
 }

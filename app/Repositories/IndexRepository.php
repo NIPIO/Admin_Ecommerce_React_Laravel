@@ -58,8 +58,8 @@ class IndexRepository implements RepositoryInterface
         return $ventas;
     }
     
-    public function indexCaja($tipoMovimiento, $fechas) {
-        $caja = Caja::orderBy('id', 'DESC')->with('usuario');
+    public function indexCaja($tipoMovimiento, $fechas, $tipoCaja) {
+        $caja = Caja::where(['tipo_caja' => $tipoCaja])->orderBy('id', 'DESC')->with('usuario');
 
         if ($tipoMovimiento) {
             $caja->whereTipoMovimiento($tipoMovimiento);

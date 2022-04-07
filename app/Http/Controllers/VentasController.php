@@ -107,7 +107,7 @@ class VentasController extends Controller
                     $this->cuentaRepository->updateSaldoCuenta($compradorCtaCte, $req['diferencia'], $req['diferencia'] < 0 ? 'increment' : 'decrement' );
                 }
             }
-            $this->ventasRepository->confirmarVenta($venta);
+            $this->ventasRepository->confirmarVenta($venta, $req);
 
             //Grabo la comision del vendedor
             VendedoresRepository::agregarComision($venta->toArray());
@@ -244,5 +244,31 @@ class VentasController extends Controller
 
     public function getVenta (int $id) {
         return response()->json(['error' => false, 'venta' => Ventas::whereId($id)->with(['detalleVenta', 'detalleVenta.producto'])->get()->toArray()]);
+    }
+
+    public function getUtilidades () {
+        $arrayUtilidades2 = $this->ventasRepository->getUtilidades();
+
+        $arrayFormateo = [];
+        $utilidades = [];
+
+        $vuelta = 'Bille';
+        foreach ($arrayUtilidades2 as $arrayUtilidades) {
+            foreach ($arrayUtilidades as $mes) {
+            $arrayFormateo[(int)$mes['dia']] = $mes['total'];
+            }
+
+            for ($i=1; $i < 32; $i++) { 
+                if (!isset($arrayFormateo[$i])) {
+                    $utilidades[$vuelta][$i] = 0;
+                } else {
+                    $utilidades[$vuelta][$i] = $arrayFormateo[$i];
+                }
+            }
+
+            $vuelta = 'Pesos';
+            $arrayFormateo = [];
+        }
+        return response()->json(['error' => false, 'utilidadesPesos' => array_values($utilidades['Pesos']), 'utilidadesBille' => array_values($utilidades['Bille'])]);
     }
 }

@@ -74,13 +74,18 @@ export default function() {
         },
         {
           title: "Caja Bille",
-          htmlBefore: '<i class="material-icons">paid</i>',
+          htmlBefore: '<i class="material-icons">money</i>',
           to: "/caja-bille"
         },
+        // {
+        //   title: "Roles y permisos",
+        //   htmlBefore: '<i class="material-icons">key</i>',
+        //   to: "/roles-permisos"
+        // }
         {
-          title: "Roles y permisos",
-          htmlBefore: '<i class="material-icons">key</i>',
-          to: "/roles-permisos"
+          title: "Utilidades",
+          htmlBefore: '<i class="material-icons">add_chart</i>',
+          to: "/utilidades"
         }
       );
     }

@@ -25,7 +25,7 @@ class Compras extends Model
     /**
      * @var array
      */
-    protected $fillable = ['proveedor_id', 'cantidad', 'costo', 'fecha_compra', 'created_at', 'updated_at', 'confirmada', 'activo'];
+    protected $fillable = ['proveedor_id', 'cantidad', 'costo', 'fecha_compra', 'tipo_caja', 'created_at', 'updated_at', 'confirmada', 'activo'];
 
     protected $casts = [
         'created_at'  => 'datetime:d-m-Y H:i',

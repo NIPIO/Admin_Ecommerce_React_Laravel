@@ -24,9 +24,9 @@ class CajaController extends Controller
     }
     
     public function index() {
-        $caja = $this->indexRepository->indexCaja(request()->get('tipoMovimiento'), request()->get('fechas'));
+        $caja = $this->indexRepository->indexCaja(request()->get('tipoMovimiento'), request()->get('fechas'), request()->get('tipo'));
 
-        return response()->json(['error' => false, 'allCaja' => Caja::all(), 'cajaFiltro' => $caja->get(), 'datosIniciales' => [
+        return response()->json(['error' => false, 'allCaja' => Caja::where(['tipo_caja' => request()->get('tipo')]), 'cajaFiltro' => $caja->get(), 'datosIniciales' => [
             [
                 'label' => 'Efectivo',
                 'value' => '$' . number_format(Caja::whereTipoMovimiento('VENTA')->sum('importe'),0,",",".")

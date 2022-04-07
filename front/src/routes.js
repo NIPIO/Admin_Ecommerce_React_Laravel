@@ -17,7 +17,8 @@ import General from "./pages/General/General";
 import Ventas from "./pages/Ventas/Ventas";
 import Compras from "./pages/Compras/Compras";
 import Login from "./pages/Login/Login";
-import RolesPermisos from "./pages/RolesPermisos/RolesPermisos";
+// import RolesPermisos from "./pages/RolesPermisos/RolesPermisos";
+import Utlidades from "./pages/Utlidades/Utlidades";
 
 export default [
   {
@@ -87,10 +88,16 @@ export default [
     component: Login
   },
   {
-    path: "/roles-permisos",
+    path: "/utilidades",
     layout: DefaultLayout,
-    component: RolesPermisos
+    component: Utlidades
   }
+  // {
+  //   path: "/roles-permisos",
+  //   layout: DefaultLayout,
+  //   component: RolesPermisos
+  // }
+
   // {
   //   path: "/blog-overview",
   //   layout: DefaultLayout,

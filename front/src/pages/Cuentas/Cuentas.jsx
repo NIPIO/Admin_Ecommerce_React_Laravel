@@ -1,9 +1,4 @@
-import {
-  useCuentas,
-  useProveedores,
-  useClientes,
-  useHistorialCuentaCorriente
-} from "../../hooks/apiCalls";
+import { useCuentas, useProveedores, useClientes } from "../../hooks/apiCalls";
 import React, { useState } from "react";
 import { Container, Card, CardHeader, CardBody } from "shards-react";
 import { Table, Space, Spin, Row, Col, Button, Switch } from "antd";

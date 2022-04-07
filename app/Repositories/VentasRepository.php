@@ -28,6 +28,7 @@ class VentasRepository implements RepositoryInterface
             'cantidad' => array_sum(array_column($req['filas'], 'cantidad')),
             'precio_total' => 0,
             'tipo_venta' => $req['tipoVenta'],
+            'tipo_caja' => 'Bille',
             'costo' => 0,
             'activo' => 1,
             'fecha_venta' => Carbon::now()->format('Y-m-d'),
@@ -47,11 +48,36 @@ class VentasRepository implements RepositoryInterface
         return Ventas::where('confirmada', true)->get();
     }
 
-    public function confirmarVenta($venta) {
+    public function confirmarVenta($venta, $req) {
         $venta->update([
-            'confirmada' => true
+            'confirmada' => true,
+            'tipo_caja' => $req['tipoCaja'],
         ]);
     }
+
+    public function getUtilidades() {
+
+            $ventasBille = Ventas::where('confirmada',true)
+            ->where('tipo_caja', 'Bille')
+            ->selectRaw("SUM(utilidad) as total")
+            ->selectRaw("DATE_FORMAT(fecha_venta, '%d') as dia")
+            ->groupBy('fecha_venta')
+            ->get()
+            ->toArray();
+    
+            $ventasPesos = Ventas::where('confirmada',true)
+            ->where('tipo_caja', 'Pesos')
+            ->selectRaw("SUM(utilidad) as total")
+            ->selectRaw("DATE_FORMAT(fecha_venta, '%d') as dia")
+            ->groupBy('fecha_venta')
+            ->get(['utilidad', 'fecha_venta'])
+            ->toArray();
+            
+            return [$ventasBille, $ventasPesos];
+
+    }
+
+    
 }
 
 

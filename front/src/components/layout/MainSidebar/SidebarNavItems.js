@@ -37,13 +37,9 @@ class SidebarNavItems extends React.Component {
         <Nav className="nav--no-borders flex-column">
           {items.map((item, idx) => {
             if (
-              [
-                "General",
-                "Marcas",
-                "Vendedores",
-                "Compras",
-                "Caja Bille"
-              ].includes(item.title)
+              ["General", "Marcas", "Vendedores", "Compras"].includes(
+                item.title
+              )
             ) {
               return (
                 <div key={idx}>
