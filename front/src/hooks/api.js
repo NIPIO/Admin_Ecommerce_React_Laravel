@@ -147,11 +147,11 @@ export const api = {
       .get(API_PORT + `/api/cuentas-corrientes/${id}`, id)
       .then(res => res.data),
 
-  getUtilidades: ({ fechas }) =>
+  getUtilidades: ({ mes }) =>
     client
       .get(API_PORT + "/api/ventas/utilidades", {
         params: {
-          fechas
+          mes
         }
       })
       .then(res => res.data),
@@ -167,13 +167,14 @@ export const api = {
       .post(API_PORT + "/api/marca", { data, usuario: getUsuario() })
       .then(res => res.data),
 
-  setNuevaVenta: (filas, cliente, vendedor, tipoVenta) =>
+  setNuevaVenta: (filas, cliente, vendedor, tipoVenta, tipoStock) =>
     client
       .post(API_PORT + "/api/venta", {
         filas,
         cliente,
         vendedor,
         tipoVenta,
+        tipoStock,
         usuario: getUsuario()
       })
       .then(res => res.data),
@@ -275,7 +276,7 @@ export const api = {
       })
       .then(res => res.data),
 
-  putVenta: (id, filas, cliente, vendedor, tipoVenta) =>
+  putVenta: (id, filas, cliente, vendedor, tipoVenta, tipoStock) =>
     client
       .put(API_PORT + `/api/venta/${id}`, {
         id,
@@ -283,6 +284,7 @@ export const api = {
         cliente,
         vendedor,
         tipoVenta,
+        tipoStock,
         usuario: getUsuario()
       })
       .then(res => res.data),

@@ -28,7 +28,6 @@ class IndexRepository implements RepositoryInterface
         $estado = isset($req['estado']) ? $req['estado'] : null;
         
         $ventas = Ventas::orderBy('id', 'DESC')->with(['cliente', 'vendedor']);
-
         if ($cliente) {
             $ventas->whereClienteId((int) $cliente);
         }

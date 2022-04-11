@@ -63,9 +63,9 @@ class VentasController extends Controller
                 $totalPrecioVenta += $ventaDetalleRow['cantidad'] * $ventaDetalleRow['precioUnitario'];
                 $totalCosto += $ventaDetalleRow['cantidad'] * $this->productosRepository->getProducto($ventaDetalleRow)['costo'];
                 // 2-Chequeo disponibilidad.
-                $this->productosRepository->chequearDisponibilidadStock($ventaDetalleRow, false);
+                $this->productosRepository->chequearDisponibilidadStock($ventaDetalleRow, false, $req['tipoStock']);
                 // 3- Incremento el stock reservado.
-                $this->productosRepository->incrementar($ventaDetalleRow, 'stock_reservado');
+                $this->productosRepository->incrementar($ventaDetalleRow, $req['tipoStock'] === 'Fisico' ? 'stock_reservado' : 'en_transito_reservado');
                 // 4- Guardo cada row de la reserva
                 $this->ventasDetalleRepository->setVentaDetalle($venta, $ventaDetalleRow);
             }
@@ -94,7 +94,12 @@ class VentasController extends Controller
 
             //Obtengo la reserva
             $venta = $this->ventasRepository->getVenta($req['id']);
+
             $compradorId = $venta->first()->proveedor_id;
+
+            if ($venta['tipo_stock'] === 'En transito') {
+                return response()->json(['error' => true, 'data' => 'No se puede confirmar una venta con productos en transito. Corrobore si llegaron y edite la venta a tipo stock: Fisico']);
+            }
 
             if ($req['diferencia'] <> 0) {
                 // Si tiene diferencia la compra, actualizo el estado de la cuenta corriente.
@@ -154,6 +159,10 @@ class VentasController extends Controller
             $cantidad = 0;
             $totalCosto = 0;
 
+            $venta = Ventas::whereId($req['id'])->first();
+
+            $cambioElTipoStock = $venta['tipo_stock'] !== $req['tipoStock'];
+
             foreach ($req['filas'] as $fila) {
                 $ventaDetalle = null;
                 // La fila puede venir de 2 formas: 1, el producto como array (no fue editado esa fila), 2 el producto como int (fue editado y elegido otro)
@@ -166,7 +175,7 @@ class VentasController extends Controller
                     $ventaDetalle = $fila;
                 }
                 // Chequeo disponibilidad stock
-                $this->productosRepository->chequearDisponibilidadStock($ventaDetalle, true);
+                $this->productosRepository->chequearDisponibilidadStock($ventaDetalle, true, $req['tipoStock']);
 
                 if (isset($ventaDetalle['venta_id'])) {
                     //Fila de la compra inicial entonces reemplazo campos quizá editó producto, precio o cantidad
@@ -180,8 +189,14 @@ class VentasController extends Controller
                         'cantidad' => $ventaDetalle['cantidad'],
                     ]);
 
-                    Productos::whereId($ventaDetalle['producto']['id'])->decrement('stock_reservado', $productoAnterior['cantidad']);
-                    Productos::whereId($ventaDetalle['producto']['id'])->increment('stock_reservado', $ventaDetalle['cantidad']);
+                    if ($cambioElTipoStock) {
+                        //Si hay un cambio de stock, tengo que poner el stock que tenía reservado (por ej fisico) a entransito_reservado y viceversa.
+                        Productos::whereId($ventaDetalle['producto']['id'])->decrement($req['tipoStock'] === 'Fisico' ? 'en_transito_reservado' : 'stock_reservado', $productoAnterior['cantidad']);
+                        Productos::whereId($ventaDetalle['producto']['id'])->increment($req['tipoStock'] === 'Fisico' ? 'stock_reservado' : 'en_transito_reservado', $productoAnterior['cantidad']);
+                    } 
+
+                    Productos::whereId($ventaDetalle['producto']['id'])->decrement($req['tipoStock'] === 'Fisico' ? 'stock_reservado' : 'en_transito_reservado', $productoAnterior['cantidad']);
+                    Productos::whereId($ventaDetalle['producto']['id'])->increment($req['tipoStock'] === 'Fisico' ? 'stock_reservado' : 'en_transito_reservado', $ventaDetalle['cantidad']);
                 
                 } else {
                     //Es una fila agregada por edición
@@ -192,7 +207,7 @@ class VentasController extends Controller
                         'cantidad' => $ventaDetalle['cantidad'],
                     ]);
 
-                    Productos::whereId($ventaDetalle['producto']['id'])->increment('stock_reservado', $ventaDetalle['cantidad']);
+                    Productos::whereId($ventaDetalle['producto']['id'])->increment($req['tipoStock'] === 'Fisico' ? 'stock_reservado' : 'en_transito_reservado', $ventaDetalle['cantidad']);
                 }
 
                 $totalPrecioVenta += $ventaDetalle['precio'] * $ventaDetalle['cantidad'];
@@ -205,6 +220,7 @@ class VentasController extends Controller
                 'vendedor_id' => $req['vendedor'],
                 'precio_total' => $totalPrecioVenta,
                 'tipo_venta' => $req['tipoVenta'],
+                'tipo_stock' => $req['tipoStock'],
                 'cantidad' => $cantidad,
                 'costo' => $totalCosto,
                 'utilidad' => $totalPrecioVenta - $totalCosto,
@@ -246,8 +262,8 @@ class VentasController extends Controller
         return response()->json(['error' => false, 'venta' => Ventas::whereId($id)->with(['detalleVenta', 'detalleVenta.producto'])->get()->toArray()]);
     }
 
-    public function getUtilidades () {
-        $arrayUtilidades2 = $this->ventasRepository->getUtilidades();
+    public function getUtilidades (Request $request) {
+        $arrayUtilidades2 = $this->ventasRepository->getUtilidades($request->get('mes'));
 
         $arrayFormateo = [];
         $utilidades = [];
@@ -269,6 +285,10 @@ class VentasController extends Controller
             $vuelta = 'Pesos';
             $arrayFormateo = [];
         }
-        return response()->json(['error' => false, 'utilidadesPesos' => array_values($utilidades['Pesos']), 'utilidadesBille' => array_values($utilidades['Bille'])]);
+
+        $arrayBille = array_values($utilidades['Bille']);
+        $arrayPesos = array_values($utilidades['Pesos']);
+        
+        return response()->json(['error' => false, 'utilidadesPesos' => $arrayBille, 'utilidadesBille' => $arrayPesos]);
     }
 }

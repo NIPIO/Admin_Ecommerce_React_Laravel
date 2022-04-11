@@ -18,7 +18,7 @@ import Ventas from "./pages/Ventas/Ventas";
 import Compras from "./pages/Compras/Compras";
 import Login from "./pages/Login/Login";
 // import RolesPermisos from "./pages/RolesPermisos/RolesPermisos";
-import Utlidades from "./pages/Utlidades/Utlidades";
+import Utilidades from "./pages/Utilidades/Utilidades";
 
 export default [
   {
@@ -90,7 +90,7 @@ export default [
   {
     path: "/utilidades",
     layout: DefaultLayout,
-    component: Utlidades
+    component: Utilidades
   }
   // {
   //   path: "/roles-permisos",

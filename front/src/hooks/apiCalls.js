@@ -128,11 +128,3 @@ export function usePermisos() {
 export function useCambiarEstado(tabla, id, estado, usuario) {
   return api.patchEstado(tabla, id, estado, usuario).then(res => res);
 }
-
-export function useUtilidades({ fechas = undefined }) {
-  return useQuery(["utilidades", fechas], () =>
-    api.getUtilidades({
-      fechas
-    })
-  );
-}

@@ -27,6 +27,7 @@ const ModalVerEditarVenta = ({
   const [cliente, setCliente] = useState(false);
   const [vendedor, setVendedor] = useState(false);
   const [tipoVenta, setTipoVenta] = useState(false);
+  const [tipoStock, setTipoStock] = useState(false);
 
   const onCreate = () => {
     if (filas.length < 1 || !cliente || !vendedor) {
@@ -44,7 +45,7 @@ const ModalVerEditarVenta = ({
     } else {
       setError(false);
       api
-        .putVenta(verVenta.id, filas, cliente, vendedor, tipoVenta)
+        .putVenta(verVenta.id, filas, cliente, vendedor, tipoVenta, tipoStock)
         .then(res => {
           if (res.error) {
             showNotification("error", "Ocurrio un error", res.data);
@@ -78,12 +79,14 @@ const ModalVerEditarVenta = ({
       form.setFieldsValue({
         cliente: res.venta[0].cliente_id,
         vendedor: res.venta[0].vendedor_id,
-        tipoVenta: res.venta[0].tipo_venta
+        tipoVenta: res.venta[0].tipo_venta,
+        tipoStock: res.venta[0].tipo_stock
       });
       setMostrarDetalles(true);
       setCliente(res.venta[0].cliente_id);
       setVendedor(res.venta[0].vendedor_id);
       setTipoVenta(res.venta[0].tipo_venta);
+      setTipoStock(res.venta[0].tipo_stock);
       setFilas(res.venta[0].detalle_venta);
     });
   }, [modal]);
@@ -110,7 +113,7 @@ const ModalVerEditarVenta = ({
         >
           <Form form={form} layout="vertical" name="form_in_modal">
             <Row gutter={24}>
-              <Col xs={24} md={8}>
+              <Col xs={24} md={7}>
                 <Form.Item name="cliente" label="Cliente">
                   <Select
                     showSearch
@@ -142,7 +145,7 @@ const ModalVerEditarVenta = ({
                   </Select>
                 </Form.Item>
               </Col>
-              <Col xs={24} md={8}>
+              <Col xs={24} md={7}>
                 <Form.Item name="vendedor" label="Vendedor">
                   <Select
                     showSearch
@@ -174,7 +177,8 @@ const ModalVerEditarVenta = ({
                   </Select>
                 </Form.Item>
               </Col>
-              <Col xs={24} md={8}>
+
+              <Col xs={24} md={5}>
                 <Form.Item name="tipoVenta" label="Tipo Venta">
                   <Select
                     style={{ marginBottom: "3%", width: "100%" }}
@@ -189,6 +193,26 @@ const ModalVerEditarVenta = ({
                     {["Minorista", "Mayorista"].map((tv, idx) => (
                       <Option key={idx} value={tv}>
                         {tv}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={5}>
+                <Form.Item name="tipoStock" label="Tipo Stock">
+                  <Select
+                    style={{ marginBottom: "3%", width: "100%" }}
+                    onChange={e => {
+                      setTipoStock(e);
+                      setError(false);
+                    }}
+                    placeholder="Elegí el tipo de stock"
+                    optionFilterProp="children"
+                    disabled={!editarVenta}
+                  >
+                    {["Fisico", "En transito"].map((ts, idx) => (
+                      <Option key={idx} value={ts}>
+                        {ts}
                       </Option>
                     ))}
                   </Select>

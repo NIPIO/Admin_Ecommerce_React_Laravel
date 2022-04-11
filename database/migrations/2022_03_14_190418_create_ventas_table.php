@@ -21,6 +21,7 @@ class CreateVentasTable extends Migration
             $table->double('costo')->default(0);
             $table->double('utilidad')->default(0);
             $table->tinyText('tipo_venta');
+            $table->tinyText('tipo_stock');
             $table->tinyText('tipo_caja');
             $table->double('vendedor_comision')->nullable();
             $table->integer('cantidad');

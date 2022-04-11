@@ -21,6 +21,7 @@ const ModalNuevaVenta = ({
   const [cliente, setCliente] = useState(false);
   const [vendedor, setVendedor] = useState(false);
   const [tipoVenta, setTipoVenta] = useState(false);
+  const [tipoStock, setTipoStock] = useState(false);
 
   const onCreate = (filas, cliente) => {
     if (filas.length < 1 || !cliente || !vendedor) {
@@ -38,7 +39,7 @@ const ModalNuevaVenta = ({
     } else {
       setError(false);
       api
-        .setNuevaVenta(filas, cliente, vendedor, tipoVenta)
+        .setNuevaVenta(filas, cliente, vendedor, tipoVenta, tipoStock)
         .then(res => {
           if (res.error) {
             showNotification("error", "Ocurrio un error", res.data);
@@ -72,7 +73,7 @@ const ModalNuevaVenta = ({
         >
           <Form layout="vertical" name="form_in_modal">
             <Row gutter={24}>
-              <Col xs={24} md={8}>
+              <Col xs={24} md={7}>
                 <Form.Item name="cliente" label="Cliente">
                   <Select
                     showSearch
@@ -103,7 +104,7 @@ const ModalNuevaVenta = ({
                   </Select>
                 </Form.Item>
               </Col>
-              <Col xs={24} md={8}>
+              <Col xs={24} md={7}>
                 <Form.Item name="vendedor" label="Vendedor">
                   <Select
                     showSearch
@@ -135,7 +136,7 @@ const ModalNuevaVenta = ({
                 </Form.Item>
               </Col>
 
-              <Col xs={24} md={8}>
+              <Col xs={24} md={5}>
                 <Form.Item name="tipoVenta" label="Tipo Venta">
                   <Select
                     style={{ marginBottom: "3%", width: "100%" }}
@@ -154,9 +155,29 @@ const ModalNuevaVenta = ({
                   </Select>
                 </Form.Item>
               </Col>
+
+              <Col xs={24} md={5}>
+                <Form.Item name="tipoStock" label="Tipo Stock">
+                  <Select
+                    style={{ marginBottom: "3%", width: "100%" }}
+                    onChange={e => {
+                      setTipoStock(e);
+                      setError(false);
+                    }}
+                    placeholder="Elegí el tipo de stock"
+                    optionFilterProp="children"
+                  >
+                    {["Fisico", "En transito"].map((ts, idx) => (
+                      <Option key={idx} value={ts}>
+                        {ts}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
             </Row>
             <Row gutter={24}>
-              {cliente && vendedor && tipoVenta && (
+              {cliente && vendedor && tipoVenta && tipoStock && (
                 <TablaItemsVenta
                   setError={setError}
                   filas={filas}

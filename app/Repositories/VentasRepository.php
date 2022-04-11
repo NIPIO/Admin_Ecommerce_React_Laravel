@@ -28,6 +28,7 @@ class VentasRepository implements RepositoryInterface
             'cantidad' => array_sum(array_column($req['filas'], 'cantidad')),
             'precio_total' => 0,
             'tipo_venta' => $req['tipoVenta'],
+            'tipo_stock' => $req['tipoStock'],
             'tipo_caja' => 'Bille',
             'costo' => 0,
             'activo' => 1,
@@ -55,13 +56,14 @@ class VentasRepository implements RepositoryInterface
         ]);
     }
 
-    public function getUtilidades() {
+    public function getUtilidades(int $mes) {
 
             $ventasBille = Ventas::where('confirmada',true)
             ->where('tipo_caja', 'Bille')
             ->selectRaw("SUM(utilidad) as total")
             ->selectRaw("DATE_FORMAT(fecha_venta, '%d') as dia")
             ->groupBy('fecha_venta')
+            ->whereMonth('fecha_venta', $mes)
             ->get()
             ->toArray();
     
@@ -70,7 +72,8 @@ class VentasRepository implements RepositoryInterface
             ->selectRaw("SUM(utilidad) as total")
             ->selectRaw("DATE_FORMAT(fecha_venta, '%d') as dia")
             ->groupBy('fecha_venta')
-            ->get(['utilidad', 'fecha_venta'])
+            ->whereMonth('fecha_venta', $mes)
+            ->get()
             ->toArray();
             
             return [$ventasBille, $ventasPesos];

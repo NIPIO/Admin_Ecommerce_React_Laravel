@@ -44,6 +44,12 @@ const Ventas = () => {
       sorter: (a, b) => a.precio_total - b.precio_total
     },
     {
+      title: "Stock",
+      dataIndex: ["tipo_stock"],
+      render: text => text,
+      sorter: (a, b) => a.tipo_stock - b.tipo_stock
+    },
+    {
       title: "Costo",
       dataIndex: ["costo"],
       render: text => `$ ${text.toLocaleString()}`,
