@@ -24,7 +24,6 @@ class CajaController extends Controller
     }
     
     public function index() {
-        dd('a');
         $caja = $this->indexRepository->indexCaja(request()->get('tipoMovimiento'), request()->get('fechas'), request()->get('tipo'));
 
         return response()->json(['error' => false, 'allCaja' => Caja::where(['tipo_caja' => request()->get('tipo')]), 'cajaFiltro' => $caja->get(), 'datosIniciales' => [
