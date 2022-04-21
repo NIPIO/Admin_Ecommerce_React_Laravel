@@ -53,6 +53,7 @@ class VentasRepository implements RepositoryInterface
         $venta->update([
             'confirmada' => true,
             'tipo_caja' => $req['tipoCaja'],
+            'fecha_venta' => Carbon::now(),
         ]);
     }
 

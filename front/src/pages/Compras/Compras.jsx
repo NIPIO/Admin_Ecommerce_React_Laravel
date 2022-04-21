@@ -32,7 +32,7 @@ const Compras = () => {
     },
     {
       title: "Fecha",
-      dataIndex: ["created_at"],
+      dataIndex: ["fecha_compra"],
       render: text => text
     },
     {
