@@ -29,15 +29,15 @@ class CajaController extends Controller
         return response()->json(['error' => false, 'allCaja' => Caja::where(['tipo_caja' => request()->get('tipo')]), 'cajaFiltro' => $caja->get(), 'datosIniciales' => [
             [
                 'label' => 'Efectivo',
-                'value' => '$' . number_format(Caja::whereTipoMovimiento('VENTA')->sum('importe'),0,",",".")
+                'value' => '$' . number_format(Caja::whereTipoMovimiento('VENTA')->where('tipo_caja', request()->get('tipo'))->sum('importe'),0,",",".")
             ], 
             [
                 'label' => 'Ingresos',
-                'value' => '$' . number_format(Caja::whereTipoMovimiento('INGRESOS')->sum('importe'),0,",",".")
+                'value' => '$' . number_format(Caja::whereTipoMovimiento('INGRESOS')->where('tipo_caja', request()->get('tipo'))->sum('importe'),0,",",".")
             ],
             [
                 'label' => 'Gastos',
-                'value' => '$' . number_format(Caja::whereTipoMovimiento('GASTO')->sum('importe'),0,",",".")
+                'value' => '$' . number_format(Caja::whereTipoMovimiento('GASTO')->where('tipo_caja', request()->get('tipo'))->sum('importe'),0,",",".")
             ],
            
         ]]);

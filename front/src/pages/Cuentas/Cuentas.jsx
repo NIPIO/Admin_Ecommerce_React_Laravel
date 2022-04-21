@@ -44,28 +44,28 @@ const Cuentas = () => {
       },
       sorter: (a, b) => a.precio - b.precio
     },
-    {
-      title: "Estado",
-      dataIndex: ["activo"],
-      render: (text, row) => (
-        <Space>
-          <Switch
-            checked={text}
-            onChange={() =>
-              toggleEstado(
-                "cuentas_corrientes",
-                "cuentas",
-                row.id,
-                text,
-                queryClient
-              )
-            }
-            checkedChildren={"Activo"}
-            unCheckedChildren={"Inactivo"}
-          />
-        </Space>
-      )
-    },
+    // {
+    //   title: "Estado",
+    //   dataIndex: ["activo"],
+    //   render: (text, row) => (
+    //     <Space>
+    //       <Switch
+    //         checked={text}
+    //         onChange={() =>
+    //           toggleEstado(
+    //             "cuentas_corrientes",
+    //             "cuentas",
+    //             row.id,
+    //             text,
+    //             queryClient
+    //           )
+    //         }
+    //         checkedChildren={"Activo"}
+    //         unCheckedChildren={"Inactivo"}
+    //       />
+    //     </Space>
+    //   )
+    // },
     {
       title: "Acciones",
       key: "action",

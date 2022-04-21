@@ -32,7 +32,7 @@ class VentasRepository implements RepositoryInterface
             'tipo_caja' => 'Bille',
             'costo' => 0,
             'activo' => 1,
-            'fecha_venta' => Carbon::now()->format('Y-m-d'),
+            'fecha_venta' => Carbon::now(),
         ]);
     }
 

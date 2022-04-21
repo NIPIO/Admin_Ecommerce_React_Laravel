@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Container } from "shards-react";
 import { Space, Spin, Row, Col, DatePicker } from "antd";
 import PageTitle from "../../components/common/PageTitle";

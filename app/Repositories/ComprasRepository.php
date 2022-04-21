@@ -49,7 +49,7 @@ class ComprasRepository implements RepositoryInterface
             'costo' => $req['pago'],
             'tipo_caja' => $req['tipoCaja'],
             'confirmada' => true,
-            'fecha_compra' => Carbon::now()->format('Y-m-d'),
+            'fecha_compra' => Carbon::now(),
         ]);
 
         // // Updateo el costo del producto

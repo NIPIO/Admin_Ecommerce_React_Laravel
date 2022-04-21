@@ -28,6 +28,7 @@ const ModalNuevaCaja = ({
   };
 
   const onCreate = values => {
+    values.tipoCaja = "Pesos";
     api
       .setNuevaCaja(values)
       .then(res => {
@@ -108,7 +109,7 @@ const ModalNuevaCaja = ({
                   />
                 </Form.Item>
               </Col>
-              <Col xs={24} md={24}>
+              {/* <Col xs={24} md={24}>
                 <Form.Item name="tipoCaja" label="Tipo Caja" rules={rules}>
                   <Select
                     allowClear
@@ -122,7 +123,7 @@ const ModalNuevaCaja = ({
                     ))}
                   </Select>
                 </Form.Item>
-              </Col>
+              </Col> */}
               <Col xs={24}>
                 <Form.Item name="observacion" label={"Observaciones"}>
                   <TextArea rows={4} />

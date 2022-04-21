@@ -30,7 +30,7 @@ class Ventas extends Model
     protected $casts = [
         'created_at'  => 'datetime:d-m-Y H:i',
         'updated_at'  => 'datetime:d-m-Y H:i',
-        'fecha_compra'  => 'datetime:d-m-Y H:i',
+        'fecha_venta'  => 'datetime:d-m-Y H:i',
     ];
 
     /**

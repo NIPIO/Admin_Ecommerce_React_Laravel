@@ -1,6 +1,6 @@
 import React from "react";
 // import PropTypes from "prop-types";
-import { Row, Col, Card, CardHeader, CardBody } from "shards-react";
+import { Row, Col, Card, CardBody } from "shards-react";
 
 // import RangeDatePicker from "../components/common/RangeDatePicker";
 import Chart from "../utils/chart";
@@ -187,7 +187,7 @@ class UtilidadesOverview extends React.Component {
   }
 
   render() {
-    const { title } = this.props;
+    // const { title } = this.props;
     return (
       <Card small className="h-100">
         {/* <CardHeader className="border-bottom">
