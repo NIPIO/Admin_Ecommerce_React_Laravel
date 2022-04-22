@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Container } from "shards-react";
-import { Form, Row, Modal, Select, InputNumber, Col, Radio } from "antd";
+import {
+  Form,
+  Row,
+  Modal,
+  Select,
+  InputNumber,
+  Col,
+  Radio,
+  Button
+} from "antd";
 
 import { api } from "./../../hooks/api";
 const { Option } = Select;
@@ -18,6 +27,7 @@ const ModalNuevaCuenta = ({
   const [form] = Form.useForm();
   const [tipoCuenta, setTipoCuenta] = useState();
   const [tipoCaja, setTipoCaja] = useState();
+  const [loading, setLoading] = useState(false);
 
   let rules = [
     {
@@ -34,6 +44,8 @@ const ModalNuevaCuenta = ({
   };
 
   const onCreate = values => {
+    setLoading(true);
+
     if (cuentaEdicion) {
       values.id = cuentaEdicion.id;
       values.tipoMovimiento = cuentaEdicion.mov;
@@ -60,7 +72,8 @@ const ModalNuevaCuenta = ({
             "Ocurrio un error",
             err.response.data.message
           );
-        });
+        })
+        .finally(() => setLoading(false));
     } else {
       values.tipoCuenta = tipoCuenta;
       api
@@ -81,7 +94,8 @@ const ModalNuevaCuenta = ({
             "Ocurrio un error",
             err.response.data.message
           );
-        });
+        })
+        .finally(() => setLoading(false));
     }
   };
 
@@ -103,21 +117,28 @@ const ModalNuevaCuenta = ({
           title={
             cuentaEdicion ? `Generar ${cuentaEdicion.mov}` : "Nueva Cuenta"
           }
-          okText={
-            cuentaEdicion ? `Generar ${cuentaEdicion.mov}` : "Crear Cuenta"
-          }
-          cancelText="Cancelar"
-          onCancel={() => onReset()}
-          onOk={() => {
-            form
-              .validateFields()
-              .then(values => {
-                onCreate(values);
-              })
-              .catch(info => {
-                console.log("Validate Failed:", info);
-              });
-          }}
+          footer={[
+            <Button key="back" onClick={() => onReset()}>
+              Cancelar
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={loading}
+              onClick={() =>
+                form
+                  .validateFields()
+                  .then(values => {
+                    onCreate(values);
+                  })
+                  .catch(info => {
+                    console.log("Validate Failed:", info);
+                  })
+              }
+            >
+              {cuentaEdicion ? `Generar ${cuentaEdicion.mov}` : "Crear Cuenta"}
+            </Button>
+          ]}
         >
           {/* GENERA PAGO O COBRO */}
           {cuentaEdicion.mov ? (

@@ -118,7 +118,7 @@ const Clientes = () => {
                 scroll={{ x: 900, y: 450 }}
                 dataSource={allClientes.data.clientesFiltro}
                 pagination={{
-                  defaultPageSize: 10,
+                  defaultPageSize: 50,
                   showSizeChanger: true,
                   pageSizeOptions: ["5", "10", "15", "20", "30", "50"]
                 }}

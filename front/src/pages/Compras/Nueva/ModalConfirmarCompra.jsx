@@ -8,7 +8,8 @@ import {
   Col,
   InputNumber,
   Typography,
-  Select
+  Select,
+  Button
 } from "antd";
 import { api } from "../../../hooks/api";
 import { useQuery } from "react-query";
@@ -20,6 +21,7 @@ const { Title } = Typography;
 const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
   const [modalAlerta, setModalAlerta] = useState(false);
   const [tipoCaja, setTipoCaja] = useState("Bille");
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
   const confirmarCompra = () => {
@@ -36,6 +38,8 @@ const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
   };
 
   const confirmaAlerta = (pago, diferencia) => {
+    setLoading(true);
+
     api
       .confirmarCompra({ pago, id, diferencia, tipoCaja })
       .then(res => {
@@ -50,7 +54,8 @@ const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
       })
       .catch(err =>
         showNotification("error", "Ocurrio un error", err.response.data.message)
-      );
+      )
+      .finally(() => setLoading(false));
   };
 
   const detallesCompra = useQuery(["compraId", id, modal], () => {
@@ -78,10 +83,19 @@ const ModalConfirmarCompra = ({ modal, setModal, id, queryClient }) => {
           width={800}
           visible={modal}
           title={"Confirmar compra"}
-          okText={"Confirmar"}
-          cancelText="Cancelar"
-          onCancel={() => setModal(false)}
-          onOk={() => confirmarCompra()}
+          footer={[
+            <Button key="back" onClick={() => setModal(false)}>
+              Cancelar
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={loading}
+              onClick={() => confirmarCompra()}
+            >
+              Confirmar
+            </Button>
+          ]}
         >
           <Row>
             Según la compra cargada, estos son los productos que deberían haber

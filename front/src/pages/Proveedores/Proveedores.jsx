@@ -116,7 +116,7 @@ const Proveedores = () => {
                 scroll={{ x: 700, y: 450 }}
                 dataSource={allProveedores.data.proveedoresFiltro}
                 pagination={{
-                  defaultPageSize: 10,
+                  defaultPageSize: 50,
                   showSizeChanger: true,
                   pageSizeOptions: ["5", "10", "15", "20", "30", "50"]
                 }}

@@ -482,8 +482,6 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id`, `nombre`, `marca`, `costo`, `stock`, `stock_reservado`, `en_transito`, `en_transito_reservado`, `created_at`, `updated_at`, `activo`) VALUES
-(1, 'J7', 1, 200, 10, 2, 0, 0, '2022-04-11 18:24:19', '2022-04-20 13:47:22', 1),
-(2, 'J8', 1, 150, 10, 0, 0, 0, '2022-04-11 18:24:19', '2022-04-11 18:24:19', 1),
 (3, 'IP 11 64 BLACK', 2, 592, 13, 0, 0, 0, '2022-04-20 13:51:24', '2022-04-20 14:21:10', 1),
 (4, 'IP 11 64 WHITE', 2, 592, 3, 0, 0, 0, '2022-04-20 14:03:14', '2022-04-20 14:27:30', 1),
 (5, 'IP 11 64 RED', 2, 0, 0, 0, 0, 0, '2022-04-20 14:03:46', '2022-04-20 14:03:46', 1),
@@ -649,9 +647,6 @@ CREATE TABLE `ventas` (
 -- Volcado de datos para la tabla `ventas`
 --
 
-INSERT INTO `ventas` (`id`, `cliente_id`, `vendedor_id`, `precio_total`, `costo`, `utilidad`, `tipo_venta`, `tipo_stock`, `tipo_caja`, `vendedor_comision`, `cantidad`, `fecha_venta`, `activo`, `confirmada`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 250, 200, 50, 'Minorista', 'Fisico', 'Bille', 2.5, 1, '2022-04-20', 1, 0, '2022-04-20 13:47:20', '2022-04-20 13:47:20'),
-(2, 1, 1, 250, 200, 50, 'Minorista', 'Fisico', 'Bille', 2.5, 1, '2022-04-20', 1, 0, '2022-04-20 13:47:22', '2022-04-20 13:47:22');
 
 -- --------------------------------------------------------
 
@@ -673,11 +668,6 @@ CREATE TABLE `ventas_detalle` (
 -- Volcado de datos para la tabla `ventas_detalle`
 --
 
-INSERT INTO `ventas_detalle` (`id`, `venta_id`, `producto_id`, `precio`, `cantidad`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 250, 1, '2022-04-20 13:47:20', '2022-04-20 13:47:20'),
-(2, 2, 1, 250, 1, '2022-04-20 13:47:22', '2022-04-20 13:47:22');
-
---
 -- Índices para tablas volcadas
 --
 

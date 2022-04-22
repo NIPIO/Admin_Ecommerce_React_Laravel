@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Container } from "shards-react";
-import { Form, Row, Modal, Col, Alert, Select } from "antd";
+import { Form, Row, Modal, Col, Alert, Select, Button } from "antd";
 import TablaItemsCompra from "./TablaItemsCompra";
 import { showNotification } from "./../../notificacion";
 import { api } from "../../../hooks/api";
@@ -17,8 +17,8 @@ const ModalNuevaCompra = ({
 }) => {
   const [filas, setFilas] = useState([]);
   const [error, setError] = useState(false);
-
   const [proveedor, setProveedor] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const onCreate = (filas, proveedor) => {
     if (filas.length < 1 || !proveedor) {
@@ -36,6 +36,7 @@ const ModalNuevaCompra = ({
       setError("Productos incompletos");
     } else {
       setError(false);
+      setLoading(true);
       api
         .setNuevaCompra(filas, proveedor)
         .then(res => {
@@ -53,7 +54,8 @@ const ModalNuevaCompra = ({
             "Ocurrio un error",
             err.response.data.message
           );
-        });
+        })
+        .finally(() => setLoading(false));
     }
   };
 
@@ -64,10 +66,19 @@ const ModalNuevaCompra = ({
           width={800}
           visible={modal}
           title={(compraEdicion ? "Editar" : "Nueva") + " Compra"}
-          okText={compraEdicion ? "Editar" : "Crear"}
-          cancelText="Cancelar"
-          onCancel={() => setModal(false)}
-          onOk={() => onCreate(filas, proveedor)}
+          footer={[
+            <Button key="back" onClick={() => setModal(false)}>
+              Cancelar
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={loading}
+              onClick={() => onCreate(filas, proveedor)}
+            >
+              {compraEdicion ? "Editar" : "Crear"}
+            </Button>
+          ]}
         >
           <Form layout="vertical" name="form_in_modal">
             <Row gutter={24}>

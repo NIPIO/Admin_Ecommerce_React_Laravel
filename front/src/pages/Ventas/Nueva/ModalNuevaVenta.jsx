@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Container } from "shards-react";
-import { Form, Row, Modal, Col, Alert, Select } from "antd";
+import { Form, Row, Modal, Col, Alert, Select, Button } from "antd";
 import TablaItemsVenta from "./TablaItemsVenta";
 import { showNotification } from "../../notificacion";
 
@@ -22,6 +22,7 @@ const ModalNuevaVenta = ({
   const [vendedor, setVendedor] = useState(false);
   const [tipoVenta, setTipoVenta] = useState(false);
   const [tipoStock, setTipoStock] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const onCreate = (filas, cliente) => {
     if (filas.length < 1 || !cliente || !vendedor) {
@@ -37,6 +38,7 @@ const ModalNuevaVenta = ({
     ) {
       setError("Productos incompletos");
     } else {
+      setLoading(true);
       setError(false);
       api
         .setNuevaVenta(filas, cliente, vendedor, tipoVenta, tipoStock)
@@ -55,7 +57,8 @@ const ModalNuevaVenta = ({
             "Ocurrio un error",
             err.response.data.message
           );
-        });
+        })
+        .finally(() => setLoading(false));
     }
   };
 
@@ -66,10 +69,19 @@ const ModalNuevaVenta = ({
           width={800}
           visible={modal}
           title="Nueva Venta"
-          okText="Crear"
-          cancelText="Cancelar"
-          onCancel={() => setModal(false)}
-          onOk={() => onCreate(filas, cliente)}
+          footer={[
+            <Button key="back" onClick={() => setModal(false)}>
+              Cancelar
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={loading}
+              onClick={() => onCreate(filas, cliente)}
+            >
+              Crear
+            </Button>
+          ]}
         >
           <Form layout="vertical" name="form_in_modal">
             <Row gutter={24}>
