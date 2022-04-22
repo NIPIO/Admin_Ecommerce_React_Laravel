@@ -19,14 +19,15 @@ const Productos = () => {
     },
     {
       title: "Nombre",
+      width: "15%",
       dataIndex: ["nombre"],
       render: text => text
     },
-    {
-      title: "Marca",
-      dataIndex: ["marcas", "nombre"],
-      render: text => text
-    },
+    // {
+    //   title: "Marca",
+    //   dataIndex: ["marcas", "nombre"],
+    //   render: text => text
+    // },
     {
       title: "Costo",
       dataIndex: ["costo"],
@@ -46,6 +47,21 @@ const Productos = () => {
       sorter: (a, b) => a.stock_reservado - b.stock_reservado
     },
     {
+      title: "Disponible",
+      dataIndex: ["stock_disponible"],
+      render(text, record) {
+        return {
+          props: {
+            style: {
+              background: parseInt(text) > 0 ? "#a0fc9d" : "transparent"
+            }
+          },
+          children: <div>{text}</div>
+        };
+      },
+      sorter: (a, b) => a.stock_disponible - b.stock_disponible
+    },
+    {
       title: "En Transito",
       dataIndex: ["en_transito"],
       render: text => text,
@@ -56,6 +72,21 @@ const Productos = () => {
       dataIndex: ["en_transito_reservado"],
       render: text => text,
       sorter: (a, b) => a.en_transito_reservado - b.en_transito_reservado
+    },
+    {
+      title: "ET Disponible",
+      dataIndex: ["en_transito_disponible"],
+      render(text, record) {
+        return {
+          props: {
+            style: {
+              background: parseInt(text) > 0 ? "#a0fc9d" : "transparent"
+            }
+          },
+          children: <div>{text}</div>
+        };
+      },
+      sorter: (a, b) => a.en_transito_disponible - b.en_transito_disponible
     },
     {
       title: "Estado",

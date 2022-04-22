@@ -14,6 +14,7 @@ use App\Models\Proveedores;
 use App\Models\Vendedores;
 use App\Models\Ventas;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class IndexRepository implements RepositoryInterface 
 {

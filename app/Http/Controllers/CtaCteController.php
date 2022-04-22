@@ -84,12 +84,14 @@ class CtaCteController extends Controller
 
             // 1- Actualizo los datos
             $cuenta = CtaCte::whereId($req['id']);
+
             $this->cuentasRepository->updateSaldoCuenta($cuenta, $req['cantidad'], $req['tipoMovimiento'] === 'pago' ? 'increment' : 'decrement');
             $this->cajaRepository->setCaja($usuario, [
                 'tipoMovimiento' => $req['tipoMovimiento'],
                 'tipoCaja' => $req['tipoCaja'],
                 'importe' => $req['cantidad'],
                 'usuario' => $usuario,
+                'observacion' => Proveedores::where('id', $cuenta->first()->toArray()['proveedor_id'])->pluck('nombre'), 
                 'item_id' => $req['id']
             ]);
 

@@ -63,16 +63,16 @@ class VentasRepository implements RepositoryInterface
             ->where('tipo_caja', 'Bille')
             ->selectRaw("SUM(utilidad) as total")
             ->selectRaw("DATE_FORMAT(fecha_venta, '%d') as dia")
-            ->groupBy('fecha_venta')
+            ->groupBy('dia')
             ->whereMonth('fecha_venta', $mes)
             ->get()
             ->toArray();
-    
+
             $ventasPesos = Ventas::where('confirmada',true)
             ->where('tipo_caja', 'Pesos')
             ->selectRaw("SUM(utilidad) as total")
             ->selectRaw("DATE_FORMAT(fecha_venta, '%d') as dia")
-            ->groupBy('fecha_venta')
+            ->groupBy('dia')
             ->whereMonth('fecha_venta', $mes)
             ->get()
             ->toArray();

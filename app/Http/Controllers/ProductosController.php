@@ -32,8 +32,13 @@ class ProductosController extends Controller
         $marca = request()->get('marca');
 
         $productos = $this->indexRepository->indexProductos($producto, $marca);
+        $productos = $productos->get()->toArray();
 
-        return response()->json(['error' => false, 'allProductos' => Productos::all(), 'productosFiltro' => $productos->get()]);
+        for ($i=0; $i < count($productos); $i++) { 
+            $productos[$i]['stock_disponible'] = $productos[$i]['stock'] - $productos[$i]['stock_reservado'];
+            $productos[$i]['en_transito_disponible'] = $productos[$i]['en_transito'] - $productos[$i]['en_transito_reservado'];
+        }
+        return response()->json(['error' => false, 'allProductos' => Productos::all(), 'productosFiltro' => $productos]);
     }
 
     public function nuevoProducto(Request $request) {
